@@ -1,0 +1,701 @@
+/* Tokens. Dark is the default; light swaps the palette and renders hero media as a negative. */
+:root {
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --fg: #eeece6;
+  --muted: #9a978f;
+  --line: rgb(238 236 230 / 0.14);
+  --panel: #141416;
+  --accent: #fec80d;
+  --on-accent: #0a0a0b;
+  --ch-a: #ff2d55;
+  --ch-b: #00e0ff;
+  --blend: screen;
+  --media-filter: none;
+  --grain: 0.07;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --pad: clamp(1.25rem, 4vw, 3rem);
+  --max: 90rem;
+  --header-h: 4.25rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #efede7;
+  --fg: #0b0b0c;
+  --muted: #5c5a55;
+  --line: rgb(11 11 12 / 0.16);
+  --panel: #e4e2db;
+  --ch-b: #00a3c4;
+  --blend: multiply;
+  --media-filter: invert(1) grayscale(1) contrast(1.1);
+  --grain: 0.1;
+}
+
+/* Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1rem/1.6 var(--font-body);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+video,
+picture {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 300;
+  padding: 0.75rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 0.8rem/1 var(--font-mono);
+  transform: translateY(-300%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+/* Film grain: one static noise tile, moved in 4 steps (compositor only). */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: var(--grain);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.4 -.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.9s steps(4) infinite;
+}
+
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -4%);
+  }
+  75% {
+    transform: translate(-4%, -1%);
+  }
+  100% {
+    transform: translate(1%, 3%);
+  }
+}
+
+/* Layout */
+.wrap {
+  width: min(100% - 2 * var(--pad), var(--max));
+  margin-inline: auto;
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(5rem, 12vw, 9.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.h2 {
+  font: 400 clamp(3.75rem, 12vw, 10rem) / 0.82 var(--font-display);
+  letter-spacing: -0.025em;
+}
+
+.label {
+  font: 500 0.72rem/1.3 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.channel {
+  flex: none;
+  padding-bottom: 0.6em;
+}
+
+/* Buttons and links */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65em;
+  min-height: 3rem;
+  padding: 0.9em 1.35em;
+  border: 1px solid var(--fg);
+  font: 600 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+  animation: jitter 0.3s steps(1);
+}
+
+.btn--accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.out::after {
+  content: '↗';
+  display: inline-block;
+  margin-left: 0.35em;
+  transition: transform 0.2s var(--ease);
+}
+
+.out:hover::after {
+  transform: translate(2px, -2px);
+}
+
+.ulink {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.3s var(--ease);
+}
+
+.ulink:hover {
+  background-size: 100% 1px;
+}
+
+/* Glitch toolkit: RGB channel copies clipped into slices, stepped so it only repaints a few times. */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  content: attr(data-text) / '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: var(--blend);
+}
+
+.glitch::before {
+  color: var(--ch-a);
+}
+
+.glitch::after {
+  color: var(--ch-b);
+}
+
+.is-in .glitch,
+.glitch:hover {
+  animation: jitter 0.55s steps(1);
+}
+
+.is-in .glitch::before,
+.glitch:hover::before {
+  animation: ch-a 0.55s steps(1);
+}
+
+.is-in .glitch::after,
+.glitch:hover::after {
+  animation: ch-b 0.55s steps(1);
+}
+
+.rgb {
+  position: relative;
+  display: block;
+}
+
+.rgb > .rgb__ch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  mix-blend-mode: var(--blend);
+}
+
+.rgb > .rgb__ch--a {
+  color: var(--ch-a);
+}
+
+.rgb > .rgb__ch--b {
+  color: var(--ch-b);
+}
+
+@keyframes jitter {
+  0% {
+    transform: translate(2px, 0) skewX(-4deg);
+  }
+  25% {
+    transform: translate(-3px, 1px);
+  }
+  50% {
+    transform: translate(1px, -1px) skewX(3deg);
+  }
+  75% {
+    transform: translate(-1px, 0);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes ch-a {
+  0% {
+    opacity: 1;
+    transform: translate(-5px, 0);
+    clip-path: inset(8% 0 62% 0);
+  }
+  20% {
+    transform: translate(6px, 0);
+    clip-path: inset(52% 0 22% 0);
+  }
+  40% {
+    transform: translate(-3px, 0);
+    clip-path: inset(0 0 84% 0);
+  }
+  60% {
+    transform: translate(4px, 0);
+    clip-path: inset(70% 0 6% 0);
+  }
+  80% {
+    transform: translate(-2px, 0);
+    clip-path: inset(30% 0 44% 0);
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes ch-b {
+  0% {
+    opacity: 1;
+    transform: translate(5px, 0);
+    clip-path: inset(64% 0 12% 0);
+  }
+  20% {
+    transform: translate(-6px, 0);
+    clip-path: inset(14% 0 66% 0);
+  }
+  40% {
+    transform: translate(3px, 0);
+    clip-path: inset(80% 0 2% 0);
+  }
+  60% {
+    transform: translate(-4px, 0);
+    clip-path: inset(4% 0 72% 0);
+  }
+  80% {
+    transform: translate(2px, 0);
+    clip-path: inset(46% 0 30% 0);
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+
+/* Scroll reveal, only when JS is running so nothing stays hidden without it. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 0.8s var(--ease),
+    transform 0.8s var(--ease);
+}
+
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Intro: pure CSS, 2 s, removes itself even without JS. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg);
+  animation: intro-out 2s linear forwards;
+}
+
+.no-intro .intro {
+  display: none;
+}
+
+.intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    color-mix(in srgb, var(--fg) 7%, transparent) 2px 3px
+  );
+}
+
+.intro::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 18%;
+  background: linear-gradient(
+    transparent,
+    color-mix(in srgb, var(--fg) 12%, transparent),
+    transparent
+  );
+  animation: roll 2s steps(9) forwards;
+}
+
+.intro__logo {
+  width: min(38vw, 32vh);
+  color: var(--fg);
+  animation: intro-logo 2s linear forwards;
+}
+
+.intro__logo > svg:first-child {
+  animation: intro-main 2s steps(1) forwards;
+}
+
+.intro__logo > .rgb__ch--a {
+  animation: intro-ch-a 2s steps(1) forwards;
+}
+
+.intro__logo > .rgb__ch--b {
+  animation: intro-ch-b 2s steps(1) forwards;
+}
+
+@keyframes intro-out {
+  0%,
+  86% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes roll {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(560%);
+  }
+}
+
+@keyframes intro-logo {
+  0% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  6% {
+    opacity: 0.85;
+  }
+  9% {
+    opacity: 0.15;
+  }
+  13% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    transform: scale(1);
+  }
+  77% {
+    transform: scale(1.1, 0.02);
+  }
+  84% {
+    transform: scale(0.002, 0.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes intro-main {
+  0%,
+  14% {
+    transform: none;
+    clip-path: inset(0);
+  }
+  18% {
+    transform: translateX(-12px);
+    clip-path: inset(0 0 58% 0);
+  }
+  22% {
+    transform: translateX(8px);
+    clip-path: inset(36% 0 0 0);
+  }
+  27% {
+    transform: none;
+    clip-path: inset(0);
+  }
+  41% {
+    transform: translateX(6px);
+    clip-path: inset(62% 0 8% 0);
+  }
+  45%,
+  100% {
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes intro-ch-a {
+  0%,
+  12% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-16px, 0);
+    clip-path: inset(6% 0 60% 0);
+  }
+  19% {
+    transform: translate(12px, 2px);
+    clip-path: inset(46% 0 28% 0);
+  }
+  25% {
+    transform: translate(-7px, 0);
+    clip-path: inset(0 0 82% 0);
+  }
+  31% {
+    transform: translate(20px, -2px);
+    clip-path: inset(64% 0 8% 0);
+  }
+  39% {
+    transform: translate(-5px, 0);
+    clip-path: inset(22% 0 50% 0);
+  }
+  47% {
+    transform: translate(4px, 0);
+    clip-path: inset(0);
+  }
+  57% {
+    transform: translate(-2px, 0);
+    clip-path: inset(78% 0 0 0);
+  }
+  64% {
+    transform: translate(2px, 0);
+    clip-path: inset(0);
+  }
+  72%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+@keyframes intro-ch-b {
+  0%,
+  12% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+    transform: translate(14px, 0);
+    clip-path: inset(58% 0 14% 0);
+  }
+  19% {
+    transform: translate(-10px, -2px);
+    clip-path: inset(10% 0 70% 0);
+  }
+  25% {
+    transform: translate(8px, 0);
+    clip-path: inset(76% 0 4% 0);
+  }
+  31% {
+    transform: translate(-18px, 2px);
+    clip-path: inset(2% 0 74% 0);
+  }
+  39% {
+    transform: translate(6px, 0);
+    clip-path: inset(40% 0 34% 0);
+  }
+  47% {
+    transform: translate(-4px, 0);
+    clip-path: inset(0);
+  }
+  57% {
+    transform: translate(2px, 0);
+    clip-path: inset(0 0 76% 0);
+  }
+  64% {
+    transform: translate(-2px, 0);
+    clip-path: inset(0);
+  }
+  72%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Theme switch: the new theme scans in top to bottom while the old one jitters. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.theme-switching::view-transition-old(root) {
+  animation: vt-old 0.6s steps(1) both;
+}
+
+.theme-switching::view-transition-new(root) {
+  animation: vt-new 0.6s steps(12, end) both;
+}
+
+@keyframes vt-old {
+  0% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-10px);
+  }
+  30% {
+    transform: translateX(8px) skewX(-2deg);
+  }
+  45% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes vt-new {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .intro {
+    display: none;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}

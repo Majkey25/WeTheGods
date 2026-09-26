@@ -1,0 +1,140 @@
+---
+import { email, links, socials } from '../data/site';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = dict[Astro.props.lang];
+---
+
+<section id="contact" class="section" aria-labelledby="contact-title">
+  <div class="wrap">
+    <header class="section__head">
+      <h2 id="contact-title" class="h2">
+        <span class="glitch" data-text={t.contact.heading}>
+          {t.contact.heading}
+        </span>
+      </h2>
+      <p class="label channel" aria-hidden="true">
+        CH 06
+      </p>
+    </header>
+
+    <div class="mail" data-reveal>
+      <p class="label">{t.contact.booking}</p>
+      <a class="mail__link" href={`mailto:${email}`}>
+        {email}
+      </a>
+      <button class="mail__copy label" type="button" data-copy={email} data-done={t.contact.copied}>
+        {t.contact.copy}
+      </button>
+    </div>
+
+    <div class="cols" data-reveal>
+      <div>
+        <h3 class="label">{t.contact.presskit}</h3>
+        <a class="cols__link ulink out" href={links.presskit} rel="noopener" target="_blank">
+          Google Drive
+        </a>
+      </div>
+      <div>
+        <h3 class="label">{t.contact.merch}</h3>
+        <a class="cols__link ulink out" href={links.merch} rel="noopener" target="_blank">
+          Big Cartel
+        </a>
+      </div>
+      <div>
+        <h3 class="label">{t.contact.follow}</h3>
+        <ul class="socials">
+          {socials.map((s) => (
+            <li>
+              <a class="cols__link ulink out" href={s.href} rel="noopener" target="_blank">
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    const label = button.textContent;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy ?? '');
+        button.textContent = button.dataset.done ?? label;
+        setTimeout(() => (button.textContent = label), 2000);
+      } catch {
+        // Clipboard blocked: the mailto link next to the button still works.
+      }
+    });
+  });
+</script>
+
+<style>
+  .mail {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .mail__link {
+    font: 400 clamp(2rem, 7.4vw, 7rem) / 0.95 var(--font-display);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+    transition: color 0.2s;
+  }
+
+  .mail__link:hover {
+    color: var(--accent);
+  }
+
+  .mail__copy {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    transition: border-color 0.2s;
+  }
+
+  .mail__copy:hover {
+    border-color: var(--fg);
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 2rem;
+    padding-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .cols h3 {
+    margin-bottom: 1rem;
+  }
+
+  .cols__link {
+    font: 400 clamp(1.4rem, 2.2vw, 1.9rem) / 1.3 var(--font-display);
+  }
+
+  .socials {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  @media (width <= 48rem) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .cols > div:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

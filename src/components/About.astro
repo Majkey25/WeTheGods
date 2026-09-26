@@ -1,0 +1,130 @@
+---
+import { Picture } from 'astro:assets';
+import photo from '../assets/gallery/rfp25-arms-up.jpg';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = dict[Astro.props.lang];
+const f = t.about.facts;
+const facts = [
+  [f.origin, f.originValue],
+  [f.formed, '2024'],
+  [f.genre, f.genreValue],
+  [f.fans, 'Architects, Polaris, Landmvrks, Fit For A King, Wage War'],
+];
+---
+
+<section id="about" class="section" aria-labelledby="about-title">
+  <div class="wrap">
+    <header class="section__head">
+      <h2 id="about-title" class="h2">
+        <span class="glitch" data-text={t.about.heading}>
+          {t.about.heading}
+        </span>
+      </h2>
+      <p class="label channel" aria-hidden="true">
+        CH 04
+      </p>
+    </header>
+
+    <div class="about">
+      <div class="about__text" data-reveal>
+        <p class="about__lead">{t.about.lead}</p>
+        {t.about.body.map((p) => (
+          <p class="about__body">{p}</p>
+        ))}
+        <dl class="facts">
+          {facts.map(([term, value]) => (
+            <div class="facts__row">
+              <dt class="label">{term}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <figure class="about__photo" data-reveal>
+        <Picture
+          src={photo}
+          formats={['avif']}
+          fallbackFormat="webp"
+          widths={[400, 700, 1000, 1400]}
+          sizes="(width > 56rem) 40vw, 100vw"
+          alt=""
+        />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .about__text {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .about__lead {
+    font: 400 clamp(1.9rem, 3.6vw, 3.1rem) / 1.08 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .about__body {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .facts {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .facts__row {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 0.5rem 1.5rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .about__photo {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+
+  .about__photo :global(picture),
+  .about__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 45% 50%;
+  }
+
+  @media (width <= 56rem) {
+    .about {
+      grid-template-columns: 1fr;
+    }
+
+    .about__photo {
+      position: static;
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  @media (width <= 30rem) {
+    .facts__row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

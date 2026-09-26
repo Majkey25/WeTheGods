@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import { dict, homeUrl } from '../i18n';
+
+const { en, cs } = dict;
+---
+
+<Base lang="en" title={`${en.notFound.title} — WeTheGods`} home={false}>
+  <section class="lost wrap">
+    <Logo name="mono" rgb class="lost__logo" />
+    <h1 class="h2">
+      <span class="glitch" data-text={en.notFound.title}>
+        {en.notFound.title}
+      </span>
+    </h1>
+    <p class="label">
+      404 · {en.notFound.text} · <span lang="cs">{cs.notFound.text}</span>
+    </p>
+    <div class="lost__cta">
+      <a class="btn btn--accent" href={homeUrl('en')}>
+        {en.notFound.home}
+      </a>
+      <a class="btn" href={homeUrl('cs')} lang="cs">
+        {cs.notFound.home}
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 2rem;
+    min-height: 100svh;
+    padding-block: calc(var(--header-h) + 3rem) 4rem;
+    text-align: center;
+  }
+
+  .lost__logo {
+    width: clamp(5rem, 12vw, 8rem);
+  }
+
+  .lost__logo :global(.rgb__ch--a) {
+    animation: ch-a 0.6s steps(1) 2.2s;
+  }
+
+  .lost__logo :global(.rgb__ch--b) {
+    animation: ch-b 0.6s steps(1) 2.2s;
+  }
+
+  .lost :global(.glitch) {
+    animation: jitter 0.55s steps(1) 0.3s;
+  }
+
+  .lost__cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+</style>

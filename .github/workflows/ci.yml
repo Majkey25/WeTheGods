@@ -27,6 +27,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Processed images are cached between runs; rebuilding them all takes minutes.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro
+          key: astro-${{ hashFiles('src/assets/**', 'package-lock.json', 'astro.config.mjs') }}
+          restore-keys: astro-
       - run: npm run format:check
       - run: npm run check
       - run: npm run build

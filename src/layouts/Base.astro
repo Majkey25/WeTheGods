@@ -1,0 +1,455 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+import { dict, homeUrl, langs, type Lang } from '../i18n';
+import { logos } from '../logo';
+import { email, releases, socials } from '../data/site';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  /** Home pages get canonical, hreflang and structured data; the 404 page does not. */
+  home?: boolean;
+}
+
+const { lang, title, home = true } = Astro.props;
+const t = dict[lang];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const site = Astro.site ?? new URL('https://majkey25.github.io');
+const url = (path: string) => new URL(path, site).href;
+const pageTitle = title ?? t.meta.title;
+const ogImage = url(`${base}og.jpg`);
+const sections = [
+  ['shows', t.nav.shows],
+  ['music', t.nav.music],
+  ['videos', t.nav.videos],
+  ['about', t.nav.about],
+  ['gallery', t.nav.gallery],
+  ['contact', t.nav.contact],
+] as const;
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicGroup',
+  name: 'WeTheGods',
+  alternateName: ['We The Gods', 'WETHEGODS', 'WTG'],
+  url: url(homeUrl(lang)),
+  image: ogImage,
+  genre: 'Alternative metalcore',
+  foundingDate: '2024',
+  foundingLocation: { '@type': 'Place', name: 'Uherské Hradiště, Czech Republic' },
+  email,
+  sameAs: socials.map((s) => s.href),
+  album: releases.map((r) => ({
+    '@type': 'MusicAlbum',
+    name: r.title,
+    datePublished: r.date,
+    albumReleaseType: `https://schema.org/${r.kind === 'ep' ? 'EPRelease' : 'SingleRelease'}`,
+    url: r.href,
+  })),
+};
+---
+
+<!doctype html>
+<html lang={lang} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#0a0a0b" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    {home && (
+      <>
+        <link rel="canonical" href={url(homeUrl(lang))} />
+        {langs.map((l) => (
+          <link rel="alternate" hreflang={l} href={url(homeUrl(l))} />
+        ))}
+        <link rel="alternate" hreflang="x-default" href={url(homeUrl('en'))} />
+        <meta property="og:url" content={url(homeUrl(lang))} />
+      </>
+    )}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WeTheGods" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={t.locale.replace('-', '_')} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <Font cssVariable="--font-display" preload={[{ subset: 'latin', style: 'normal' }]} />
+    <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
+    <script is:inline>
+      (() => {
+        const d = document.documentElement;
+        d.classList.add('js');
+        let theme = 'dark';
+        try {
+          theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+          if (sessionStorage.getItem('wtg-intro')) d.classList.add('no-intro');
+          else sessionStorage.setItem('wtg-intro', '1');
+        } catch {}
+        d.dataset.theme = theme;
+        if (theme === 'light')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#efede7');
+      })();
+    </script>
+    {home && (
+      <script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
+    )}
+  </head>
+  <body>
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+      {Object.values(logos).map((l) => (
+        <symbol id={l.id} viewBox={l.viewBox}>
+          <path d={l.d} />
+        </symbol>
+      ))}
+    </svg>
+
+    <div class="intro" aria-hidden="true">
+      <Logo name="mono" rgb class="intro__logo" />
+    </div>
+
+    <a class="skip" href="#main">
+      {t.nav.skip}
+    </a>
+
+    <header class="header">
+      <div class="header__bar wrap">
+        <a class="header__logo" href={homeUrl(lang)} aria-label="WeTheGods">
+          <Logo name="word" />
+        </a>
+        <nav id="nav" class="nav" popover aria-label={t.nav.menu}>
+          <button
+            class="nav__close label"
+            type="button"
+            popovertarget="nav"
+            popovertargetaction="hide"
+          >
+            {t.nav.close}
+          </button>
+          <ul class="nav__list">
+            {sections.map(([id, label]) => (
+              <li>
+                <a class="nav__link" href={`${homeUrl(lang)}#${id}`}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="header__tools">
+          <nav class="lang label" aria-label={t.nav.language}>
+            {langs.map((l) => (
+              <a
+                href={homeUrl(l)}
+                hreflang={l}
+                lang={l}
+                aria-current={l === lang ? 'page' : undefined}
+              >
+                {l === 'cs' ? 'CZ' : 'EN'}
+              </a>
+            ))}
+          </nav>
+          <button class="theme" type="button" aria-pressed="false" aria-label={t.nav.theme}>
+            <span class="theme__thumb"></span>
+          </button>
+          <button class="menu-btn label" type="button" popovertarget="nav">
+            {t.nav.menu}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <a href={homeUrl(lang)} class="footer__mark" aria-label="WeTheGods">
+          <Logo name="word" rgb />
+        </a>
+        <div class="footer__row label">
+          <p>© {new Date().getFullYear()} WeTheGods</p>
+          <p>{t.footer.credits}</p>
+          <a class="ulink" href="#main">
+            {t.footer.top} ↑
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const root = document.documentElement;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+      // Theme switch, animated with a view transition where supported.
+      const toggle = document.querySelector<HTMLButtonElement>('.theme');
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      const sync = () =>
+        toggle?.setAttribute('aria-pressed', String(root.dataset.theme === 'light'));
+      sync();
+      toggle?.addEventListener('click', () => {
+        const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+        const apply = () => {
+          root.dataset.theme = next;
+          themeColor?.setAttribute('content', next === 'light' ? '#efede7' : '#0a0a0b');
+          try {
+            localStorage.setItem('theme', next);
+          } catch {
+            // Storage blocked: the choice lasts for this page view only.
+          }
+          sync();
+        };
+        if (!document.startViewTransition || reduced.matches) return apply();
+        root.classList.add('theme-switching');
+        document
+          .startViewTransition(apply)
+          .finished.finally(() => root.classList.remove('theme-switching'));
+      });
+
+      // Intro: any input skips it; it leaves the DOM once finished.
+      const intro = document.querySelector('.intro');
+      if (intro) {
+        const done = () => intro.remove();
+        if (root.classList.contains('no-intro')) done();
+        intro.addEventListener('animationend', (e) => e.target === intro && done());
+        intro.addEventListener('pointerdown', done);
+        addEventListener('keydown', done, { once: true });
+      }
+
+      // Reveal sections and fire the heading glitch once they scroll into view.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        },
+        { rootMargin: '0px 0px -12% 0px' },
+      );
+      document.querySelectorAll('[data-reveal], .section__head').forEach((el) => io.observe(el));
+
+      // Mobile menu: close after a link is picked.
+      const nav = document.getElementById('nav');
+      nav?.addEventListener('click', (e) => {
+        if (e.target instanceof Element && e.target.closest('a')) nav.hidePopover();
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--header-h);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  .header__bar {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    height: 100%;
+  }
+
+  .header__logo {
+    flex: none;
+    width: clamp(6.5rem, 12vw, 8rem);
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+
+  .nav__list {
+    display: flex;
+    gap: clamp(1rem, 2.2vw, 2.25rem);
+  }
+
+  .nav__link {
+    display: block;
+    padding-block: 0.6rem;
+    font: 500 0.72rem/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav__link:hover {
+    color: var(--accent);
+  }
+
+  .nav__close {
+    display: none;
+  }
+
+  .header__tools {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.9rem, 1.6vw, 1.5rem);
+  }
+
+  .lang {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .lang a {
+    padding-block: 0.6rem;
+    transition: color 0.2s;
+  }
+
+  .lang a:hover,
+  .lang a[aria-current] {
+    color: var(--fg);
+  }
+
+  .lang a[aria-current] {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+  }
+
+  .theme {
+    position: relative;
+    flex: none;
+    width: 2.9rem;
+    height: 1.6rem;
+    border: 1px solid var(--fg);
+    border-radius: 99px;
+  }
+
+  .theme::after {
+    content: '';
+    position: absolute;
+    inset: -0.6rem;
+  }
+
+  .theme__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: calc(1.6rem - 8px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--fg);
+    transition: transform 0.5s cubic-bezier(0.7, -0.5, 0.3, 1.5);
+  }
+
+  [data-theme='light'] .theme__thumb {
+    transform: translateX(1.3rem);
+  }
+
+  .theme:hover .theme__thumb,
+  :global(.theme-switching) .theme__thumb {
+    box-shadow:
+      -3px 0 0 var(--ch-a),
+      3px 0 0 var(--ch-b);
+  }
+
+  .menu-btn {
+    display: none;
+    min-height: 2.75rem;
+    align-items: center;
+    color: var(--fg);
+  }
+
+  @media (width > 60rem) {
+    .nav {
+      position: static;
+      display: block;
+      width: auto;
+      height: auto;
+      margin: 0 0 0 auto;
+      padding: 0;
+      border: 0;
+      overflow: visible;
+      color: inherit;
+      background: none;
+    }
+  }
+
+  @media (width <= 60rem) {
+    .menu-btn {
+      display: inline-flex;
+    }
+
+    .header__tools {
+      margin-left: auto;
+    }
+
+    .nav {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      margin: 0;
+      padding: 1.5rem var(--pad) 2rem;
+      border: 0;
+      color: var(--fg);
+      background: var(--bg);
+    }
+
+    .nav:not(:popover-open) {
+      display: none;
+    }
+
+    .nav__close {
+      display: block;
+      min-height: 2.75rem;
+      margin-left: auto;
+      color: var(--fg);
+    }
+
+    .nav__list {
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 2rem;
+    }
+
+    .nav__link {
+      font: 400 clamp(2.75rem, 13vw, 4.5rem) / 1.05 var(--font-display);
+      letter-spacing: -0.01em;
+      text-transform: none;
+    }
+  }
+
+  .footer {
+    padding-block: clamp(3.5rem, 9vw, 6.5rem) 2rem;
+    border-top: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .footer__mark {
+    display: block;
+  }
+
+  .footer__mark:hover :global(.rgb__ch--a) {
+    animation: ch-a 0.55s steps(1);
+  }
+
+  .footer__mark:hover :global(.rgb__ch--b) {
+    animation: ch-b 0.55s steps(1);
+  }
+
+  .footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+</style>

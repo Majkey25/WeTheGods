@@ -1,0 +1,31 @@
+---
+import { logos } from '../logo';
+
+interface Props {
+  name: keyof typeof logos;
+  class?: string;
+  /** Add red/cyan channel copies for the glitch effect. */
+  rgb?: boolean;
+}
+
+const { name, class: className, rgb = false } = Astro.props;
+const { id, box } = logos[name];
+---
+
+{rgb ? (
+  <span class:list={['rgb', className]} aria-hidden="true">
+    <svg viewBox={box} fill="currentColor">
+      <use href={`#${id}`} />
+    </svg>
+    <svg class="rgb__ch rgb__ch--a" viewBox={box} fill="currentColor">
+      <use href={`#${id}`} />
+    </svg>
+    <svg class="rgb__ch rgb__ch--b" viewBox={box} fill="currentColor">
+      <use href={`#${id}`} />
+    </svg>
+  </span>
+) : (
+  <svg class={className} viewBox={box} fill="currentColor" aria-hidden="true">
+    <use href={`#${id}`} />
+  </svg>
+)}
