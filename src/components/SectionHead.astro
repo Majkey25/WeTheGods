@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  id: string;
+  title: string;
+  channel: string;
+  /** h1 on a section's own page, h2 when it is a teaser on the home page. */
+  as: 'h1' | 'h2';
+  /** Teasers link to the full page instead of showing the channel label. */
+  more?: { href: string; label: string } | undefined;
+}
+
+const { id, title, channel, as: Heading, more } = Astro.props;
+---
+
+<header class="section__head">
+  <Heading id={id} class="h2">
+    <span class="glitch" data-text={title}>
+      {title}
+    </span>
+  </Heading>
+  {more ? (
+    <a class="more" href={more.href}>
+      {more.label}
+      <Icon name="arrow-right" />
+    </a>
+  ) : (
+    <p class="label channel" aria-hidden="true">
+      {channel}
+    </p>
+  )}
+</header>

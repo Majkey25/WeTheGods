@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import Shows from '../../components/Shows.astro';
+import Music from '../../components/Music.astro';
+import Videos from '../../components/Videos.astro';
+import Gallery from '../../components/Gallery.astro';
+import Contact from '../../components/Contact.astro';
+import { langPaths, toLang } from '../../i18n';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+---
+
+<Base lang={lang} page="">
+  <Hero lang={lang} />
+  <Shows lang={lang} compact />
+  <Music lang={lang} compact />
+  <Videos lang={lang} compact />
+  <Gallery lang={lang} compact />
+  <Contact lang={lang} compact />
+</Base>

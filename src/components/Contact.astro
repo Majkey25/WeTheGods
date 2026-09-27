@@ -1,26 +1,27 @@
 ---
 import { email, links, socials } from '../data/site';
-import { dict, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const t = dict[Astro.props.lang];
+const { lang, compact = false } = Astro.props;
+const t = dict[lang];
 ---
 
 <section id="contact" class="section" aria-labelledby="contact-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="contact-title" class="h2">
-        <span class="glitch" data-text={t.contact.heading}>
-          {t.contact.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 06
-      </p>
-    </header>
+    <SectionHead
+      id="contact-title"
+      title={t.contact.heading}
+      channel="CH 06"
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'contact'), label: t.more.contact } : undefined}
+    />
 
     <div class="mail" data-reveal>
       <p class="label">{t.contact.booking}</p>
@@ -32,32 +33,34 @@ const t = dict[Astro.props.lang];
       </button>
     </div>
 
-    <div class="cols" data-reveal>
-      <div>
-        <h3 class="label">{t.contact.presskit}</h3>
-        <a class="cols__link ulink out" href={links.presskit} rel="noopener" target="_blank">
-          Google Drive
-        </a>
+    {!compact && (
+      <div class="cols" data-reveal>
+        <div>
+          <h3 class="label">{t.contact.presskit}</h3>
+          <a class="cols__link ulink out" href={links.presskit} rel="noopener" target="_blank">
+            Google Drive
+          </a>
+        </div>
+        <div>
+          <h3 class="label">{t.contact.merch}</h3>
+          <a class="cols__link ulink out" href={links.merch} rel="noopener" target="_blank">
+            Big Cartel
+          </a>
+        </div>
+        <div>
+          <h3 class="label">{t.contact.follow}</h3>
+          <ul class="socials">
+            {socials.map((s) => (
+              <li>
+                <a class="cols__link ulink out" href={s.href} rel="noopener" target="_blank">
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <div>
-        <h3 class="label">{t.contact.merch}</h3>
-        <a class="cols__link ulink out" href={links.merch} rel="noopener" target="_blank">
-          Big Cartel
-        </a>
-      </div>
-      <div>
-        <h3 class="label">{t.contact.follow}</h3>
-        <ul class="socials">
-          {socials.map((s) => (
-            <li>
-              <a class="cols__link ulink out" href={s.href} rel="noopener" target="_blank">
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    )}
   </div>
 </section>
 

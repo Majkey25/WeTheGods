@@ -1,17 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
 import { email, links } from '../data/site';
-import { dict, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const t = dict[Astro.props.lang];
+const { lang, compact = false } = Astro.props;
+const t = dict[lang];
 // Shows are split at build time in the band's time zone; the nightly rebuild moves finished ones.
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
 const all = (await getCollection('shows')).map((s) => s.data);
 const upcoming = all.filter((s) => s.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+// The home page teaser shows the next three dates only.
+const shown = compact ? upcoming.slice(0, 3) : upcoming;
 const past = all.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date));
 
 const parts = (iso: string) => {
@@ -55,20 +61,17 @@ const ld = upcoming.map((s) => ({
 
 <section id="shows" class="section" aria-labelledby="shows-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="shows-title" class="h2">
-        <span class="glitch" data-text={t.shows.heading}>
-          {t.shows.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 01
-      </p>
-    </header>
+    <SectionHead
+      id="shows-title"
+      title={t.shows.heading}
+      channel="CH 01"
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'shows'), label: t.more.shows } : undefined}
+    />
 
     {upcoming.length > 0 ? (
       <ul class="shows" data-reveal>
-        {upcoming.map((s) => {
+        {shown.map((s) => {
           const d = parts(s.date);
           const inactive = s.status === 'cancelled' || s.status === 'postponed';
           return (
@@ -119,8 +122,8 @@ const ld = upcoming.map((s) => ({
       </div>
     )}
 
-    {past.length > 0 && (
-      <details class="past" data-reveal>
+    {!compact && past.length > 0 && (
+      <details class="past" data-reveal open>
         <summary class="past__summary">
           <span class="label">{t.shows.past}</span>
           <span class="label">({past.length})</span>

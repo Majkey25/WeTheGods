@@ -3,39 +3,35 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
-import { dict, homeUrl, langs, type Lang } from '../i18n';
+import { dict, langs, pages, pageUrl, type Lang, type Page } from '../i18n';
 import { logos } from '../logo';
 import { email, releases, socials } from '../data/site';
 
 interface Props {
   lang: Lang;
+  /** Real pages get canonical, hreflang and a language switch target; the 404 page has none. */
+  page?: Page;
   title?: string;
-  /** Home pages get canonical, hreflang and structured data; the 404 page does not. */
-  home?: boolean;
 }
 
-const { lang, title, home = true } = Astro.props;
+const { lang, page, title } = Astro.props;
 const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const site = Astro.site ?? new URL('https://majkey25.github.io');
 const url = (path: string) => new URL(path, site).href;
-const pageTitle = title ?? t.meta.title;
+const pageTitle = title ?? (page ? `${t.nav[page]} — WeTheGods` : t.meta.title);
+const description = page ? t.meta.pages[page] : t.meta.description;
 const ogImage = url(`${base}og.jpg`);
-const sections = [
-  ['shows', t.nav.shows],
-  ['music', t.nav.music],
-  ['videos', t.nav.videos],
-  ['about', t.nav.about],
-  ['gallery', t.nav.gallery],
-  ['contact', t.nav.contact],
-] as const;
+const navPages = pages.filter((p) => p !== '');
+// Prerender a page when the visitor hovers its link, so navigation feels instant (Chromium).
+const speculation = { prerender: [{ where: { href_matches: `${base}*` }, eagerness: 'moderate' }] };
 
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'MusicGroup',
   name: 'WeTheGods',
   alternateName: ['We The Gods', 'WETHEGODS', 'WTG'],
-  url: url(homeUrl(lang)),
+  url: url(pageUrl(lang)),
   image: ogImage,
   genre: 'Alternative metalcore',
   foundingDate: '2024',
@@ -58,24 +54,24 @@ const ld = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
-    <meta name="description" content={t.meta.description} />
+    <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0a0b" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
-    {home && (
+    {page !== undefined && (
       <>
-        <link rel="canonical" href={url(homeUrl(lang))} />
+        <link rel="canonical" href={url(pageUrl(lang, page))} />
         {langs.map((l) => (
-          <link rel="alternate" hreflang={l} href={url(homeUrl(l))} />
+          <link rel="alternate" hreflang={l} href={url(pageUrl(l, page))} />
         ))}
-        <link rel="alternate" hreflang="x-default" href={url(homeUrl('en'))} />
-        <meta property="og:url" content={url(homeUrl(lang))} />
+        <link rel="alternate" hreflang="x-default" href={url(pageUrl('en', page))} />
+        <meta property="og:url" content={url(pageUrl(lang, page))} />
       </>
     )}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="WeTheGods" />
     <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -98,9 +94,10 @@ const ld = {
           document.querySelector('meta[name="theme-color"]').setAttribute('content', '#efede7');
       })();
     </script>
-    {home && (
+    {page === '' && (
       <script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
     )}
+    <script type="speculationrules" set:html={JSON.stringify(speculation)} />
   </head>
   <body>
     <svg width="0" height="0" aria-hidden="true" style="position:absolute">
@@ -141,7 +138,7 @@ const ld = {
 
     <header class="header">
       <div class="header__bar wrap">
-        <a class="header__logo" href={homeUrl(lang)} aria-label="WeTheGods">
+        <a class="header__logo" href={pageUrl(lang)} aria-label="WeTheGods">
           <Logo name="word" />
         </a>
         <nav id="nav" class="nav" popover aria-label={t.nav.menu}>
@@ -154,10 +151,17 @@ const ld = {
             {t.nav.close}
           </button>
           <ul class="nav__list">
-            {sections.map(([id, label]) => (
+            {navPages.map((p, i) => (
               <li>
-                <a class="nav__link" href={`${homeUrl(lang)}#${id}`}>
-                  {label}
+                <a
+                  class="nav__link"
+                  href={pageUrl(lang, p)}
+                  aria-current={p === page ? 'page' : undefined}
+                >
+                  <span class="nav__index" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  {t.nav[p]}
                 </a>
               </li>
             ))}
@@ -167,7 +171,7 @@ const ld = {
           <nav class="lang label" aria-label={t.nav.language}>
             {langs.map((l) => (
               <a
-                href={homeUrl(l)}
+                href={pageUrl(l, page ?? '')}
                 hreflang={l}
                 lang={l}
                 aria-current={l === lang ? 'page' : undefined}
@@ -194,7 +198,7 @@ const ld = {
 
     <footer class="footer">
       <div class="wrap">
-        <a href={homeUrl(lang)} class="footer__mark" aria-label="WeTheGods">
+        <a href={pageUrl(lang)} class="footer__mark" aria-label="WeTheGods">
           <Logo name="word" rgb />
         </a>
         <div class="footer__row label">
@@ -326,8 +330,27 @@ const ld = {
     transition: color 0.2s;
   }
 
+  .nav__link[aria-current] {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.5em;
+  }
+
+  .nav__index {
+    display: none;
+  }
+
   .nav__close {
     display: none;
+  }
+
+  /* The header stays put while pages change; only the theme switch repaints it. */
+  .header {
+    view-transition-name: site-header;
+  }
+
+  :global(.theme-switching) .header {
+    view-transition-name: none;
   }
 
   .header__tools {
@@ -471,6 +494,20 @@ const ld = {
       flex-direction: column;
       gap: 0.25rem;
       margin-top: 2rem;
+    }
+
+    .nav__index {
+      display: inline-block;
+      width: 2.75rem;
+      font: 500 0.75rem/1 var(--font-mono);
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      vertical-align: 0.9em;
+    }
+
+    .nav__link[aria-current] {
+      text-decoration: none;
+      color: var(--muted);
     }
 
     .nav__link {

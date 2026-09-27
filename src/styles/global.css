@@ -207,6 +207,29 @@ body::after {
   padding-bottom: 0.6em;
 }
 
+/* "All shows" style link that closes a home-page teaser. */
+.more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding-bottom: 0.35em;
+  font: 600 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.more .icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.25s var(--ease);
+}
+
+.more:hover .icon {
+  transform: translateX(4px);
+}
+
 /* Buttons and links */
 .btn {
   display: inline-flex;
@@ -696,10 +719,48 @@ body::after {
   --vt-r: 150vmax;
 }
 
+/* Page changes: a quick flicker instead of a hard cut (native cross-document view transitions). */
+@view-transition {
+  navigation: auto;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: none;
   mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation: nav-out 0.2s steps(2) both;
+}
+
+::view-transition-new(root) {
+  animation: nav-in 0.35s linear both;
+}
+
+@keyframes nav-out {
+  50% {
+    opacity: 0.6;
+    transform: translateX(-6px) skewX(3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+}
+
+@keyframes nav-in {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.85;
+  }
+  40% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .theme-switching::view-transition-old(root) {
@@ -801,6 +862,12 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 
   *,

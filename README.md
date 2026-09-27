@@ -20,11 +20,11 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 
 ## Features
 
-- **Signal-interference look**: a 2-second glitch intro on the WTG emblem, RGB-split headings, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`.
-- **Dark and light themes**: the light theme inverts the palette and turns the hero footage into a negative. The switch scans the new theme in with a view transition.
-- **English and Czech**: `/` and `/cs/`, with `hreflang` alternates.
+- **Signal-interference look**: a 2-second glitch intro on the WTG emblem, RGB-split distortion on hover for text and photos, a looping glitch on the footer logo, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`.
+- **Dark and light themes**: the light theme inverts the palette and turns the hero footage into a negative. The new theme surges out of the moon/sun switch with a view transition.
+- **Seven pages, two languages**: Home, Shows, Music, Videos, About, Gallery and Contact in English (`/`) and Czech (`/cs/`), with `hreflang` alternates. Links prerender on hover and pages change with a native cross-document view transition.
 - **Shows from one file**: [`src/data/shows.yaml`](src/data/shows.yaml). Every field is validated at build time, so a broken entry can never reach the live site. Finished shows move to the archive during the nightly rebuild.
-- **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred 0.5 MB AV1 hero loop, self-hosted fonts with metric-matched fallbacks, and YouTube players that load only on click.
+- **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred 0.5 MB AV1 hero loop (skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
 - **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
 
 ## Stack
