@@ -30,16 +30,6 @@ const next = new URL(
       more={compact ? { href: pageUrl(lang, 'contact'), label: t.more.contact } : undefined}
     />
 
-    <div class="mail" data-reveal>
-      <p class="label">{t.contact.booking}</p>
-      <a class="mail__link" href={`mailto:${email}`}>
-        {email}
-      </a>
-      <button class="mail__copy label" type="button" data-copy={email} data-done={t.contact.copied}>
-        {t.contact.copy}
-      </button>
-    </div>
-
     {!compact && (
       <div class="contact" data-reveal>
         <form
@@ -127,6 +117,17 @@ const next = new URL(
         </div>
       </div>
     )}
+
+    {/* The form is the main way in; the address stays for people who prefer their own mail app. */}
+    <div class="mail" data-reveal>
+      <p class="label">{t.contact.booking}</p>
+      <a class="mail__link ulink" href={`mailto:${email}`}>
+        {email}
+      </a>
+      <button class="mail__copy label" type="button" data-copy={email} data-done={t.contact.copied}>
+        {t.contact.copy}
+      </button>
+    </div>
   </div>
 </section>
 
@@ -189,16 +190,24 @@ const next = new URL(
 
 <style>
   .mail {
-    display: grid;
-    justify-items: start;
-    gap: 1rem;
-    padding-bottom: clamp(3rem, 7vw, 5rem);
-    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .mail > p {
+    width: 100%;
+  }
+
+  .contact + .mail {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
   }
 
   .mail__link {
-    font: 500 clamp(1.35rem, 4.3vw, 3.9rem) / 1.05 var(--font-display);
-    letter-spacing: -0.02em;
+    font: 600 clamp(1.15rem, 2vw, 1.6rem) / 1.2 var(--font-display);
     overflow-wrap: anywhere;
   }
 
@@ -218,7 +227,6 @@ const next = new URL(
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: clamp(3rem, 7vw, 7rem);
-    padding-top: clamp(3rem, 7vw, 5rem);
   }
 
   .form {
