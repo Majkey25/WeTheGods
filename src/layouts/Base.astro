@@ -167,6 +167,15 @@ const ld = {
               </li>
             ))}
           </ul>
+          <ul class="nav__social label">
+            {socials.slice(0, 4).map((so) => (
+              <li>
+                <a href={so.href} rel="noopener" target="_blank">
+                  {so.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </nav>
         <div class="header__tools">
           <nav class="lang label" aria-label={t.nav.language}>
@@ -337,7 +346,8 @@ const ld = {
     text-underline-offset: 0.5em;
   }
 
-  .nav__index {
+  .nav__index,
+  .nav__social {
     display: none;
   }
 
@@ -509,6 +519,26 @@ const ld = {
     .nav__link[aria-current] {
       text-decoration: none;
       color: var(--muted);
+    }
+
+    .nav:popover-open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav__social {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      margin-top: auto;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .nav__social a {
+      display: inline-block;
+      padding-block: 0.5rem;
+      color: var(--fg);
     }
 
     .nav__link {

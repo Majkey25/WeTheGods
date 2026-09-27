@@ -181,8 +181,15 @@ body::after {
   border-top: 1px solid var(--line);
 }
 
+/* First section of a subpage starts below the fixed header. */
+main > .section:first-child {
+  padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 5.5rem));
+  border-top: 0;
+}
+
 .section__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: 1.5rem;
