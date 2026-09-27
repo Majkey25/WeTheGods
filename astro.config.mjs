@@ -9,15 +9,26 @@ export default defineConfig({
   build: { inlineStylesheets: 'always' },
   fonts: [
     {
+      // Headings: a high-contrast Didone, closest to the hairlines of the band's wordmark.
       provider: fontProviders.fontsource(),
-      name: 'Instrument Serif',
+      name: 'Bodoni Moda',
       cssVariable: '--font-display',
-      weights: [400],
+      weights: ['400 700'],
       styles: ['normal'],
       subsets: ['latin', 'latin-ext'],
-      fallbacks: ['Georgia', 'serif'],
+      fallbacks: ['Didot', 'Georgia', 'serif'],
     },
     {
+      provider: fontProviders.fontsource(),
+      name: 'Geist',
+      cssVariable: '--font-body',
+      weights: ['400 700'],
+      styles: ['normal'],
+      subsets: ['latin', 'latin-ext'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // Menu, labels and buttons.
       provider: fontProviders.fontsource(),
       name: 'JetBrains Mono',
       cssVariable: '--font-mono',
