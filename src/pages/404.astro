@@ -1,12 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
-import { dict, homeUrl } from '../i18n';
+import { dict, pageUrl } from '../i18n';
 
 const { en, cs } = dict;
 ---
 
-<Base lang="en" title={`${en.notFound.title} — WeTheGods`} home={false}>
+<Base lang="en" title={`${en.notFound.title} — WeTheGods`}>
   <section class="lost wrap">
     <Logo name="mono" rgb class="lost__logo" />
     <h1 class="h2">
@@ -18,10 +18,10 @@ const { en, cs } = dict;
       404 · {en.notFound.text} · <span lang="cs">{cs.notFound.text}</span>
     </p>
     <div class="lost__cta">
-      <a class="btn btn--solid" href={homeUrl('en')}>
+      <a class="btn btn--solid" href={pageUrl('en')}>
         {en.notFound.home}
       </a>
-      <a class="btn" href={homeUrl('cs')} lang="cs">
+      <a class="btn" href={pageUrl('cs')} lang="cs">
         {cs.notFound.home}
       </a>
     </div>

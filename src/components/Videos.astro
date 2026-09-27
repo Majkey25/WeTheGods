@@ -1,30 +1,31 @@
 ---
 import { Picture } from 'astro:assets';
 import { links, videos } from '../data/site';
-import { dict, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const t = dict[Astro.props.lang];
+const { lang, compact = false } = Astro.props;
+const t = dict[lang];
 ---
 
 <section id="videos" class="section" aria-labelledby="videos-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="videos-title" class="h2">
-        <span class="glitch" data-text={t.videos.heading}>
-          {t.videos.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 03
-      </p>
-    </header>
+    <SectionHead
+      id="videos-title"
+      title={t.videos.heading}
+      channel="CH 03"
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'videos'), label: t.more.videos } : undefined}
+    />
 
     <ul class="videos" data-reveal>
-      {videos.map((v, i) => (
+      {(compact ? videos.slice(0, 1) : videos).map((v, i) => (
         <li class:list={['video', { 'video--feature': i === 0 }]}>
           <a
             class="yt fx-img"
@@ -53,9 +54,11 @@ const t = dict[Astro.props.lang];
       ))}
     </ul>
 
-    <a class="btn out videos__more" href={links.youtube} rel="noopener" target="_blank">
-      {t.videos.more}
-    </a>
+    {!compact && (
+      <a class="btn out videos__more" href={links.youtube} rel="noopener" target="_blank">
+        {t.videos.more}
+      </a>
+    )}
   </div>
 </section>
 

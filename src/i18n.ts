@@ -4,6 +4,21 @@ const en = {
     title: 'WeTheGods — Alternative metalcore from Czechia',
     description:
       'Official site of WeTheGods, an alternative metalcore band from Uherské Hradiště. Shows, music, videos, photos and booking.',
+    pages: {
+      shows: 'Upcoming and past WeTheGods shows, with tickets and dates.',
+      music: 'Debut EP ONE and every WeTheGods single, with links to all streaming services.',
+      videos: 'Official WeTheGods music videos.',
+      about: 'Who WeTheGods are: alternative metalcore from Uherské Hradiště, formed in 2024.',
+      gallery: 'Live photos of WeTheGods from Rock for People, Front Line Fest and more.',
+      contact: 'Booking, press kit, merch and social links for WeTheGods.',
+    },
+  },
+  more: {
+    shows: 'All shows',
+    music: 'All releases',
+    videos: 'All videos',
+    gallery: 'Open the gallery',
+    contact: 'Contact & booking',
   },
   nav: {
     shows: 'Shows',
@@ -107,6 +122,22 @@ const cs: Dict = {
     title: 'WeTheGods — Alternativní metalcore z Česka',
     description:
       'Oficiální web kapely WeTheGods, alternativního metalcoru z Uherského Hradiště. Koncerty, hudba, klipy, fotky a booking.',
+    pages: {
+      shows: 'Nadcházející a proběhlé koncerty WeTheGods, termíny a vstupenky.',
+      music: 'Debutové EP ONE a všechny singly WeTheGods s odkazy na streamovací služby.',
+      videos: 'Oficiální videoklipy kapely WeTheGods.',
+      about:
+        'Kdo jsou WeTheGods: alternativní metalcore z Uherského Hradiště, založeno v roce 2024.',
+      gallery: 'Živé fotky WeTheGods z Rock for People, Front Line Festu a dalších koncertů.',
+      contact: 'Booking, press kit, merch a sociální sítě kapely WeTheGods.',
+    },
+  },
+  more: {
+    shows: 'Všechny koncerty',
+    music: 'Všechna vydání',
+    videos: 'Všechny klipy',
+    gallery: 'Otevřít galerii',
+    contact: 'Kontakt a booking',
   },
   nav: {
     shows: 'Koncerty',
@@ -206,6 +237,15 @@ export const dict = { en, cs };
 export type Lang = keyof typeof dict;
 export const langs = Object.keys(dict) as Lang[];
 
-/** Home URL for a language, respecting the deploy base path. */
-export const homeUrl = (lang: Lang) =>
-  `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${lang === 'en' ? '' : `${lang}/`}`;
+export const pages = ['', 'shows', 'music', 'videos', 'about', 'gallery', 'contact'] as const;
+export type Page = (typeof pages)[number];
+
+/** URL of a page in a language, respecting the deploy base path. English lives at the root. */
+export const pageUrl = (lang: Lang, page: Page = '') =>
+  `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${lang === 'en' ? '' : `${lang}/`}${page && `${page}/`}`;
+
+/** getStaticPaths for pages under src/pages/[...lang]/: one build per language. */
+export const langPaths = () =>
+  langs.map((lang) => ({ params: { lang: lang === 'en' ? undefined : lang } }));
+
+export const toLang = (param: string | undefined): Lang => (param === 'cs' ? 'cs' : 'en');

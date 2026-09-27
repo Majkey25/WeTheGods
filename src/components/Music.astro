@@ -1,13 +1,17 @@
 ---
 import { Picture } from 'astro:assets';
 import { releases } from '../data/site';
-import { dict, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const t = dict[Astro.props.lang];
+const { lang, compact = false } = Astro.props;
+const t = dict[lang];
 const [ep, ...singles] = releases;
 const fullDate = (iso: string) =>
   new Intl.DateTimeFormat(t.locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
@@ -17,16 +21,13 @@ const fullDate = (iso: string) =>
 
 <section id="music" class="section" aria-labelledby="music-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="music-title" class="h2">
-        <span class="glitch" data-text={t.music.heading}>
-          {t.music.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 02
-      </p>
-    </header>
+    <SectionHead
+      id="music-title"
+      title={t.music.heading}
+      channel="CH 02"
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'music'), label: t.more.music } : undefined}
+    />
 
     {ep && (
       <article class="feature" data-reveal>
@@ -81,29 +82,33 @@ const fullDate = (iso: string) =>
       </article>
     )}
 
-    <h3 class="label singles__title">{t.music.singles}</h3>
-    <ul class="singles" data-reveal>
-      {singles.map((r) => (
-        <li>
-          <a class="single fx-img" href={r.href} rel="noopener" target="_blank">
-            <span class="single__cover">
-              <Picture
-                src={r.cover}
-                formats={['avif']}
-                fallbackFormat="webp"
-                widths={[300, 500, 700]}
-                sizes="(width > 56rem) 22vw, (width > 30rem) 45vw, 90vw"
-                alt=""
-              />
-            </span>
-            <span class="single__title fx">{r.title}</span>
-            <span class="label">
-              {t.music.single} · {r.date.slice(0, 4)}
-            </span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    {!compact && (
+      <>
+        <h3 class="label singles__title">{t.music.singles}</h3>
+        <ul class="singles" data-reveal>
+          {singles.map((r) => (
+            <li>
+              <a class="single fx-img" href={r.href} rel="noopener" target="_blank">
+                <span class="single__cover">
+                  <Picture
+                    src={r.cover}
+                    formats={['avif']}
+                    fallbackFormat="webp"
+                    widths={[300, 500, 700]}
+                    sizes="(width > 56rem) 22vw, (width > 30rem) 45vw, 90vw"
+                    alt=""
+                  />
+                </span>
+                <span class="single__title fx">{r.title}</span>
+                <span class="label">
+                  {t.music.single} · {r.date.slice(0, 4)}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
   </div>
 </section>
 

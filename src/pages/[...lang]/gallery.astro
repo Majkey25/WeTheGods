@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import Gallery from '../../components/Gallery.astro';
+import { langPaths, toLang } from '../../i18n';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+---
+
+<Base lang={lang} page="gallery">
+  <Gallery lang={lang} />
+</Base>

@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import photo from '../assets/gallery/rfp25-arms-up.jpg';
+import SectionHead from './SectionHead.astro';
 import { dict, type Lang } from '../i18n';
 
 interface Props {
@@ -19,16 +20,13 @@ const facts = [
 
 <section id="about" class="section" aria-labelledby="about-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="about-title" class="h2">
-        <span class="glitch" data-text={t.about.heading}>
-          {t.about.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 04
-      </p>
-    </header>
+    <SectionHead
+      id="about-title"
+      title={t.about.heading}
+      channel="CH 04"
+      as={'h1'}
+      more={undefined}
+    />
 
     <div class="about">
       <div class="about__text" data-reveal>

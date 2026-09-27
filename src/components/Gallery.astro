@@ -2,18 +2,32 @@
 import { Picture, getImage } from 'astro:assets';
 import Icon from './Icon.astro';
 import { gallery } from '../data/site';
-import { dict, type Lang } from '../i18n';
+import SectionHead from './SectionHead.astro';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, compact = false } = Astro.props;
 const t = dict[lang];
+
+// The home page teaser shows five photos that link to the gallery page; no lightbox there.
+const photos = compact ? gallery.slice(0, 5) : gallery;
 
 // Full-size sources for the lightbox, only fetched when a photo is opened.
 const items = await Promise.all(
-  gallery.map(async (p) => {
+  photos.map(async (p) => {
+    if (compact) {
+      return {
+        ...p,
+        href: pageUrl(lang, 'gallery'),
+        label: `${t.more.gallery}: ${p.alt[lang]}`,
+        data: {},
+      };
+    }
     const widths = [1280, 1920, 2560];
     const [avif, webp] = await Promise.all(
       (['avif', 'webp'] as const).map((format) =>
@@ -23,10 +37,14 @@ const items = await Promise.all(
     const caption = p.credit ? `${p.alt[lang]} — ${t.gallery.photo}: ${p.credit}` : p.alt[lang];
     return {
       ...p,
-      avif: avif.srcSet.attribute,
-      webp: webp.srcSet.attribute,
-      full: webp.src,
-      caption,
+      href: webp.src,
+      label: `${t.gallery.open}: ${p.alt[lang]}`,
+      data: {
+        'data-avif': avif.srcSet.attribute,
+        'data-webp': webp.srcSet.attribute,
+        'data-alt': p.alt[lang],
+        'data-caption': caption,
+      },
     };
   }),
 );
@@ -41,29 +59,18 @@ const sizes = (i: number) =>
 
 <section id="gallery" class="section" aria-labelledby="gallery-title">
   <div class="wrap">
-    <header class="section__head">
-      <h2 id="gallery-title" class="h2">
-        <span class="glitch" data-text={t.gallery.heading}>
-          {t.gallery.heading}
-        </span>
-      </h2>
-      <p class="label channel" aria-hidden="true">
-        CH 05
-      </p>
-    </header>
+    <SectionHead
+      id="gallery-title"
+      title={t.gallery.heading}
+      channel="CH 05"
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'gallery'), label: t.more.gallery } : undefined}
+    />
 
     <ul class="gallery" data-reveal>
       {items.map((p, i) => (
         <li>
-          <a
-            class="gallery__item fx-img"
-            href={p.full}
-            data-avif={p.avif}
-            data-webp={p.webp}
-            data-alt={p.alt[lang]}
-            data-caption={p.caption}
-            aria-label={`${t.gallery.open}: ${p.alt[lang]}`}
-          >
+          <a class="gallery__item fx-img" href={p.href} {...p.data} aria-label={p.label}>
             <Picture
               src={p.src}
               formats={['avif']}
@@ -79,26 +86,28 @@ const sizes = (i: number) =>
     </ul>
   </div>
 
-  <dialog class="lightbox" aria-label={t.gallery.heading}>
-    <figure class="lightbox__figure">
-      <picture>
-        <source type="image/avif" sizes="100vw" />
-        <img class="lightbox__img" alt="" sizes="100vw" decoding="async" />
-      </picture>
-      <figcaption class="lightbox__caption label"></figcaption>
-    </figure>
-    <p class="lightbox__count label" aria-live="polite"></p>
-    <button class="lightbox__btn lightbox__close label" type="button">
-      {t.gallery.close}
-      <Icon name="close" />
-    </button>
-    <button class="lightbox__btn lightbox__prev" type="button" aria-label={t.gallery.prev}>
-      <Icon name="arrow-left" />
-    </button>
-    <button class="lightbox__btn lightbox__next" type="button" aria-label={t.gallery.next}>
-      <Icon name="arrow-right" />
-    </button>
-  </dialog>
+  {!compact && (
+    <dialog class="lightbox" aria-label={t.gallery.heading}>
+      <figure class="lightbox__figure">
+        <picture>
+          <source type="image/avif" sizes="100vw" />
+          <img class="lightbox__img" alt="" sizes="100vw" decoding="async" />
+        </picture>
+        <figcaption class="lightbox__caption label"></figcaption>
+      </figure>
+      <p class="lightbox__count label" aria-live="polite"></p>
+      <button class="lightbox__btn lightbox__close label" type="button">
+        {t.gallery.close}
+        <Icon name="close" />
+      </button>
+      <button class="lightbox__btn lightbox__prev" type="button" aria-label={t.gallery.prev}>
+        <Icon name="arrow-left" />
+      </button>
+      <button class="lightbox__btn lightbox__next" type="button" aria-label={t.gallery.next}>
+        <Icon name="arrow-right" />
+      </button>
+    </dialog>
+  )}
 </section>
 
 <script>
