@@ -198,8 +198,8 @@ main > .section:first-child {
 }
 
 .h2 {
-  font: 500 clamp(2.9rem, 8.6vw, 7.5rem) / 0.95 var(--font-display);
-  letter-spacing: -0.02em;
+  font: 600 clamp(2.6rem, 7.4vw, 6.25rem) / 0.98 var(--font-display);
+  letter-spacing: -0.015em;
 }
 
 .label {

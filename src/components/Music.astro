@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import { releases } from '../data/site';
+import { getReleases } from '../content';
 import SectionHead from './SectionHead.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
@@ -12,7 +12,7 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
-const [ep, ...singles] = releases;
+const [ep, ...singles] = await getReleases();
 const fullDate = (iso: string) =>
   new Intl.DateTimeFormat(t.locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
     new Date(`${iso}T12:00:00Z`),
@@ -32,7 +32,7 @@ const fullDate = (iso: string) =>
       <article class="feature" data-reveal>
         <a
           class="feature__cover fx-img"
-          href={ep.href}
+          href={ep.link}
           rel="noopener"
           target="_blank"
           tabindex="-1"
@@ -50,7 +50,7 @@ const fullDate = (iso: string) =>
         </a>
         <div class="feature__body">
           <p class="label">
-            {t.music.ep} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
+            {t.music.kinds[ep.type]} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
           </p>
           <h3 class="feature__title fx">{ep.title}</h3>
           {ep.tracks && (
@@ -64,15 +64,15 @@ const fullDate = (iso: string) =>
             </ol>
           )}
           <div class="feature__cta">
-            <a class="btn out" href={ep.href} rel="noopener" target="_blank">
+            <a class="btn out" href={ep.link} rel="noopener" target="_blank">
               {t.music.listen}
             </a>
             {ep.platforms && (
               <ul class="platforms">
                 {ep.platforms.map((p) => (
                   <li>
-                    <a class="label ulink out" href={p.href} rel="noopener" target="_blank">
-                      {p.label}
+                    <a class="label ulink out" href={p.url} rel="noopener" target="_blank">
+                      {p.name}
                     </a>
                   </li>
                 ))}
@@ -83,13 +83,13 @@ const fullDate = (iso: string) =>
       </article>
     )}
 
-    {!compact && (
+    {!compact && singles.length > 0 && (
       <>
         <h3 class="label singles__title">{t.music.singles}</h3>
         <ul class="singles" data-reveal>
           {singles.map((r) => (
             <li>
-              <a class="single fx-img" href={r.href} rel="noopener" target="_blank">
+              <a class="single fx-img" href={r.link} rel="noopener" target="_blank">
                 <span class="single__cover">
                   <Picture
                     src={r.cover}
@@ -102,7 +102,7 @@ const fullDate = (iso: string) =>
                 </span>
                 <span class="single__title fx">{r.title}</span>
                 <span class="label">
-                  {t.music.single} · {r.date.slice(0, 4)}
+                  {t.music.kinds[r.type]} · {r.date.slice(0, 4)}
                 </span>
               </a>
             </li>

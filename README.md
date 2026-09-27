@@ -23,26 +23,29 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 - **Signal-interference look**: a 2-second glitch intro on the WTG emblem, RGB-split distortion on hover for text and photos, a looping glitch on the footer logo, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`.
 - **Dark and light themes**: the light theme inverts the palette and turns the hero footage into a negative. The new theme surges out of the moon/sun switch with a view transition.
 - **Seven pages, two languages**: Home, Shows, Music, Videos, About, Gallery and Contact in English (`/`) and Czech (`/cs/`), with `hreflang` alternates. Links prerender on hover and pages change with a native cross-document view transition.
-- **Shows from one file**: [`src/data/shows.yaml`](src/data/shows.yaml). Every field is validated at build time, so a broken entry can never reach the live site. Finished shows move to the archive during the nightly rebuild.
+- **Events with their own pages**: shows, releases, parties and signings, each with details, directions and a downloadable calendar file (`.ics`). Finished events move to the archive during the nightly rebuild.
+- **Everything editable without code**: shows, releases, videos, gallery, line-up, About text and site settings live in [`src/data`](src/data) and are edited through [Pages CMS](https://pagescms.org) ([guide in Czech](docs/editace.md)). Every field is validated at build time, so a broken edit never reaches the live site.
+- **Contact form without a server**: messages are relayed by FormSubmit, with a honeypot and a no-JS fallback.
 - **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred 0.5 MB AV1 hero loop (skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
 - **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
 
 ## Stack
 
-| Layer     | Choice                                                            |
-| --------- | ----------------------------------------------------------------- |
-| Framework | [Astro 7](https://astro.build), static output                     |
-| Styling   | Plain CSS with custom properties                                  |
-| Images    | `astro:assets` + `sharp` (AVIF with WebP fallback)                |
-| Fonts     | Astro Fonts API: Bodoni Moda, Geist, JetBrains Mono               |
-| Hosting   | GitHub Pages, deployed by GitHub Actions                          |
-| Quality   | Prettier, `astro check` (TypeScript strict), content schema (Zod) |
+| Layer     | Choice                                                      |
+| --------- | ----------------------------------------------------------- |
+| Framework | [Astro 7](https://astro.build), static output               |
+| Styling   | Plain CSS with custom properties                            |
+| Images    | `astro:assets` + `sharp` (AVIF with WebP fallback)          |
+| Fonts     | Astro Fonts API: Clash Display, Geist, JetBrains Mono       |
+| Hosting   | GitHub Pages, deployed by GitHub Actions                    |
+| Content   | YAML in `src/data`, edited in Pages CMS, validated with Zod |
+| Quality   | Prettier, `astro check` (TypeScript strict), Lighthouse CI  |
 
 ## CI/CD
 
 | Workflow                                     | Trigger                                    | Job                                               |
 | -------------------------------------------- | ------------------------------------------ | ------------------------------------------------- |
-| [`ci.yml`](.github/workflows/ci.yml)         | every pull request and push to `main`      | Prettier check → `astro check` → production build |
+| [`ci.yml`](.github/workflows/ci.yml)         | every pull request and push to `main`      | Prettier → `astro check` → build → Lighthouse     |
 | [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, daily at 03:17 UTC, manual | Build with the Pages URL → deploy to GitHub Pages |
 
 Actions are pinned to commit SHAs and kept current by Dependabot. Workflows run with read-only
@@ -51,5 +54,5 @@ settings, so the move to wethegods.cz needs no code change.
 
 ## Content and media
 
-Live photos by Petr Ovsík / Petrov Visuals. Music videos, artwork, logos and photos are © WeTheGods and
+Live photos by Petr Ovsík / [Petrov Visuals](https://petrovvisuals.com/). Music videos, artwork, logos and photos are © WeTheGods and
 are not covered by any open-source licence.

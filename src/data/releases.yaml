@@ -1,0 +1,34 @@
+# Releases. Edit in the admin (Pages CMS). The newest one is featured on the site.
+# link: the main "Listen" link (e.g. DistroKid HyperFollow). platforms: extra store links.
+
+- title: ONE
+  type: ep
+  date: 2026-05-26
+  cover: ../assets/releases/one.jpg
+  link: https://distrokid.com/hyperfollow/wethegods/one
+  tracks: [Y.E.B.A., Alone I Stand, Labyrinth of Lies, Illusions, Disconnect.exe]
+  platforms:
+    - { name: Spotify, url: 'https://open.spotify.com/album/0Z6fnxi8DO7o3rtjO70MSO' }
+    - { name: Apple Music, url: 'https://music.apple.com/cz/album/one-ep/6770138158' }
+    - { name: Deezer, url: 'https://www.deezer.com/album/984091021' }
+    - { name: Tidal, url: 'https://tidal.com/album/525223320/u' }
+- title: Labyrinth of Lies
+  type: single
+  date: 2026-02-26
+  cover: ../assets/releases/labyrinth-of-lies.jpg
+  link: https://distrokid.com/hyperfollow/wethegods/labyrinth-of-lies
+- title: Illusions
+  type: single
+  date: 2025-09-26
+  cover: ../assets/releases/illusions.jpg
+  link: https://distrokid.com/hyperfollow/wethegods/illusions-2
+- title: Alone I Stand
+  type: single
+  date: 2025-03-28
+  cover: ../assets/releases/alone-i-stand.jpg
+  link: https://open.spotify.com/album/1wy92U2nK4v3DrlmIfrcUq
+- title: Reflection (feat. Damián Kučera)
+  type: single
+  date: 2024-01-12
+  cover: ../assets/releases/reflection.jpg
+  link: https://open.spotify.com/album/0BDV9JqJqilR3LRR26aoHY

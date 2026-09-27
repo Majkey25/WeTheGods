@@ -12,15 +12,44 @@ media:
     input: src/assets/members
     output: ../assets/members
     extensions: [jpg, jpeg, png, webp, avif]
+  - name: posters
+    label: Plakáty akcí
+    input: src/assets/posters
+    output: ../assets/posters
+    extensions: [jpg, jpeg, png, webp, avif]
+  - name: releases
+    label: Obaly vydání
+    input: src/assets/releases
+    output: ../assets/releases
+    extensions: [jpg, jpeg, png, webp, avif]
+  - name: videos
+    label: Náhledy klipů
+    input: src/assets/videos
+    output: ../assets/videos
+    extensions: [jpg, jpeg, png, webp, avif]
 
 content:
   - name: shows
-    label: Koncerty
+    label: Koncerty a akce
     type: file
     path: src/data/shows.yaml
     format: yaml
     list: true
     fields:
+      - name: type
+        label: Typ
+        type: select
+        default: show
+        options:
+          values:
+            - { value: show, label: Koncert }
+            - { value: release, label: 'Vydání (album, singl, klip)' }
+            - { value: party, label: Oslava / párty }
+            - { value: signing, label: Autogramiáda }
+            - { value: other, label: Jiná akce }
+      - name: title
+        label: 'Název (festival, turné, vydání); u koncertu v klubu může zůstat prázdný'
+        type: string
       - name: date
         label: Datum
         type: date
@@ -28,41 +57,46 @@ content:
         options:
           format: yyyy-MM-dd
       - name: time
-        label: Čas (např. 20:00)
+        label: 'Začátek (např. 20:00)'
         type: string
         pattern:
-          regex: '^([01]\d|2[0-3]):[0-5]\d$'
-          message: 'Zadej čas jako HH:MM, např. 20:00'
+          { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM, např. 20:00' }
+      - name: doors
+        label: 'Otevření dveří (např. 19:00)'
+        type: string
+        pattern: { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
+      - name: end
+        label: 'Konec (např. 23:00)'
+        type: string
+        pattern: { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
       - name: venue
-        label: Klub / místo
+        label: Klub / místo (u koncertu povinné)
         type: string
-        required: true
+      - name: address
+        label: Adresa (ulice a číslo)
+        type: string
       - name: city
-        label: Město
+        label: Město (u koncertu povinné)
         type: string
-        required: true
       - name: country
-        label: Země (dvoupísmenný kód, např. CZ, SK, DE)
+        label: 'Země (dvoupísmenný kód, např. CZ, SK, DE)'
         type: string
         default: CZ
-        pattern:
-          regex: '^[A-Z]{2}$'
-          message: 'Dvě velká písmena, např. CZ'
-      - name: event
-        label: Festival / turné (nepovinné)
+        pattern: { regex: '^[A-Z]{2}$', message: 'Dvě velká písmena, např. CZ' }
+      - name: map
+        label: 'Vlastní odkaz na mapu (nepovinné, jinak se vytvoří sám)'
         type: string
+        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
       - name: lineup
         label: Další kapely
         type: string
         list: true
       - name: tickets
-        label: Odkaz na vstupenky (https://…)
+        label: 'Odkaz na vstupenky / poslech (https://...)'
         type: string
-        pattern:
-          regex: '^https://'
-          message: 'Odkaz musí začínat https://'
+        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
       - name: status
-        label: Stav (nech prázdné, pokud je vše normálně)
+        label: 'Stav (nech prázdné, pokud je vše normálně)'
         type: select
         options:
           values:
@@ -70,6 +104,76 @@ content:
             - { value: cancelled, label: Zrušeno }
             - { value: postponed, label: Přesunuto }
             - { value: free, label: Vstup zdarma }
+      - name: info_cs
+        label: Popis česky (nepovinné)
+        type: text
+      - name: info_en
+        label: Popis anglicky (nepovinné)
+        type: text
+      - name: poster
+        label: Plakát (nepovinné)
+        type: image
+        options: { media: posters }
+
+  - name: releases
+    label: Hudba (vydání)
+    type: file
+    path: src/data/releases.yaml
+    format: yaml
+    list: true
+    fields:
+      - { name: title, label: Název, type: string, required: true }
+      - name: type
+        label: Typ
+        type: select
+        required: true
+        options:
+          values:
+            - { value: album, label: Album }
+            - { value: ep, label: EP }
+            - { value: single, label: Singl }
+      - name: date
+        label: Datum vydání
+        type: date
+        required: true
+        options: { format: yyyy-MM-dd }
+      - name: cover
+        label: Obal (čtverec)
+        type: image
+        required: true
+        options: { media: releases }
+      - name: link
+        label: 'Hlavní odkaz Poslechnout (https://...)'
+        type: string
+        required: true
+        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+      - { name: tracks, label: Skladby, type: string, list: true }
+      - name: platforms
+        label: 'Odkazy na služby (Spotify, Apple Music...)'
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Služba, type: string, required: true }
+          - name: url
+            label: 'Odkaz (https://...)'
+            type: string
+            required: true
+            pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+
+  - name: videos
+    label: Klipy
+    type: file
+    path: src/data/videos.yaml
+    format: yaml
+    list: true
+    fields:
+      - { name: youtube, label: Odkaz na YouTube, type: string, required: true }
+      - { name: title, label: Název, type: string, required: true }
+      - { name: year, label: Rok, type: number, required: true }
+      - name: thumbnail
+        label: 'Vlastní náhled (nepovinné, jinak se vezme z YouTube)'
+        type: image
+        options: { media: videos }
 
   - name: gallery
     label: Galerie
@@ -82,19 +186,15 @@ content:
         label: Fotka
         type: image
         required: true
-        options:
-          media: gallery
-      - name: alt_en
-        label: Popis fotky anglicky (pro nevidomé a Google)
-        type: string
-        required: true
-      - name: alt_cs
-        label: Popis fotky česky
-        type: string
-        required: true
-      - name: credit
-        label: Autor fotky
-        type: string
+        options: { media: gallery }
+      - {
+          name: alt_cs,
+          label: 'Popis fotky česky (pro nevidomé a Google)',
+          type: string,
+          required: true,
+        }
+      - { name: alt_en, label: Popis fotky anglicky, type: string, required: true }
+      - { name: credit, label: Autor fotky, type: string }
 
   - name: members
     label: Členové kapely
@@ -103,27 +203,15 @@ content:
     format: yaml
     list: true
     fields:
-      - name: name
-        label: Jméno
-        type: string
-        required: true
-      - name: nickname
-        label: Přezdívka (nepovinné)
-        type: string
-      - name: role_cs
-        label: Nástroj / pozice česky
-        type: string
-        required: true
-      - name: role_en
-        label: Nástroj / pozice anglicky
-        type: string
-        required: true
+      - { name: name, label: Jméno, type: string, required: true }
+      - { name: nickname, label: Přezdívka (nepovinné), type: string }
+      - { name: role_cs, label: Nástroj / pozice česky, type: string, required: true }
+      - { name: role_en, label: Nástroj / pozice anglicky, type: string, required: true }
       - name: photo
-        label: Fotka (na výšku, 4:5)
+        label: 'Fotka (na výšku, 4:5)'
         type: image
         required: true
-        options:
-          media: members
+        options: { media: members }
 
   - name: about
     label: O kapele
@@ -135,19 +223,62 @@ content:
       - { name: lead_en, label: Úvodní věta anglicky, type: text, required: true }
       - {
           name: body_cs,
-          label: Text česky (prázdný řádek = nový odstavec),
+          label: 'Text česky (prázdný řádek = nový odstavec)',
           type: text,
           required: true,
         }
       - {
           name: body_en,
-          label: Text anglicky (prázdný řádek = nový odstavec),
+          label: 'Text anglicky (prázdný řádek = nový odstavec)',
           type: text,
           required: true,
         }
+      - name: photo
+        label: Fotka vedle textu
+        type: image
+        required: true
+        options: { media: gallery }
       - { name: origin_cs, label: Odkud česky, type: string, required: true }
       - { name: origin_en, label: Odkud anglicky, type: string, required: true }
       - { name: formed, label: Rok vzniku, type: string, required: true }
       - { name: genre_cs, label: Žánr česky, type: string, required: true }
       - { name: genre_en, label: Žánr anglicky, type: string, required: true }
       - { name: fans, label: Pro fanoušky kapel, type: string, required: true }
+
+  - name: settings
+    label: Nastavení webu
+    type: file
+    path: src/data/settings.yaml
+    format: yaml
+    fields:
+      - {
+          name: email,
+          label: 'Kontaktní e-mail (sem chodí i zprávy z formuláře)',
+          type: string,
+          required: true,
+        }
+      - {
+          name: hero_kicker_cs,
+          label: Nápis nad logem na úvodu česky,
+          type: string,
+          required: true,
+        }
+      - {
+          name: hero_kicker_en,
+          label: Nápis nad logem na úvodu anglicky,
+          type: string,
+          required: true,
+        }
+      - { name: hero_tagline_cs, label: Podtitul pod logem česky, type: string, required: true }
+      - { name: hero_tagline_en, label: Podtitul pod logem anglicky, type: string, required: true }
+      - { name: presskit, label: Odkaz na press kit, type: string }
+      - { name: merch, label: Odkaz na merch obchod, type: string }
+      - { name: youtube, label: Odkaz na YouTube kanál, type: string, required: true }
+      - { name: instagram, label: Odkaz na Instagram, type: string, required: true }
+      - name: socials
+        label: 'Sociální sítě (zobrazí se v kontaktu a v menu)'
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Název, type: string, required: true }
+          - { name: url, label: 'Odkaz (https://...)', type: string, required: true }

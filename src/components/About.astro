@@ -1,7 +1,6 @@
 ---
 import { Picture, getImage } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import photo from '../assets/gallery/rfp25-arms-up.jpg';
 import SectionHead from './SectionHead.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
@@ -84,7 +83,7 @@ const members = compact
         </div>
         <figure class="about__photo fx-img" data-reveal>
           <Picture
-            src={photo}
+            src={about.photo}
             formats={['avif']}
             fallbackFormat="webp"
             widths={[400, 700, 1000, 1400]}
@@ -100,10 +99,10 @@ const members = compact
     {members.length > 0 && (
       <>
         <h2 class="label members__title">{t.about.members}</h2>
-        <ul class="members" data-reveal data-loop>
+        <ul class="members" data-reveal>
           {members.map((m, i) => (
             <li class="member" style={`--i: ${i}`}>
-              <div class="member__photo fx-img" style={`--layers: ${m.layers}`}>
+              <div class="member__photo" style={`--layers: ${m.layers}`}>
                 <Picture
                   src={m.photo}
                   formats={['avif']}
@@ -177,7 +176,7 @@ const members = compact
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 45% 50%;
+    object-position: 66% 50%;
   }
 
   .members__title {
@@ -205,8 +204,7 @@ const members = compact
     object-fit: cover;
   }
 
-  /* Seamless RGB split: tinted copies of the portrait, screen-blended, moved by transform only.
-     Channels never switch off (nothing flashes); the loop pauses while the grid is off screen. */
+  /* RGB split on hover: tinted copies of the portrait, screen-blended, moved by transform only. */
   .member__photo::before,
   .member__photo::after {
     content: '';
@@ -217,9 +215,7 @@ const members = compact
     background: var(--layers) center / cover;
     background-blend-mode: multiply;
     mix-blend-mode: screen;
-    opacity: 0.55;
-    animation: member-a 1.6s steps(1) infinite paused;
-    animation-delay: calc(var(--i) * -0.4s);
+    opacity: 0;
   }
 
   .member__photo::before {
@@ -228,12 +224,18 @@ const members = compact
 
   .member__photo::after {
     background-color: var(--ch-b);
-    animation-name: member-b;
   }
 
-  :global(.is-visible) .member__photo::before,
-  :global(.is-visible) .member__photo::after {
-    animation-play-state: running;
+  @media (hover: hover) {
+    .member:hover .member__photo::before,
+    .member:hover .member__photo::after {
+      opacity: 0.6;
+      animation: member-a 1.2s steps(1) infinite;
+    }
+
+    .member:hover .member__photo::after {
+      animation-name: member-b;
+    }
   }
 
   @keyframes member-a {

@@ -7,16 +7,17 @@ export default defineConfig({
   site: 'https://majkey25.github.io',
   compressHTML: true,
   build: { inlineStylesheets: 'always' },
+  // YouTube thumbnails for videos added in the CMS without an uploaded image.
+  image: { domains: ['i.ytimg.com'] },
   fonts: [
     {
-      // Headings: a high-contrast Didone, closest to the hairlines of the band's wordmark.
-      provider: fontProviders.fontsource(),
-      name: 'Bodoni Moda',
+      // Headings: a sturdy modern display face; the serif wordmark stays the only ornament.
+      provider: fontProviders.fontshare(),
+      name: 'Clash Display',
       cssVariable: '--font-display',
-      weights: ['400 700'],
+      weights: [500, 600],
       styles: ['normal'],
-      subsets: ['latin', 'latin-ext'],
-      fallbacks: ['Didot', 'Georgia', 'serif'],
+      fallbacks: ['Arial', 'sans-serif'],
     },
     {
       provider: fontProviders.fontsource(),

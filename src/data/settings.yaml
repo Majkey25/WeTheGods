@@ -1,0 +1,19 @@
+# General site settings. Edit in the admin (Pages CMS).
+
+email: wethegodsband@gmail.com
+presskit: https://drive.google.com/drive/folders/1eBzUSUBVqwt1LSkvSOVZeFkUcANrpx-e
+merch: https://wethegodsband.bigcartel.com
+youtube: https://www.youtube.com/@Wethegods
+instagram: https://www.instagram.com/wethegodsband/
+hero_kicker_en: Debut EP out now
+hero_kicker_cs: Debutové EP venku
+hero_tagline_en: Alternative metalcore from Czechia
+hero_tagline_cs: Alternativní metalcore z Česka
+socials:
+  - { name: Instagram, url: 'https://www.instagram.com/wethegodsband/' }
+  - { name: Facebook, url: 'https://www.facebook.com/wethegodsband/' }
+  - { name: YouTube, url: 'https://www.youtube.com/@Wethegods' }
+  - { name: TikTok, url: 'https://www.tiktok.com/@wethegodsband' }
+  - { name: Spotify, url: 'https://open.spotify.com/artist/0t37G5AusfBBeHTv85jxj9' }
+  - { name: Apple Music, url: 'https://music.apple.com/cz/artist/wethegods/1720429835' }
+  - { name: Bandcamp, url: 'https://wethegods.bandcamp.com' }
