@@ -98,7 +98,7 @@ const ld = upcoming.map((s) => ({
               <div class="show__action">
                 {s.status && <span class="show__status label">[{t.shows.status[s.status]}]</span>}
                 {s.tickets && (!s.status || s.status === 'free') && (
-                  <a class="btn btn--solid out" href={s.tickets} rel="noopener" target="_blank">
+                  <a class="btn out" href={s.tickets} rel="noopener" target="_blank">
                     {t.shows.tickets}
                   </a>
                 )}
@@ -112,10 +112,10 @@ const ld = upcoming.map((s) => ({
         <p class="empty__title">{t.shows.emptyTitle}</p>
         <p class="empty__text">{t.shows.emptyText}</p>
         <div class="empty__cta">
-          <a class="btn btn--solid" href={`mailto:${email}`}>
+          <a class="btn" href={`mailto:${email}`}>
             {t.shows.book}
           </a>
-          <a class="btn out" href={links.instagram} rel="noopener" target="_blank">
+          <a class="btn btn--red out" href={links.instagram} rel="noopener" target="_blank">
             {t.shows.follow}
           </a>
         </div>

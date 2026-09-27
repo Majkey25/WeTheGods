@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { defineCollection } from 'astro:content';
 import type { Loader } from 'astro/loaders';
 import { z } from 'astro/zod';
-import yaml from 'js-yaml';
+import { CORE_SCHEMA, load } from 'js-yaml';
 
 const SHOWS = 'src/data/shows.yaml';
 
@@ -14,8 +14,8 @@ const showsLoader: Loader = {
   load: async ({ config, store, parseData, logger, watcher }) => {
     const path = fileURLToPath(new URL(SHOWS, config.root));
     const sync = async () => {
-      const raw = yaml.load(await readFile(path, 'utf8'), {
-        schema: yaml.CORE_SCHEMA,
+      const raw = load(await readFile(path, 'utf8'), {
+        schema: CORE_SCHEMA,
         filename: SHOWS,
       });
       if (raw != null && (typeof raw !== 'object' || Array.isArray(raw))) {

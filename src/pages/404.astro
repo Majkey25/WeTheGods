@@ -18,10 +18,10 @@ const { en, cs } = dict;
       404 · {en.notFound.text} · <span lang="cs">{cs.notFound.text}</span>
     </p>
     <div class="lost__cta">
-      <a class="btn btn--solid" href={pageUrl('en')}>
+      <a class="btn" href={pageUrl('en')}>
         {en.notFound.home}
       </a>
-      <a class="btn" href={pageUrl('cs')} lang="cs">
+      <a class="btn btn--red" href={pageUrl('cs')} lang="cs">
         {cs.notFound.home}
       </a>
     </div>
