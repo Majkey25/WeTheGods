@@ -1,0 +1,221 @@
+---
+import { Picture } from 'astro:assets';
+import { releases } from '../data/site';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = dict[Astro.props.lang];
+const [ep, ...singles] = releases;
+const fullDate = (iso: string) =>
+  new Intl.DateTimeFormat(t.locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
+    new Date(`${iso}T12:00:00Z`),
+  );
+---
+
+<section id="music" class="section" aria-labelledby="music-title">
+  <div class="wrap">
+    <header class="section__head">
+      <h2 id="music-title" class="h2">
+        <span class="glitch" data-text={t.music.heading}>
+          {t.music.heading}
+        </span>
+      </h2>
+      <p class="label channel" aria-hidden="true">
+        CH 02
+      </p>
+    </header>
+
+    {ep && (
+      <article class="feature" data-reveal>
+        <a class="feature__cover" href={ep.href} rel="noopener" target="_blank" tabindex="-1">
+          <Picture
+            src={ep.cover}
+            formats={['avif']}
+            fallbackFormat="webp"
+            widths={[400, 700, 1000]}
+            sizes="(width > 56rem) 45vw, 100vw"
+            alt={`${ep.title} — cover`}
+          />
+        </a>
+        <div class="feature__body">
+          <p class="label">
+            {t.music.ep} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
+          </p>
+          <h3 class="feature__title">{ep.title}</h3>
+          {ep.tracks && (
+            <ol class="tracks" aria-label={t.music.tracklist}>
+              {ep.tracks.map((track, i) => (
+                <li>
+                  <span class="label">{String(i + 1).padStart(2, '0')}</span>
+                  {track}
+                </li>
+              ))}
+            </ol>
+          )}
+          <div class="feature__cta">
+            <a class="btn btn--accent out" href={ep.href} rel="noopener" target="_blank">
+              {t.music.listen}
+            </a>
+            {ep.platforms && (
+              <ul class="platforms">
+                {ep.platforms.map((p) => (
+                  <li>
+                    <a class="label ulink out" href={p.href} rel="noopener" target="_blank">
+                      {p.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </article>
+    )}
+
+    <h3 class="label singles__title">{t.music.singles}</h3>
+    <ul class="singles" data-reveal>
+      {singles.map((r) => (
+        <li>
+          <a class="single" href={r.href} rel="noopener" target="_blank">
+            <span class="single__cover">
+              <Picture
+                src={r.cover}
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={[300, 500, 700]}
+                sizes="(width > 56rem) 22vw, (width > 30rem) 45vw, 90vw"
+                alt=""
+              />
+            </span>
+            <span class="single__title">{r.title}</span>
+            <span class="label">
+              {t.music.single} · {r.date.slice(0, 4)}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .feature {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+
+  .feature__cover {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+
+  .feature__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease);
+  }
+
+  .feature__cover:hover :global(img) {
+    transform: scale(1.03);
+  }
+
+  .feature__body {
+    display: grid;
+    justify-items: start;
+    gap: 1.5rem;
+  }
+
+  .feature__title {
+    font: 400 clamp(5rem, 14vw, 11rem) / 0.8 var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .tracks {
+    display: grid;
+    width: 100%;
+    border-top: 1px solid var(--line);
+  }
+
+  .tracks li {
+    display: flex;
+    gap: 1.25rem;
+    align-items: baseline;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    font: 400 1.35rem/1.2 var(--font-display);
+  }
+
+  .feature__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .platforms a {
+    color: var(--fg);
+  }
+
+  .singles__title {
+    margin: clamp(4rem, 9vw, 6.5rem) 0 1.5rem;
+  }
+
+  .singles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .single {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .single__cover {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .single__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform 0.6s var(--ease),
+      filter 0.3s;
+  }
+
+  .single:hover :global(img) {
+    transform: scale(1.04);
+  }
+
+  .single__title {
+    font: 400 1.5rem/1.1 var(--font-display);
+  }
+
+  @media (width <= 56rem) {
+    .feature {
+      grid-template-columns: 1fr;
+    }
+
+    .singles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

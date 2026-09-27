@@ -1,0 +1,376 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import { gallery } from '../data/site';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = dict[lang];
+
+// Full-size sources for the lightbox, only fetched when a photo is opened.
+const items = await Promise.all(
+  gallery.map(async (p) => {
+    const widths = [1280, 1920, 2560];
+    const [avif, webp] = await Promise.all(
+      (['avif', 'webp'] as const).map((format) =>
+        getImage({ src: p.src, format, widths, quality: 80 }),
+      ),
+    );
+    const caption = p.credit ? `${p.alt[lang]} — ${t.gallery.photo}: ${p.credit}` : p.alt[lang];
+    return {
+      ...p,
+      avif: avif.srcSet.attribute,
+      webp: webp.srcSet.attribute,
+      full: webp.src,
+      caption,
+    };
+  }),
+);
+
+const sizes = (i: number) =>
+  i % 5 === 0
+    ? '(width > 48rem) 66vw, 100vw'
+    : i % 5 < 3
+      ? '(width > 48rem) 33vw, 50vw'
+      : '(width > 48rem) 50vw, 50vw';
+---
+
+<section id="gallery" class="section" aria-labelledby="gallery-title">
+  <div class="wrap">
+    <header class="section__head">
+      <h2 id="gallery-title" class="h2">
+        <span class="glitch" data-text={t.gallery.heading}>
+          {t.gallery.heading}
+        </span>
+      </h2>
+      <p class="label channel" aria-hidden="true">
+        CH 05
+      </p>
+    </header>
+
+    <ul class="gallery" data-reveal>
+      {items.map((p, i) => (
+        <li>
+          <a
+            class="gallery__item"
+            href={p.full}
+            data-avif={p.avif}
+            data-webp={p.webp}
+            data-alt={p.alt[lang]}
+            data-caption={p.caption}
+            aria-label={`${t.gallery.open}: ${p.alt[lang]}`}
+          >
+            <Picture
+              src={p.src}
+              formats={['avif']}
+              fallbackFormat="webp"
+              widths={[480, 800, 1200, 1600]}
+              sizes={sizes(i)}
+              quality={72}
+              alt={p.alt[lang]}
+            />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <dialog class="lightbox" aria-label={t.gallery.heading}>
+    <figure class="lightbox__figure">
+      <picture>
+        <source type="image/avif" sizes="100vw" />
+        <img class="lightbox__img" alt="" sizes="100vw" decoding="async" />
+      </picture>
+      <figcaption class="lightbox__caption label"></figcaption>
+    </figure>
+    <p class="lightbox__count label" aria-live="polite"></p>
+    <button class="lightbox__btn lightbox__close label" type="button">
+      {t.gallery.close} ✕
+    </button>
+    <button class="lightbox__btn lightbox__prev" type="button" aria-label={t.gallery.prev}>
+      ←
+    </button>
+    <button class="lightbox__btn lightbox__next" type="button" aria-label={t.gallery.next}>
+      →
+    </button>
+  </dialog>
+</section>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.gallery__item')];
+  const source = dialog?.querySelector('source');
+  const img = dialog?.querySelector<HTMLImageElement>('.lightbox__img');
+  const caption = dialog?.querySelector('.lightbox__caption');
+  const count = dialog?.querySelector('.lightbox__count');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (dialog && source && img && caption && count && links.length) {
+    let index = 0;
+    const show = (i: number) => {
+      index = (i + links.length) % links.length;
+      const data = links[index]?.dataset ?? {};
+      source.srcset = data.avif ?? '';
+      img.srcset = data.webp ?? '';
+      img.alt = data.alt ?? '';
+      caption.textContent = data.caption ?? '';
+      count.textContent = `${String(index + 1).padStart(2, '0')} / ${String(links.length).padStart(2, '0')}`;
+      if (!reduced.matches) {
+        img.animate(
+          [
+            { transform: 'translateX(-10px)', opacity: 0.4 },
+            { transform: 'translateX(6px)', opacity: 1 },
+            { transform: 'none' },
+          ],
+          { duration: 240, easing: 'steps(3)' },
+        );
+      }
+    };
+
+    links.forEach((link, i) =>
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(i);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('.lightbox__prev')?.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('.lightbox__next')?.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('.lightbox__close')?.addEventListener('click', () => dialog.close());
+    // Click on the backdrop (outside the photo) closes.
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
+    });
+    let startX = 0;
+    dialog.addEventListener('pointerdown', (e) => (startX = e.clientX));
+    dialog.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - startX;
+      if (e.pointerType !== 'mouse' && Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>
+
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: clamp(0.5rem, 1vw, 1rem);
+  }
+
+  .gallery li {
+    grid-column: span 4;
+    aspect-ratio: 3 / 2;
+  }
+
+  .gallery li:nth-child(5n + 1) {
+    grid-column: span 8;
+    grid-row: span 2;
+    aspect-ratio: auto;
+  }
+
+  .gallery li:nth-child(10n + 6) {
+    grid-column: 5 / span 8;
+  }
+
+  .gallery li:nth-child(5n + 4),
+  .gallery li:nth-child(5n + 5) {
+    grid-column: span 6;
+  }
+
+  .gallery__item {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .gallery__item :global(picture),
+  .gallery__item :global(img) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gallery__item :global(img) {
+    object-fit: cover;
+    transition: transform 0.9s var(--ease);
+  }
+
+  .gallery__item::before,
+  .gallery__item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: var(--blend);
+  }
+
+  .gallery__item::before {
+    background: var(--ch-a);
+  }
+
+  .gallery__item::after {
+    background: var(--ch-b);
+  }
+
+  .gallery__item:hover :global(img) {
+    transform: scale(1.04);
+  }
+
+  .gallery__item:hover::before {
+    animation: flash-a 0.35s steps(1);
+  }
+
+  .gallery__item:hover::after {
+    animation: flash-b 0.35s steps(1);
+  }
+
+  @keyframes flash-a {
+    0% {
+      opacity: 0.35;
+      clip-path: inset(12% 0 70% 0);
+    }
+    33% {
+      clip-path: inset(60% 0 22% 0);
+    }
+    66% {
+      clip-path: inset(34% 0 52% 0);
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes flash-b {
+    0% {
+      opacity: 0.35;
+      clip-path: inset(72% 0 10% 0);
+    }
+    33% {
+      clip-path: inset(20% 0 64% 0);
+    }
+    66% {
+      clip-path: inset(48% 0 40% 0);
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(3.5rem, 7vw, 5rem) clamp(1rem, 5vw, 5rem);
+    border: 0;
+    color: #eeece6;
+    background: rgb(6 6 7 / 0.96);
+  }
+
+  .lightbox::backdrop {
+    background: transparent;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox__figure {
+    display: grid;
+    gap: 1rem;
+    justify-items: center;
+    max-height: 100%;
+  }
+
+  .lightbox__img {
+    max-width: 100%;
+    max-height: calc(100dvh - 11rem);
+    width: auto;
+    object-fit: contain;
+    touch-action: pan-y;
+  }
+
+  .lightbox__caption {
+    max-width: 70ch;
+    color: #b9b6ad;
+    text-align: center;
+  }
+
+  .lightbox__count {
+    position: absolute;
+    top: 1.5rem;
+    left: clamp(1rem, 5vw, 5rem);
+    color: #eeece6;
+  }
+
+  .lightbox__btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    min-width: 3rem;
+    min-height: 3rem;
+    color: #eeece6;
+  }
+
+  .lightbox__close {
+    top: 0.75rem;
+    right: clamp(0.5rem, 4vw, 4rem);
+    padding-inline: 0.75rem;
+  }
+
+  .lightbox__prev,
+  .lightbox__next {
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 1.75rem;
+  }
+
+  .lightbox__prev {
+    left: clamp(0rem, 1vw, 1.5rem);
+  }
+
+  .lightbox__next {
+    right: clamp(0rem, 1vw, 1.5rem);
+  }
+
+  .lightbox__btn:hover {
+    color: var(--accent);
+  }
+
+  @media (width <= 48rem) {
+    .gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery li,
+    .gallery li:nth-child(5n + 4),
+    .gallery li:nth-child(5n + 5),
+    .gallery li:nth-child(10n + 6) {
+      grid-column: span 1;
+    }
+
+    .gallery li:nth-child(5n + 1) {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      aspect-ratio: 3 / 2;
+    }
+
+    .lightbox__prev,
+    .lightbox__next {
+      top: auto;
+      bottom: 0.75rem;
+      translate: none;
+    }
+  }
+</style>

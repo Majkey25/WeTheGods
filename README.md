@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="public/favicon.svg" width="96" alt="WeTheGods monogram" />
+<img src="src/assets/monogram.svg" width="72" alt="WeTheGods monogram" />
 
 # WeTheGods
 
-Official website of **WeTheGods**, a metalcore band from the Czech Republic.
+Official website of **WeTheGods**, an alternative metalcore band from Uherské Hradiště, Czech Republic.
 
 [![CI](https://github.com/Majkey25/WeTheGods/actions/workflows/ci.yml/badge.svg)](https://github.com/Majkey25/WeTheGods/actions/workflows/ci.yml)
 [![Deploy](https://github.com/Majkey25/WeTheGods/actions/workflows/deploy.yml/badge.svg)](https://github.com/Majkey25/WeTheGods/actions/workflows/deploy.yml)
@@ -18,29 +18,25 @@ Official website of **WeTheGods**, a metalcore band from the Czech Republic.
 
 </div>
 
+## Features
+
+- **Signal-interference look**: a 2-second glitch intro on the WTG emblem, RGB-split headings, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`.
+- **Dark and light themes**: the light theme inverts the palette and turns the hero footage into a negative. The switch scans the new theme in with a view transition.
+- **English and Czech**: `/` and `/cs/`, with `hreflang` alternates.
+- **Shows from one file**: [`src/data/shows.yaml`](src/data/shows.yaml). Every field is validated at build time, so a broken entry can never reach the live site. Finished shows move to the archive during the nightly rebuild.
+- **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred 0.5 MB AV1 hero loop, self-hosted fonts with metric-matched fallbacks, and YouTube players that load only on click.
+- **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
+
 ## Stack
 
-- [Astro 7](https://astro.build) static output, no server. Hosted on GitHub Pages.
-- Zero client-side framework. Plain CSS and a few lines of vanilla JS.
-- Build-time image optimisation (AVIF/WebP, responsive sizes) via `astro:assets` + `sharp`.
-
-## Local development
-
-Requires Node.js 22.12+ (see [`.nvmrc`](.nvmrc)).
-
-```sh
-npm ci
-npm run dev          # http://localhost:4321
-```
-
-| Command                | What it does                                  |
-| ---------------------- | --------------------------------------------- |
-| `npm run dev`          | Dev server with hot reload                    |
-| `npm run build`        | Production build to `dist/`                   |
-| `npm run preview`      | Serve the production build locally            |
-| `npm run check`        | Type-check `.astro` / `.ts` files and content |
-| `npm run format`       | Format everything with Prettier               |
-| `npm run format:check` | Verify formatting (runs in CI)                |
+| Layer     | Choice                                                            |
+| --------- | ----------------------------------------------------------------- |
+| Framework | [Astro 7](https://astro.build), static output                     |
+| Styling   | Plain CSS with custom properties                                  |
+| Images    | `astro:assets` + `sharp` (AVIF with WebP fallback)                |
+| Fonts     | Astro Fonts API: Instrument Serif, JetBrains Mono                 |
+| Hosting   | GitHub Pages, deployed by GitHub Actions                          |
+| Quality   | Prettier, `astro check` (TypeScript strict), content schema (Zod) |
 
 ## CI/CD
 
@@ -49,22 +45,11 @@ npm run dev          # http://localhost:4321
 | [`ci.yml`](.github/workflows/ci.yml)         | every pull request and push to `main`      | Prettier check → `astro check` → production build |
 | [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, daily at 03:17 UTC, manual | Build with the Pages URL → deploy to GitHub Pages |
 
-All actions are pinned to commit SHAs and kept current by Dependabot. Workflows run with read-only
-tokens; only the deploy job gets `pages: write`.
+Actions are pinned to commit SHAs and kept current by Dependabot. Workflows run with read-only
+tokens; only the deploy job gets `pages: write`. The site URL and base path come from the Pages
+settings, so the move to wethegods.cz needs no code change.
 
-## Custom domain (wethegods.cz)
+## Content and media
 
-The deploy workflow reads the site URL and base path from the GitHub Pages settings, so switching
-domains needs **no code change**:
-
-1. At the DNS provider for `wethegods.cz`, add `A` records for the apex pointing to GitHub Pages
-   (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`) and a `CNAME` for
-   `www` pointing to `majkey25.github.io`.
-2. In **Settings → Pages → Custom domain**, enter `wethegods.cz`, save, then tick **Enforce HTTPS**
-   once the certificate is issued.
-3. Re-run the **Deploy** workflow (or push any commit).
-
-## Content & media
-
-All photos, videos, logos and music are © WeTheGods. They are not covered by any open-source
-licence and may not be reused without permission.
+Live photos by Petr Ovsík / Petrov Visuals. Music videos, artwork, logos and photos are © WeTheGods and
+are not covered by any open-source licence.

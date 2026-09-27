@@ -1,0 +1,303 @@
+---
+import { getCollection } from 'astro:content';
+import { email, links } from '../data/site';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = dict[Astro.props.lang];
+// Shows are split at build time in the band's time zone; the nightly rebuild moves finished ones.
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
+const all = (await getCollection('shows')).map((s) => s.data);
+const upcoming = all.filter((s) => s.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+const past = all.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date));
+
+const parts = (iso: string) => {
+  const d = new Date(`${iso}T12:00:00Z`);
+  const f = (o: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(t.locale, { timeZone: 'UTC', ...o }).format(d);
+  return {
+    day: f({ day: 'numeric' }),
+    rest: `${f({ month: 'short' }).replace('.', '')} ${f({ year: 'numeric' })} · ${f({ weekday: 'short' })}`,
+    short: f({ day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\s/g, ''),
+  };
+};
+
+const region = new Intl.DisplayNames([t.locale], { type: 'region' });
+const place = (city: string, country: string) =>
+  country === 'CZ' ? city : `${city}, ${region.of(country) ?? country}`;
+
+const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' } as const;
+const ld = upcoming.map((s) => ({
+  '@context': 'https://schema.org',
+  '@type': 'MusicEvent',
+  name: s.event ? `WeTheGods — ${s.event}` : `WeTheGods live in ${s.city}`,
+  startDate: s.time ? `${s.date}T${s.time}` : s.date,
+  eventStatus: `https://schema.org/${s.status === 'cancelled' || s.status === 'postponed' ? eventStatus[s.status] : 'EventScheduled'}`,
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: s.venue,
+    address: { '@type': 'PostalAddress', addressLocality: s.city, addressCountry: s.country },
+  },
+  performer: { '@type': 'MusicGroup', name: 'WeTheGods' },
+  ...(s.tickets && {
+    offers: {
+      '@type': 'Offer',
+      url: s.tickets,
+      availability: `https://schema.org/${s.status === 'sold-out' ? 'SoldOut' : 'InStock'}`,
+    },
+  }),
+}));
+---
+
+<section id="shows" class="section" aria-labelledby="shows-title">
+  <div class="wrap">
+    <header class="section__head">
+      <h2 id="shows-title" class="h2">
+        <span class="glitch" data-text={t.shows.heading}>
+          {t.shows.heading}
+        </span>
+      </h2>
+      <p class="label channel" aria-hidden="true">
+        CH 01
+      </p>
+    </header>
+
+    {upcoming.length > 0 ? (
+      <ul class="shows" data-reveal>
+        {upcoming.map((s) => {
+          const d = parts(s.date);
+          const inactive = s.status === 'cancelled' || s.status === 'postponed';
+          return (
+            <li class:list={['show', { 'show--inactive': inactive }]}>
+              <time class="show__date" datetime={s.time ? `${s.date}T${s.time}` : s.date}>
+                <span class="show__day">{d.day}</span>
+                <span class="label">
+                  {d.rest}
+                  {s.time && ` · ${s.time}`}
+                </span>
+              </time>
+              <div class="show__where">
+                <p class="show__venue">{s.venue}</p>
+                <p class="label">
+                  {place(s.city, s.country)}
+                  {s.event && ` · ${s.event}`}
+                </p>
+                {s.lineup && (
+                  <p class="show__lineup">
+                    {t.shows.with} {s.lineup.join(', ')}
+                  </p>
+                )}
+              </div>
+              <div class="show__action">
+                {s.status && <span class="show__status label">[{t.shows.status[s.status]}]</span>}
+                {s.tickets && (!s.status || s.status === 'free') && (
+                  <a class="btn btn--accent out" href={s.tickets} rel="noopener" target="_blank">
+                    {t.shows.tickets}
+                  </a>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    ) : (
+      <div class="empty" data-reveal>
+        <p class="empty__title">{t.shows.emptyTitle}</p>
+        <p class="empty__text">{t.shows.emptyText}</p>
+        <div class="empty__cta">
+          <a class="btn btn--accent" href={`mailto:${email}`}>
+            {t.shows.book}
+          </a>
+          <a class="btn out" href={links.instagram} rel="noopener" target="_blank">
+            {t.shows.follow}
+          </a>
+        </div>
+      </div>
+    )}
+
+    {past.length > 0 && (
+      <details class="past" data-reveal>
+        <summary class="past__summary">
+          <span class="label">{t.shows.past}</span>
+          <span class="label">({past.length})</span>
+        </summary>
+        <ul class="past__list">
+          {past.map((s) => (
+            <li class="past__row">
+              <time class="label" datetime={s.date}>
+                {parts(s.date).short}
+              </time>
+              <span class="past__venue">{s.event ?? s.venue}</span>
+              <span class="past__city">{place(s.city, s.country)}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )}
+  </div>
+  {ld.length > 0 && (
+    <script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
+  )}
+</section>
+
+<style>
+  .shows {
+    border-top: 1px solid var(--line);
+  }
+
+  .show {
+    display: grid;
+    grid-template-columns: minmax(9rem, 14rem) 1fr auto;
+    align-items: center;
+    gap: 1rem 2rem;
+    padding-block: clamp(1.25rem, 2.5vw, 2rem);
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.25s;
+  }
+
+  .show:hover {
+    background: var(--panel);
+  }
+
+  .show--inactive .show__day,
+  .show--inactive .show__venue {
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  .show__date {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .show__day {
+    font: 400 clamp(3rem, 6vw, 4.5rem) / 0.85 var(--font-display);
+  }
+
+  .show__where {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .show__venue {
+    font: 400 clamp(1.6rem, 3vw, 2.4rem) / 1 var(--font-display);
+  }
+
+  .show__lineup {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .show__action {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .show__status {
+    color: var(--fg);
+  }
+
+  .empty {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border: 1px dashed var(--line);
+  }
+
+  .empty__title {
+    font: 400 clamp(2rem, 4.5vw, 3.5rem) / 1 var(--font-display);
+  }
+
+  .empty__text {
+    max-width: 44ch;
+    color: var(--muted);
+  }
+
+  .empty__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .past {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .past__summary {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    min-height: 3.5rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .past__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .past__summary::after {
+    content: '+';
+    margin-left: auto;
+    font: 400 1.5rem/1 var(--font-mono);
+    transition: transform 0.3s var(--ease);
+  }
+
+  .past[open] .past__summary::after {
+    transform: rotate(45deg);
+  }
+
+  .past__summary:hover .label:first-child {
+    color: var(--fg);
+  }
+
+  .past__row {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr auto;
+    gap: 0.5rem 1.5rem;
+    align-items: baseline;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .past__venue {
+    font: 400 1.35rem/1.15 var(--font-display);
+  }
+
+  .past__city {
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  @media (width <= 44rem) {
+    .show {
+      grid-template-columns: 1fr;
+    }
+
+    .show__date {
+      grid-auto-flow: column;
+      justify-content: start;
+      align-items: end;
+      gap: 0.9rem;
+    }
+
+    .past__row {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+
+    .past__city {
+      text-align: left;
+    }
+  }
+</style>

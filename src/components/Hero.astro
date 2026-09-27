@@ -1,0 +1,272 @@
+---
+import { Picture } from 'astro:assets';
+import Logo from './Logo.astro';
+import poster from '../assets/hero-poster.jpg';
+import { releases } from '../data/site';
+import { dict, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = dict[Astro.props.lang];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const ep = releases[0];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__media" aria-hidden="true">
+    <Picture
+      src={poster}
+      formats={['avif']}
+      fallbackFormat="webp"
+      widths={[640, 960, 1280, 1920]}
+      sizes="100vw"
+      alt=""
+      loading="eager"
+      fetchpriority="high"
+      class="hero__poster"
+    />
+    <video class="hero__video" muted loop playsinline preload="none" tabindex="-1">
+      <source src={`${base}media/hero.webm`} type='video/webm; codecs="av01.0.05M.08"' />
+      <source src={`${base}media/hero.mp4`} type="video/mp4" />
+    </video>
+  </div>
+
+  <div class="hero__inner wrap">
+    <p class="label hero__kicker">
+      <span class="hero__dot"></span>
+      {t.hero.kicker}
+    </p>
+    <h1 id="hero-title" class="hero__title">
+      <span class="sr-only">WeTheGods</span>
+      <Logo name="word" rgb class="hero__logo" />
+    </h1>
+    <p class="hero__tagline">{t.hero.tagline}</p>
+    <div class="hero__cta">
+      <a class="btn btn--accent out" href={ep?.href} rel="noopener" target="_blank">
+        {t.hero.listen}
+      </a>
+      <a class="btn" href="#videos">
+        {t.hero.watch}
+      </a>
+    </div>
+  </div>
+
+  <div class="hero__meta wrap label" aria-hidden="true">
+    <span>49.07° N — 17.46° E</span>
+    <span>Uherské Hradiště / CZ</span>
+  </div>
+
+  <button
+    class="hero__toggle label"
+    type="button"
+    hidden
+    data-play={t.hero.play}
+    data-pause={t.hero.pause}
+    aria-label={t.hero.pause}
+  >
+    ❚❚
+  </button>
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const video = hero?.querySelector('video');
+  const button = hero?.querySelector<HTMLButtonElement>('.hero__toggle');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+    ?.saveData;
+
+  if (hero && video && button && !reduced && !saveData) {
+    let started = false;
+    let paused = false;
+    let visible = true;
+    const render = () => {
+      button.textContent = paused ? '▶' : '❚❚';
+      button.setAttribute(
+        'aria-label',
+        (paused ? button.dataset.play : button.dataset.pause) ?? '',
+      );
+    };
+    const update = () => {
+      // Autoplay can be refused (e.g. power saving); the poster stays visible then.
+      if (started && !paused && visible) video.play().catch(() => {});
+      else video.pause();
+    };
+    video.addEventListener('playing', () => hero.classList.add('is-playing'), { once: true });
+    button.addEventListener('click', () => {
+      paused = !paused;
+      render();
+      update();
+    });
+    // Pause off-screen so the loop never burns battery in the background.
+    new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? true;
+      hero.classList.toggle('is-offscreen', !visible);
+      update();
+    }).observe(hero);
+    // Start after the page has loaded so the video never competes with first paint.
+    const start = () => {
+      started = true;
+      video.preload = 'auto';
+      button.hidden = false;
+      update();
+    };
+    if (document.readyState === 'complete') start();
+    else addEventListener('load', start, { once: true });
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: max(100svh, 38rem);
+    padding-block: calc(var(--header-h) + 3rem) clamp(4.5rem, 10vh, 7rem);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    filter: var(--media-filter);
+  }
+
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px),
+      linear-gradient(to top, #0a0a0b 0%, rgb(10 10 11 / 0.55) 38%, rgb(10 10 11 / 0.15) 70%),
+      radial-gradient(ellipse at 50% 40%, transparent 30%, rgb(10 10 11 / 0.6) 100%);
+  }
+
+  .hero__poster,
+  .hero__poster :global(img),
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+
+  .hero__video {
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+  }
+
+  .is-playing .hero__video {
+    opacity: 1;
+  }
+
+  .hero__inner {
+    display: grid;
+    justify-items: start;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .hero__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--fg);
+  }
+
+  .hero__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0.9rem var(--accent);
+    animation: blink 2.4s steps(1) infinite;
+  }
+
+  .hero__title {
+    width: min(100%, 64rem);
+  }
+
+  .hero__logo {
+    width: 100%;
+    color: var(--fg);
+  }
+
+  .hero__logo :global(.rgb__ch--a) {
+    animation: ch-a 0.6s steps(1) 2s;
+  }
+
+  .hero__logo :global(.rgb__ch--b) {
+    animation: ch-b 0.6s steps(1) 2s;
+  }
+
+  :global(.no-intro) .hero__logo :global(.rgb__ch) {
+    animation-delay: 0.3s;
+  }
+
+  .hero__title:hover .hero__logo :global(.rgb__ch--a) {
+    animation: ch-a 0.6s steps(1);
+  }
+
+  .hero__title:hover .hero__logo :global(.rgb__ch--b) {
+    animation: ch-b 0.6s steps(1);
+  }
+
+  .hero__tagline {
+    max-width: 30ch;
+    font: italic 400 clamp(1.5rem, 3vw, 2.4rem) / 1.1 var(--font-display);
+  }
+
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .hero__meta {
+    position: absolute;
+    inset: auto 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .hero__toggle {
+    position: absolute;
+    right: var(--pad);
+    top: calc(var(--header-h) + 1.25rem);
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    letter-spacing: 0;
+  }
+
+  .hero__toggle[hidden] {
+    display: none;
+  }
+
+  @keyframes blink {
+    0%,
+    70% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 0.25;
+    }
+  }
+
+  @media (width <= 40rem) {
+    .hero__meta span:first-child {
+      display: none;
+    }
+  }
+</style>
