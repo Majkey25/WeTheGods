@@ -251,14 +251,10 @@ body::after {
   color: var(--bg);
 }
 
-.btn--solid {
-  background: var(--fg);
-  color: var(--bg);
-}
-
-.btn--solid:hover {
-  background: transparent;
-  color: var(--fg);
+.btn--red:hover {
+  border-color: var(--ch-a);
+  background: var(--ch-a);
+  color: #fff;
 }
 
 .btn .icon {
