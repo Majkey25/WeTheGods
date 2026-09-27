@@ -26,7 +26,7 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 - **Events with their own pages**: shows, releases, parties and signings, each with details, directions and a downloadable calendar file (`.ics`). Finished events move to the archive during the nightly rebuild.
 - **Everything editable without code**: shows, releases, videos, gallery, line-up, About text and site settings live in [`src/data`](src/data) and are edited through [Pages CMS](https://pagescms.org) ([guide in Czech](docs/editace.md)). Every field is validated at build time, so a broken edit never reaches the live site.
 - **Contact form without a server**: messages are relayed by FormSubmit, with a honeypot and a no-JS fallback.
-- **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred 0.5 MB AV1 hero loop (skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
+- **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred hero loop (size-capped, skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
 - **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
 
 ## Stack

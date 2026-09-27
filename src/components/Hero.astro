@@ -2,8 +2,7 @@
 import { Picture } from 'astro:assets';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
-import poster from '../assets/hero-poster.jpg';
-import { getReleases, getSettings, getVideos } from '../content';
+import { getSettings } from '../content';
 import { dict, type Lang } from '../i18n';
 
 interface Props {
@@ -14,15 +13,16 @@ const { lang } = Astro.props;
 const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const settings = await getSettings();
-const [latest] = await getReleases();
-const [video] = await getVideos();
 const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
+// Site pages are written as /videos/ in the CMS; the base path and language are added here.
+const href = (url: string) =>
+  url.startsWith('/') ? `${base}${lang === 'cs' ? 'cs/' : ''}${url.slice(1)}` : url;
 ---
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__media" aria-hidden="true">
     <Picture
-      src={poster}
+      src={settings.hero_poster}
       formats={['avif']}
       fallbackFormat="webp"
       widths={[640, 960, 1280, 1920]}
@@ -33,8 +33,7 @@ const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
       class="hero__poster"
     />
     <video class="hero__video" muted loop playsinline preload="none" tabindex="-1">
-      <source src={`${base}media/hero.webm`} type='video/webm; codecs="av01.0.05M.08"' />
-      <source src={`${base}media/hero.mp4`} type="video/mp4" />
+      <source src={`${base}${settings.hero_video.slice(1)}`} type="video/mp4" />
     </video>
   </div>
 
@@ -48,14 +47,23 @@ const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
       <Logo name="word" rgb class="hero__logo" />
     </h1>
     <p class="hero__tagline">{pick(settings.hero_tagline_en, settings.hero_tagline_cs)}</p>
-    <div class="hero__cta">
-      <a class="btn out" href={latest?.link} rel="noopener" target="_blank">
-        {t.hero.listen} {latest?.title}
-      </a>
-      <a class="btn btn--red" href="#videos">
-        {t.hero.watch} {video?.title}
-      </a>
-    </div>
+    {settings.hero_buttons.length > 0 && (
+      <div class="hero__cta">
+        {settings.hero_buttons.map((b, i) => {
+          const external = b.url.startsWith('https://');
+          return (
+            <a
+              class:list={['btn', { 'btn--red': i > 0, out: external }]}
+              href={href(b.url)}
+              rel={external ? 'noopener' : undefined}
+              target={external ? '_blank' : undefined}
+            >
+              {pick(b.text_en, b.text_cs)}
+            </a>
+          );
+        })}
+      </div>
+    )}
   </div>
 
   <div class="hero__meta wrap label" aria-hidden="true">

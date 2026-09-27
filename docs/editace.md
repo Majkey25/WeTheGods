@@ -20,7 +20,7 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 | Galerie         | Fotky: přidat, smazat, přetáhnout pořadí. Každá potřebuje krátký popis česky a anglicky.     |
 | Členové kapely  | Jméno, přezdívka, nástroj, fotka (na výšku).                                                 |
 | O kapele        | Texty česky i anglicky a fotka vedle nich.                                                   |
-| Nastavení webu  | E-mail, na který chodí zprávy z formuláře, texty na úvodu, sociální sítě, press kit, merch.  |
+| Nastavení webu  | E-mail pro formulář, texty, tlačítka a video na úvodu, sociální sítě, press kit, merch.      |
 
 ## Nový koncert
 
@@ -29,6 +29,17 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 3. **Save**. Koncert se sám zařadí mezi nadcházející. Po datu se přesune do proběhlých.
 
 Každá akce má vlastní stránku s navigací a tlačítkem **Přidat do kalendáře**.
+
+## Úvod: tlačítka a video za logem
+
+V **Nastavení webu**:
+
+- **Tlačítka pod podtitulem:** nejvýš 3. První je bílé, další červená. Odkaz může být
+  `https://...`, stránka webu jako `/videos/` (jazyk se doplní sám), nebo `#videos` (sekce na úvodu).
+- **Video za logem:** nahraj krátkou smyčku `.mp4` bez zvuku, 10–20 s, 720p–1080p, ideálně do 3 MB.
+  Větší než 10 MB web nepřijme. Web video pustí až po načtení stránky. Na pomalém připojení,
+  při úsporném režimu dat a při vypnutých animacích ho nestahuje vůbec.
+- **Obrázek za logem:** ukáže se hned a na pomalém připojení místo videa. Vyber záběr podobný videu.
 
 ## Když se něco pokazí
 

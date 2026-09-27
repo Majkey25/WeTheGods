@@ -1,3 +1,4 @@
+import { existsSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { defineCollection } from 'astro:content';
@@ -160,20 +161,51 @@ const releases = defineCollection({
     }),
 });
 
+// The hero loop plays behind the logo on every visit, so an oversized upload fails the build
+// instead of slowing the site down.
+const HERO_VIDEO_MAX_MB = 10;
+const heroVideo = z
+  .string()
+  .regex(/^\/media\/[\w.-]+\.mp4$/, {
+    error: 'Hero video must be an .mp4 uploaded to public/media',
+    abort: true,
+  })
+  .refine((v) => existsSync(`public${v}`), { error: 'Hero video file not found', abort: true })
+  .refine((v) => statSync(`public${v}`).size <= HERO_VIDEO_MAX_MB * 2 ** 20, {
+    error: `Hero video is over ${HERO_VIDEO_MAX_MB} MB; export it at 720p-1080p, no sound, 10-20 s`,
+  });
+
 const settings = defineCollection({
   loader: yamlFile('src/data/settings.yaml'),
-  schema: z.strictObject({
-    email: z.email(),
-    presskit: optional(https('Press kit')),
-    merch: optional(https('Merch')),
-    youtube: https('YouTube'),
-    instagram: https('Instagram'),
-    hero_kicker_en: text,
-    hero_kicker_cs: text,
-    hero_tagline_en: text,
-    hero_tagline_cs: text,
-    socials: z.array(link),
-  }),
+  schema: ({ image }) =>
+    z.strictObject({
+      email: z.email(),
+      presskit: optional(https('Press kit')),
+      merch: optional(https('Merch')),
+      youtube: https('YouTube'),
+      instagram: https('Instagram'),
+      hero_kicker_en: text,
+      hero_kicker_cs: text,
+      hero_tagline_en: text,
+      hero_tagline_cs: text,
+      hero_buttons: z
+        .array(
+          z.strictObject({
+            text_en: text,
+            text_cs: text,
+            url: z
+              .string()
+              .regex(
+                /^(https:\/\/[^\s/]+\.[^\s]+|[/#][\w\-/#.]*)$/,
+                'Button link: use https://..., a page like /videos/ or #videos',
+              ),
+          }),
+        )
+        .max(3),
+      hero_video: heroVideo,
+      hero_poster: image(),
+      socials: z.array(link),
+    }),
 });
 
 export const collections = { shows, gallery, members, about, videos, releases, settings };

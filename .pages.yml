@@ -27,6 +27,16 @@ media:
     input: src/assets/videos
     output: ../assets/videos
     extensions: [jpg, jpeg, png, webp, avif]
+  - name: hero
+    label: Obrázek na úvodu
+    input: src/assets/hero
+    output: ../assets/hero
+    extensions: [jpg, jpeg, png, webp, avif]
+  - name: hero-video
+    label: Video na úvodu
+    input: public/media
+    output: /media
+    extensions: [mp4]
 
 content:
   - name: shows
@@ -271,6 +281,27 @@ content:
         }
       - { name: hero_tagline_cs, label: Podtitul pod logem česky, type: string, required: true }
       - { name: hero_tagline_en, label: Podtitul pod logem anglicky, type: string, required: true }
+      - name: hero_buttons
+        label: Tlačítka pod podtitulem
+        description: 'První je bílé, další červená. Odkaz: https://..., stránka webu jako /videos/, nebo #videos (sekce na úvodu).'
+        type: object
+        list: { max: 3 }
+        fields:
+          - { name: text_cs, label: Text česky, type: string, required: true }
+          - { name: text_en, label: Text anglicky, type: string, required: true }
+          - { name: url, label: Odkaz, type: string, required: true }
+      - name: hero_video
+        label: Video za logem
+        description: 'Krátká smyčka .mp4 bez zvuku, 10–20 s, 720p–1080p, ideálně do 3 MB (víc než 10 MB web nepřijme).'
+        type: file
+        required: true
+        options: { media: hero-video, extensions: [mp4] }
+      - name: hero_poster
+        label: Obrázek za logem
+        description: 'Ukáže se hned, než se načte video, a na pomalém připojení místo videa. Vyber záběr podobný videu.'
+        type: image
+        required: true
+        options: { media: hero }
       - { name: presskit, label: Odkaz na press kit, type: string }
       - { name: merch, label: Odkaz na merch obchod, type: string }
       - { name: youtube, label: Odkaz na YouTube kanál, type: string, required: true }
