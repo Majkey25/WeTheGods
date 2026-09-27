@@ -79,6 +79,8 @@ const sizes = (i: number) =>
               sizes={sizes(i)}
               quality={72}
               alt={p.alt[lang]}
+              loading={!compact && i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={!compact && i === 0 ? 'high' : 'auto'}
             />
           </a>
         </li>
