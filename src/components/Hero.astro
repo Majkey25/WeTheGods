@@ -79,6 +79,7 @@ const ep = releases[0];
     ?.saveData;
 
   if (hero && video && button && !reduced && !saveData) {
+    let started = false;
     let paused = false;
     let visible = true;
     const render = () => {
@@ -89,7 +90,8 @@ const ep = releases[0];
       );
     };
     const update = () => {
-      if (!paused && visible) video.play().catch(() => {});
+      // Autoplay can be refused (e.g. power saving); the poster stays visible then.
+      if (started && !paused && visible) video.play().catch(() => {});
       else video.pause();
     };
     video.addEventListener('playing', () => hero.classList.add('is-playing'), { once: true });
@@ -106,6 +108,7 @@ const ep = releases[0];
     }).observe(hero);
     // Start after the page has loaded so the video never competes with first paint.
     const start = () => {
+      started = true;
       video.preload = 'auto';
       button.hidden = false;
       update();

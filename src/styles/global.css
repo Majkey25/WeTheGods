@@ -139,7 +139,7 @@ button {
 body::after {
   content: '';
   position: fixed;
-  inset: -50%;
+  inset: -8%; /* covers the ±4% jitter without a 4x-viewport texture */
   z-index: 90;
   pointer-events: none;
   opacity: var(--grain);
