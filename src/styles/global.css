@@ -8,6 +8,7 @@
   --panel: #141416;
   --ch-a: #ff2d55;
   --ch-b: #00e0ff;
+  --ch-a-text: #ff2d55;
   --blend: screen;
   --media-filter: none;
   --grain: 0.07;
@@ -25,6 +26,7 @@
   --line: rgb(11 11 12 / 0.16);
   --panel: #e4e2db;
   --ch-b: #00a3c4;
+  --ch-a-text: #b8102c;
   --blend: multiply;
   --media-filter: invert(1) grayscale(1) contrast(1.1);
   --footer-filter: grayscale(1) brightness(1.55) contrast(0.8);
