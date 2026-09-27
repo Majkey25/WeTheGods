@@ -9,6 +9,17 @@ hero_kicker_en: Debut EP out now
 hero_kicker_cs: Debutové EP venku
 hero_tagline_en: Alternative metalcore from Czechia
 hero_tagline_cs: Alternativní metalcore z Česka
+# Up to 3 buttons under the tagline. url: https://... link, a site page like /videos/, or #videos.
+hero_buttons:
+  - text_en: Listen to ONE
+    text_cs: Poslechnout ONE
+    url: https://distrokid.com/hyperfollow/wethegods/one
+  - text_en: Watch Y.E.B.A.
+    text_cs: Pustit Y.E.B.A.
+    url: '#videos'
+# Background loop behind the logo (muted .mp4 in public/media) and the still shown before it plays.
+hero_video: /media/hero.mp4
+hero_poster: ../assets/hero/poster.jpg
 socials:
   - { name: Instagram, url: 'https://www.instagram.com/wethegodsband/' }
   - { name: Facebook, url: 'https://www.facebook.com/wethegodsband/' }

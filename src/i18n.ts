@@ -35,8 +35,6 @@ const en = {
     language: 'Language',
   },
   hero: {
-    listen: 'Listen to',
-    watch: 'Watch',
     pause: 'Pause background video',
     play: 'Play background video',
   },
@@ -179,8 +177,6 @@ const cs: Dict = {
     language: 'Jazyk',
   },
   hero: {
-    listen: 'Poslechnout',
-    watch: 'Pustit',
     pause: 'Pozastavit video na pozadí',
     play: 'Přehrát video na pozadí',
   },
