@@ -13,7 +13,7 @@ export default defineConfig({
       name: 'Instrument Serif',
       cssVariable: '--font-display',
       weights: [400],
-      styles: ['normal', 'italic'],
+      styles: ['normal'],
       subsets: ['latin', 'latin-ext'],
       fallbacks: ['Georgia', 'serif'],
     },

@@ -30,7 +30,13 @@ const fullDate = (iso: string) =>
 
     {ep && (
       <article class="feature" data-reveal>
-        <a class="feature__cover" href={ep.href} rel="noopener" target="_blank" tabindex="-1">
+        <a
+          class="feature__cover fx-img"
+          href={ep.href}
+          rel="noopener"
+          target="_blank"
+          tabindex="-1"
+        >
           <Picture
             src={ep.cover}
             formats={['avif']}
@@ -44,7 +50,7 @@ const fullDate = (iso: string) =>
           <p class="label">
             {t.music.ep} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
           </p>
-          <h3 class="feature__title">{ep.title}</h3>
+          <h3 class="feature__title fx">{ep.title}</h3>
           {ep.tracks && (
             <ol class="tracks" aria-label={t.music.tracklist}>
               {ep.tracks.map((track, i) => (
@@ -56,7 +62,7 @@ const fullDate = (iso: string) =>
             </ol>
           )}
           <div class="feature__cta">
-            <a class="btn btn--accent out" href={ep.href} rel="noopener" target="_blank">
+            <a class="btn btn--solid out" href={ep.href} rel="noopener" target="_blank">
               {t.music.listen}
             </a>
             {ep.platforms && (
@@ -79,7 +85,7 @@ const fullDate = (iso: string) =>
     <ul class="singles" data-reveal>
       {singles.map((r) => (
         <li>
-          <a class="single" href={r.href} rel="noopener" target="_blank">
+          <a class="single fx-img" href={r.href} rel="noopener" target="_blank">
             <span class="single__cover">
               <Picture
                 src={r.cover}
@@ -90,7 +96,7 @@ const fullDate = (iso: string) =>
                 alt=""
               />
             </span>
-            <span class="single__title">{r.title}</span>
+            <span class="single__title fx">{r.title}</span>
             <span class="label">
               {t.music.single} · {r.date.slice(0, 4)}
             </span>
@@ -121,10 +127,6 @@ const fullDate = (iso: string) =>
     height: 100%;
     object-fit: cover;
     transition: transform 0.8s var(--ease);
-  }
-
-  .feature__cover:hover :global(img) {
-    transform: scale(1.03);
   }
 
   .feature__body {
@@ -199,10 +201,6 @@ const fullDate = (iso: string) =>
     transition:
       transform 0.6s var(--ease),
       filter 0.3s;
-  }
-
-  .single:hover :global(img) {
-    transform: scale(1.04);
   }
 
   .single__title {

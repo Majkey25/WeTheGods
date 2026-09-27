@@ -81,7 +81,7 @@ const ld = upcoming.map((s) => ({
                 </span>
               </time>
               <div class="show__where">
-                <p class="show__venue">{s.venue}</p>
+                <p class="show__venue fx">{s.venue}</p>
                 <p class="label">
                   {place(s.city, s.country)}
                   {s.event && ` · ${s.event}`}
@@ -95,7 +95,7 @@ const ld = upcoming.map((s) => ({
               <div class="show__action">
                 {s.status && <span class="show__status label">[{t.shows.status[s.status]}]</span>}
                 {s.tickets && (!s.status || s.status === 'free') && (
-                  <a class="btn btn--accent out" href={s.tickets} rel="noopener" target="_blank">
+                  <a class="btn btn--solid out" href={s.tickets} rel="noopener" target="_blank">
                     {t.shows.tickets}
                   </a>
                 )}
@@ -109,7 +109,7 @@ const ld = upcoming.map((s) => ({
         <p class="empty__title">{t.shows.emptyTitle}</p>
         <p class="empty__text">{t.shows.emptyText}</p>
         <div class="empty__cta">
-          <a class="btn btn--accent" href={`mailto:${email}`}>
+          <a class="btn btn--solid" href={`mailto:${email}`}>
             {t.shows.book}
           </a>
           <a class="btn out" href={links.instagram} rel="noopener" target="_blank">
@@ -131,7 +131,7 @@ const ld = upcoming.map((s) => ({
               <time class="label" datetime={s.date}>
                 {parts(s.date).short}
               </time>
-              <span class="past__venue">{s.event ?? s.venue}</span>
+              <span class="past__venue fx">{s.event ?? s.venue}</span>
               <span class="past__city">{place(s.city, s.country)}</span>
             </li>
           ))}
