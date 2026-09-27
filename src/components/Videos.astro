@@ -19,7 +19,6 @@ const t = dict[lang];
     <SectionHead
       id="videos-title"
       title={t.videos.heading}
-      channel="CH 03"
       as={compact ? 'h2' : 'h1'}
       more={compact ? { href: pageUrl(lang, 'videos'), label: t.more.videos } : undefined}
     />
@@ -160,7 +159,7 @@ const t = dict[lang];
   }
 
   .video__title {
-    font: 500 clamp(1.3rem, 2.1vw, 1.7rem) / 1.15 var(--font-display);
+    font: 600 clamp(1.3rem, 2.1vw, 1.7rem) / 1.15 var(--font-display);
   }
 
   .videos__more {

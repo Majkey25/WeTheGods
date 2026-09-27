@@ -1,0 +1,21 @@
+# Band members in display order. Edit in the admin (Pages CMS).
+# Photos live in src/assets/members; portrait (4:5) crops look best.
+
+- name: Majkl Krasomil Nádherný
+  role_en: Vocals
+  role_cs: Zpěv
+  photo: ../assets/members/majkl.jpg
+- name: Milan Puška
+  nickname: von Bamboocha
+  role_en: Guitar
+  role_cs: Kytara
+  photo: ../assets/members/milan.jpg
+- name: Matěj Teplý
+  nickname: Majkey
+  role_en: Bass, backing vocals
+  role_cs: Baskytara, doprovodné vokály
+  photo: ../assets/members/majkey.jpg
+- name: Vojta Juříček
+  role_en: Drums
+  role_cs: Bicí
+  photo: ../assets/members/vojta.jpg

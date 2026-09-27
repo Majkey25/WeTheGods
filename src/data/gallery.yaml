@@ -1,0 +1,63 @@
+# Gallery photos in display order (tiles 1, 6 and 11 are shown large).
+# Edit in the admin (Pages CMS): add, remove or drag photos to reorder.
+# Photos live in src/assets/gallery; the site makes fast AVIF/WebP versions automatically.
+
+- image: ../assets/gallery/rfp25-stage-backdrop.jpg
+  alt_en: The band on stage in blue haze under a giant WTG backdrop, Rock for People 2025
+  alt_cs: Kapela na pódiu v modrém kouři pod obřím nápisem WTG, Rock for People 2025
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-guitar-lights.jpg
+  alt_en: Guitarist in red light with cyan beams behind him, Rock for People 2025
+  alt_cs: Kytarista v červeném světle s tyrkysovými paprsky za zády, Rock for People 2025
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-vocals-smile.jpg
+  alt_en: Vocalist laughing under the painted tent roof, Rock for People 2025
+  alt_cs: Zpěvák se směje pod malovanou střechou stanu, Rock for People 2025
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-arms-up.jpg
+  alt_en: Guitarist with both arms raised in red smoke
+  alt_cs: Kytarista se zdviženýma rukama v červeném kouři
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/flf26-vocals.jpg
+  alt_en: Vocalist singing on the open-air stage, Front Line Fest 2026
+  alt_cs: Zpěvák zpívá na open-air pódiu, Front Line Fest 2026
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-crowd.jpg
+  alt_en: Fans at the barrier cheering, Rock for People 2025
+  alt_cs: Fanoušci u zábran fandí, Rock for People 2025
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-guitar-haze.jpg
+  alt_en: Guitarist mid-riff with light beams cutting through haze
+  alt_cs: Kytarista uprostřed riffu, kouřem prosvítají paprsky světel
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/flf26-guitar-fist.jpg
+  alt_en: Guitarist raising his fist under the open-air stage roof, Front Line Fest 2026
+  alt_cs: Kytarista se zdviženou pěstí pod střechou open-air pódia, Front Line Fest 2026
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-vocals-portrait.jpg
+  alt_en: Vocalist in a cap, hand on his chin, looking into the crowd
+  alt_cs: Zpěvák v kšiltovce s rukou u brady hledí do publika
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-stage-wide.jpg
+  alt_en: Wide shot of the stage in front of the Rock for People screen
+  alt_cs: Celkový záběr pódia před obrazovkou Rock for People
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/flf26-vocals-close.jpg
+  alt_en: Close-up of the vocalist screaming into the mic, Front Line Fest 2026
+  alt_cs: Detail zpěváka, který řve do mikrofonu, Front Line Fest 2026
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/flf26-flip.jpg
+  alt_en: A fan doing a backflip in front of the stage, Front Line Fest 2026
+  alt_cs: Fanoušek dělá salto před pódiem, Front Line Fest 2026
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-fist.jpg
+  alt_en: Silhouette of the guitarist with a raised fist in red light
+  alt_cs: Silueta kytaristy se zdviženou pěstí v červeném světle
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/rfp25-guitar-tent.jpg
+  alt_en: Guitarist playing in the festival tent
+  alt_cs: Kytarista hraje ve festivalovém stanu
+  credit: Petr Ovsík / Petrov Visuals
+- image: ../assets/gallery/stage-neon-logo.jpg
+  alt_en: Empty stage with a glowing WTG sign next to the drum kit
+  alt_cs: Prázdné pódium se svítícím nápisem WTG vedle bicí soupravy

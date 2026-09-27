@@ -1,87 +1,58 @@
-# WeTheGods shows.
+# WeTheGods shows, newest first. Edit them in the admin (Pages CMS) or right here.
+# Upcoming shows appear on the site automatically; finished ones move to "Past shows" overnight.
+# The build checks every field, so a mistake never reaches the live site.
 #
-# Add a show: copy one block, give it a new unique name (e.g. 2026-11-14-brno), edit the fields,
-# commit. The site rebuilds automatically. Upcoming shows are listed first; once the date passes,
-# the show moves to "Past shows" on its own (the site rebuilds every night).
-# A typo cannot break the live site: the build checks every field and stops if something is wrong.
-#
-#   date:     2026-11-14            required, YYYY-MM-DD
-#   time:     20:00                 optional, 24-hour clock
-#   venue:    Klub Mír              required
-#   city:     Uherské Hradiště      required
-#   country:  CZ                    optional, 2-letter code, default CZ
-#   event:    Festival or tour name optional
-#   lineup:   [Band A, Band B]      optional, other bands on the bill
-#   tickets:  https://...           optional, ticket link (https only)
-#   status:   sold-out | cancelled | postponed | free   optional
+#   date: 2026-11-14        required, YYYY-MM-DD      time: 20:00       optional
+#   venue, city             required                  country: CZ       optional, 2-letter code
+#   event                   festival or tour name     lineup: [A, B]    other bands
+#   tickets: https://...    ticket link               status: sold-out | cancelled | postponed | free
 
-2026-07-25-brno:
-  date: 2026-07-25
+- date: 2026-07-25
   venue: Letní kino Špilberk
   city: Brno
   event: Front Line Fest Open Air 2026
   lineup: [Hideous Divinity, Vanguard, Vermocracy, Refore]
-
-2026-06-06-slavicin:
-  date: 2026-06-06
+- date: 2026-06-06
   venue: Army Park Divnice
   city: Slavičín
   event: Karpaty Hard Fest 2026
   lineup: [Dark Funeral, Decapitated, Legion of the Damned]
-
-2026-03-27-praha:
-  date: 2026-03-27
+- date: 2026-03-27
   venue: Klub Varšava
   city: Praha
   lineup: [Fallen At Dawn, Bound To Break]
-
-2025-10-31-uherske-hradiste:
-  date: 2025-10-31
+- date: 2025-10-31
   venue: Klub Mír
   city: Uherské Hradiště
   lineup: [Abbie Falls, Marked As An Enemy, Swept Into Decay]
-
-2025-10-25-brno:
-  date: 2025-10-25
+- date: 2025-10-25
   venue: Metro Music Bar
   city: Brno
   event: Lasskahl Czech Tour 2025
   lineup: [Lasskahl, Marked As An Enemy]
-
-2025-10-24-olomouc:
-  date: 2025-10-24
+- date: 2025-10-24
   venue: Hell Paso Club
   city: Olomouc
   event: Lasskahl Czech Tour 2025
   lineup: [Lasskahl, Marked As An Enemy]
-
-2025-10-23-praha:
-  date: 2025-10-23
+- date: 2025-10-23
   venue: Klub 007 Strahov
   city: Praha
   event: Lasskahl Czech Tour 2025
   lineup: [Lasskahl, Marked As An Enemy]
-
-2025-06-11-hradec-kralove:
-  date: 2025-06-11
+- date: 2025-06-11
   venue: Conference Stage
   city: Hradec Králové
   event: Rock for People 2025
-
-2025-04-04-praha:
-  date: 2025-04-04
+- date: 2025-04-04
   venue: Klub 007 Strahov
   city: Praha
   lineup: [Marked As An Enemy, Vile]
-
-2024-11-01-brno:
-  date: 2024-11-01
+- date: 2024-11-01
   venue: Kabinet MÚZ
   city: Brno
   lineup: [Marked As An Enemy, Bound To Break]
-
-2024-10-27-uherske-hradiste:
-  date: 2024-10-27
+- date: 2024-10-27
   venue: Klub Mír
   city: Uherské Hradiště
   lineup: [Skywalker, Marked As An Enemy, Breaking The Cycle]

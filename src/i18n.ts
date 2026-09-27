@@ -19,6 +19,7 @@ const en = {
     videos: 'All videos',
     gallery: 'Open the gallery',
     contact: 'Contact & booking',
+    about: 'About the band',
   },
   nav: {
     shows: 'Shows',
@@ -72,19 +73,13 @@ const en = {
   },
   about: {
     heading: 'About',
-    lead: 'Alternative metalcore from Uherské Hradiště. Down-tuned groove riffs, heavy breakdowns and choruses that stick.',
-    body: [
-      'WeTheGods started in 2024 as a studio project of two musicians from the Czech metal and hardcore scene and quickly grew into a full band. Since their live debut in October 2024 they have played across the country with Skywalker, Marked As An Enemy and Abbie Falls, toured Czech clubs with Switzerland’s Lasskahl and played the Conference Stage at Rock for People 2025.',
-      'The name is an allegory: a species that crowned itself ruler of the planet, chasing material happiness straight into the ruin of its land and its own kind. The debut EP ONE, produced by Damián Kučera of Skywalker, came out in May 2026.',
-    ],
     facts: {
       origin: 'From',
-      originValue: 'Uherské Hradiště, CZ',
       formed: 'Formed',
       genre: 'Genre',
-      genreValue: 'Alternative metalcore',
       fans: 'For fans of',
     },
+    members: 'Line-up',
   },
   gallery: {
     heading: 'Gallery',
@@ -102,9 +97,22 @@ const en = {
     presskit: 'Press kit',
     merch: 'Merch store',
     follow: 'Follow',
+    form: {
+      title: 'Send us a message',
+      name: 'Name',
+      email: 'Email',
+      topic: 'Topic',
+      topics: { booking: 'Booking', press: 'Press & media', fans: 'Fans', other: 'Something else' },
+      message: 'Message',
+      send: 'Send message',
+      sending: 'Sending…',
+      sent: 'Thanks, your message is on its way. We will get back to you soon.',
+      error: 'Sending failed. Please try again or email us directly.',
+      privacy: 'Messages are delivered to our inbox by FormSubmit.',
+    },
   },
   footer: {
-    credits: 'Live photos: Petr Ovsík / Petrov Visuals',
+    credits: 'Live photos: Petr Ovsík /',
     top: 'Back to top',
   },
   notFound: {
@@ -138,6 +146,7 @@ const cs: Dict = {
     videos: 'Všechny klipy',
     gallery: 'Otevřít galerii',
     contact: 'Kontakt a booking',
+    about: 'O kapele',
   },
   nav: {
     shows: 'Koncerty',
@@ -191,19 +200,13 @@ const cs: Dict = {
   },
   about: {
     heading: 'O kapele',
-    lead: 'Alternativní metalcore z Uherského Hradiště. Podladěné groovy riffy, těžké breakdowny a refrény, které se zaryjí do hlavy.',
-    body: [
-      'WeTheGods vznikli v roce 2024 jako studiový projekt dvou muzikantů z české metalové a hardcorové scény a rychle se z nich stala plnohodnotná kapela. Od živé premiéry v říjnu 2024 hráli po celé republice se Skywalker, Marked As An Enemy nebo Abbie Falls, objeli české kluby se švýcarskými Lasskahl a zahráli na Conference Stage festivalu Rock for People 2025.',
-      'Název je alegorie: lidstvo se prohlásilo vládcem planety a v honbě za materiálním štěstím ničí svou zemi i samo sebe. Debutové EP ONE produkoval Damián Kučera ze Skywalker a vyšlo v květnu 2026.',
-    ],
     facts: {
       origin: 'Odkud',
-      originValue: 'Uherské Hradiště',
       formed: 'Vznik',
       genre: 'Žánr',
-      genreValue: 'Alternativní metalcore',
       fans: 'Pro fanoušky',
     },
+    members: 'Sestava',
   },
   gallery: {
     heading: 'Galerie',
@@ -221,9 +224,22 @@ const cs: Dict = {
     presskit: 'Press kit',
     merch: 'Merch',
     follow: 'Sledujte nás',
+    form: {
+      title: 'Napište nám',
+      name: 'Jméno',
+      email: 'E-mail',
+      topic: 'Téma',
+      topics: { booking: 'Booking', press: 'Média a tisk', fans: 'Fanoušci', other: 'Něco jiného' },
+      message: 'Zpráva',
+      send: 'Odeslat zprávu',
+      sending: 'Odesílám…',
+      sent: 'Díky, zpráva je na cestě. Brzy se ozveme.',
+      error: 'Odeslání se nepovedlo. Zkuste to znovu nebo nám napište e-mail.',
+      privacy: 'Zprávy nám do schránky doručuje služba FormSubmit.',
+    },
   },
   footer: {
-    credits: 'Živé fotky: Petr Ovsík / Petrov Visuals',
+    credits: 'Živé fotky: Petr Ovsík /',
     top: 'Nahoru',
   },
   notFound: {
