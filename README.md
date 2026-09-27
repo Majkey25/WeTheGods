@@ -34,7 +34,7 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 | Framework | [Astro 7](https://astro.build), static output                     |
 | Styling   | Plain CSS with custom properties                                  |
 | Images    | `astro:assets` + `sharp` (AVIF with WebP fallback)                |
-| Fonts     | Astro Fonts API: Instrument Serif, JetBrains Mono                 |
+| Fonts     | Astro Fonts API: Bodoni Moda, Geist, JetBrains Mono               |
 | Hosting   | GitHub Pages, deployed by GitHub Actions                          |
 | Quality   | Prettier, `astro check` (TypeScript strict), content schema (Zod) |
 

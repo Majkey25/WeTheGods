@@ -11,7 +11,6 @@
   --blend: screen;
   --media-filter: none;
   --grain: 0.07;
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --pad: clamp(1.25rem, 4vw, 3rem);
   --max: 90rem;
   --header-h: 4.25rem;
@@ -191,8 +190,8 @@ body::after {
 }
 
 .h2 {
-  font: 400 clamp(3.75rem, 12vw, 10rem) / 0.82 var(--font-display);
-  letter-spacing: -0.025em;
+  font: 400 clamp(2.9rem, 8.6vw, 7.5rem) / 0.95 var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 .label {

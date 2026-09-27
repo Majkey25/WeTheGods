@@ -78,6 +78,7 @@ const ld = {
     <meta property="og:locale" content={t.locale.replace('-', '_')} />
     <meta name="twitter:card" content="summary_large_image" />
     <Font cssVariable="--font-display" preload={[{ subset: 'latin', style: 'normal' }]} />
+    <Font cssVariable="--font-body" preload={[{ subset: 'latin' }]} />
     <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
     <script is:inline>
       (() => {
@@ -511,7 +512,7 @@ const ld = {
     }
 
     .nav__link {
-      font: 400 clamp(2.75rem, 13vw, 4.5rem) / 1.05 var(--font-display);
+      font: 400 clamp(2.2rem, 10vw, 3.6rem) / 1.12 var(--font-display);
       letter-spacing: -0.01em;
       text-transform: none;
     }
