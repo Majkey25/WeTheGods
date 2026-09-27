@@ -3,16 +3,20 @@ import { Picture } from 'astro:assets';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import poster from '../assets/hero-poster.jpg';
-import { releases } from '../data/site';
+import { getReleases, getSettings, getVideos } from '../content';
 import { dict, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
 }
 
-const t = dict[Astro.props.lang];
+const { lang } = Astro.props;
+const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const ep = releases[0];
+const settings = await getSettings();
+const [latest] = await getReleases();
+const [video] = await getVideos();
+const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -37,19 +41,19 @@ const ep = releases[0];
   <div class="hero__inner wrap">
     <p class="label hero__kicker">
       <span class="hero__dot"></span>
-      {t.hero.kicker}
+      {pick(settings.hero_kicker_en, settings.hero_kicker_cs)}
     </p>
     <h1 id="hero-title" class="hero__title">
       <span class="sr-only">WeTheGods</span>
       <Logo name="word" rgb class="hero__logo" />
     </h1>
-    <p class="hero__tagline">{t.hero.tagline}</p>
+    <p class="hero__tagline">{pick(settings.hero_tagline_en, settings.hero_tagline_cs)}</p>
     <div class="hero__cta">
-      <a class="btn out" href={ep?.href} rel="noopener" target="_blank">
-        {t.hero.listen}
+      <a class="btn out" href={latest?.link} rel="noopener" target="_blank">
+        {t.hero.listen} {latest?.title}
       </a>
       <a class="btn btn--red" href="#videos">
-        {t.hero.watch}
+        {t.hero.watch} {video?.title}
       </a>
     </div>
   </div>

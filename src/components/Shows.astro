@@ -1,7 +1,7 @@
 ---
-import { getCollection } from 'astro:content';
-import { links } from '../data/site';
+import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
+import { cityLabel, dateParts, eventJsonLd, getEvents, getSettings, type Event } from '../content';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -12,51 +12,13 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
-// Shows are split at build time in the band's time zone; the nightly rebuild moves finished ones.
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
-const all = (await getCollection('shows')).map((s) => s.data);
-const upcoming = all.filter((s) => s.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+const { upcoming, past } = await getEvents();
+const settings = await getSettings();
 // The home page teaser shows the next three dates only.
 const shown = compact ? upcoming.slice(0, 3) : upcoming;
-const past = all.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date));
-
-const parts = (iso: string) => {
-  const d = new Date(`${iso}T12:00:00Z`);
-  const f = (o: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat(t.locale, { timeZone: 'UTC', ...o }).format(d);
-  return {
-    day: f({ day: 'numeric' }),
-    rest: `${f({ month: 'short' }).replace('.', '')} ${f({ year: 'numeric' })} · ${f({ weekday: 'short' })}`,
-    short: f({ day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\s/g, ''),
-  };
-};
-
-const region = new Intl.DisplayNames([t.locale], { type: 'region' });
-const place = (city: string, country: string) =>
-  country === 'CZ' ? city : `${city}, ${region.of(country) ?? country}`;
-
-const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' } as const;
-const ld = upcoming.map((s) => ({
-  '@context': 'https://schema.org',
-  '@type': 'MusicEvent',
-  name: s.event ? `WeTheGods — ${s.event}` : `WeTheGods live in ${s.city}`,
-  startDate: s.time ? `${s.date}T${s.time}` : s.date,
-  eventStatus: `https://schema.org/${s.status === 'cancelled' || s.status === 'postponed' ? eventStatus[s.status] : 'EventScheduled'}`,
-  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-  location: {
-    '@type': 'Place',
-    name: s.venue,
-    address: { '@type': 'PostalAddress', addressLocality: s.city, addressCountry: s.country },
-  },
-  performer: { '@type': 'MusicGroup', name: 'WeTheGods' },
-  ...(s.tickets && {
-    offers: {
-      '@type': 'Offer',
-      url: s.tickets,
-      availability: `https://schema.org/${s.status === 'sold-out' ? 'SoldOut' : 'InStock'}`,
-    },
-  }),
-}));
+const detail = (e: Event) => `${pageUrl(lang, 'shows')}${e.slug}/`;
+const site = Astro.site ?? new URL('https://majkey25.github.io');
+const ld = upcoming.map((e) => eventJsonLd(e, new URL(detail(e), site).href));
 ---
 
 <section id="shows" class="section" aria-labelledby="shows-title">
@@ -68,39 +30,43 @@ const ld = upcoming.map((s) => ({
       more={compact ? { href: pageUrl(lang, 'shows'), label: t.more.shows } : undefined}
     />
 
-    {upcoming.length > 0 ? (
+    {shown.length > 0 ? (
       <ul class="shows" data-reveal>
-        {shown.map((s) => {
-          const d = parts(s.date);
-          const inactive = s.status === 'cancelled' || s.status === 'postponed';
+        {shown.map((e) => {
+          const d = dateParts(t.locale, e.date);
+          const place = [e.title && e.venue, cityLabel(t.locale, e)].filter(Boolean).join(' · ');
           return (
-            <li class:list={['show', { 'show--inactive': inactive }]}>
-              <time class="show__date" datetime={s.time ? `${s.date}T${s.time}` : s.date}>
+            <li class:list={['show', { 'show--inactive': e.inactive }]}>
+              <time class="show__date" datetime={e.time ? `${e.date}T${e.time}` : e.date}>
                 <span class="show__day">{d.day}</span>
                 <span class="label">
                   {d.rest}
-                  {s.time && ` · ${s.time}`}
+                  {e.time && ` · ${e.time}`}
                 </span>
               </time>
               <div class="show__where">
-                <p class="show__venue fx">{s.venue}</p>
-                <p class="label">
-                  {place(s.city, s.country)}
-                  {s.event && ` · ${s.event}`}
-                </p>
-                {s.lineup && (
+                {e.type !== 'show' && <p class="show__type label">{t.shows.types[e.type]}</p>}
+                <a class="show__link" href={detail(e)}>
+                  <span class="show__venue fx">{e.name}</span>
+                </a>
+                {place && <p class="label">{place}</p>}
+                {e.lineup && (
                   <p class="show__lineup">
-                    {t.shows.with} {s.lineup.join(', ')}
+                    {t.shows.with} {e.lineup.join(', ')}
                   </p>
                 )}
               </div>
               <div class="show__action">
-                {s.status && <span class="show__status label">[{t.shows.status[s.status]}]</span>}
-                {s.tickets && (!s.status || s.status === 'free') && (
-                  <a class="btn out" href={s.tickets} rel="noopener" target="_blank">
-                    {t.shows.tickets}
+                {e.status && <span class="show__status label">[{t.shows.status[e.status]}]</span>}
+                {e.tickets && (!e.status || e.status === 'free') && (
+                  <a class="btn out show__tickets" href={e.tickets} rel="noopener" target="_blank">
+                    {t.shows.link[e.type]}
                   </a>
                 )}
+                <span class="show__more label" aria-hidden="true">
+                  {t.shows.details}
+                  <Icon name="arrow-right" />
+                </span>
               </div>
             </li>
           );
@@ -114,7 +80,7 @@ const ld = upcoming.map((s) => ({
           <a class="btn" href={pageUrl(lang, 'contact')}>
             {t.shows.book}
           </a>
-          <a class="btn btn--red out" href={links.instagram} rel="noopener" target="_blank">
+          <a class="btn btn--red out" href={settings.instagram} rel="noopener" target="_blank">
             {t.shows.follow}
           </a>
         </div>
@@ -128,13 +94,18 @@ const ld = upcoming.map((s) => ({
           <span class="label">({past.length})</span>
         </summary>
         <ul class="past__list">
-          {past.map((s) => (
-            <li class="past__row">
-              <time class="label" datetime={s.date}>
-                {parts(s.date).short}
-              </time>
-              <span class="past__venue fx">{s.event ?? s.venue}</span>
-              <span class="past__city">{place(s.city, s.country)}</span>
+          {past.map((e) => (
+            <li>
+              <a class="past__row" href={detail(e)}>
+                <time class="label" datetime={e.date}>
+                  {dateParts(t.locale, e.date).short}
+                </time>
+                <span class="past__venue fx">
+                  {e.name}
+                  {e.type !== 'show' && <span class="label"> · {t.shows.types[e.type]}</span>}
+                </span>
+                <span class="past__city">{cityLabel(t.locale, e)}</span>
+              </a>
             </li>
           ))}
         </ul>
@@ -152,6 +123,7 @@ const ld = upcoming.map((s) => ({
   }
 
   .show {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(9rem, 14rem) 1fr auto;
     align-items: center;
@@ -163,6 +135,18 @@ const ld = upcoming.map((s) => ({
 
   .show:hover {
     background: var(--panel);
+  }
+
+  /* The whole row opens the detail page; the tickets button stays clickable on top. */
+  .show__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .show__tickets {
+    position: relative;
+    z-index: 1;
   }
 
   .show--inactive .show__day,
@@ -185,24 +169,46 @@ const ld = upcoming.map((s) => ({
     gap: 0.4rem;
   }
 
+  .show__type {
+    color: var(--ch-a);
+  }
+
   .show__venue {
     font: 600 clamp(1.4rem, 2.5vw, 2rem) / 1.05 var(--font-display);
   }
 
   .show__lineup {
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .show__action {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 1rem;
+    justify-content: flex-end;
+    gap: 1rem 1.5rem;
   }
 
   .show__status {
     color: var(--fg);
+  }
+
+  .show__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--fg);
+  }
+
+  .show__more :global(.icon) {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.25s var(--ease);
+  }
+
+  .show:hover .show__more :global(.icon) {
+    transform: translateX(4px);
   }
 
   .empty {
@@ -269,6 +275,11 @@ const ld = upcoming.map((s) => ({
     align-items: baseline;
     padding-block: 0.9rem;
     border-top: 1px solid var(--line);
+    transition: background-color 0.25s;
+  }
+
+  .past__row:hover {
+    background: var(--panel);
   }
 
   .past__venue {
@@ -277,7 +288,7 @@ const ld = upcoming.map((s) => ({
 
   .past__city {
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     text-align: right;
   }
 
@@ -291,6 +302,10 @@ const ld = upcoming.map((s) => ({
       justify-content: start;
       align-items: end;
       gap: 0.9rem;
+    }
+
+    .show__action {
+      justify-content: flex-start;
     }
 
     .past__row {

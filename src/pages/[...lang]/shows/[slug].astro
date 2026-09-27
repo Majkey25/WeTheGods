@@ -1,0 +1,261 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import { cityLabel, dateParts, eventJsonLd, getEvents, mapUrl, type Event } from '../../../content';
+import { dict, langs, pageUrl, toLang } from '../../../i18n';
+
+// One page per event and language: /shows/<slug>/ and /cs/shows/<slug>/.
+export async function getStaticPaths() {
+  const { all } = await getEvents();
+  return langs.flatMap((lang) =>
+    all.map((event) => ({
+      params: { lang: lang === 'en' ? undefined : lang, slug: event.slug },
+      props: { event },
+    })),
+  );
+}
+
+const { event: e } = Astro.props as { event: Event };
+const lang = toLang(Astro.params.lang);
+const t = dict[lang];
+const s = t.shows;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const site = Astro.site ?? new URL('https://majkey25.github.io');
+const url = new URL(`${pageUrl(lang, 'shows')}${e.slug}/`, site).href;
+
+const date = dateParts(t.locale, e.date);
+const info = lang === 'cs' ? (e.info_cs ?? e.info_en) : (e.info_en ?? e.info_cs);
+const paragraphs = (info ?? '').split(/\n\s*\n/).filter((p) => p.trim());
+const directions = mapUrl(e);
+const city = cityLabel(t.locale, e);
+const summary = [s.types[e.type], date.long, e.venue, city].filter(Boolean).join(' · ');
+---
+
+<Base
+  lang={lang}
+  page="shows"
+  sub={e.slug}
+  title={`${e.name} — WeTheGods`}
+  description={info?.slice(0, 160) ?? summary}
+>
+  <article class="section event" aria-labelledby="event-title">
+    <div class="wrap">
+      <a class="event__back label" href={pageUrl(lang, 'shows')}>
+        <Icon name="arrow-left" />
+        {s.back}
+      </a>
+
+      <p class="event__kicker label">
+        <span class="event__type">{s.types[e.type]}</span> · {date.long}
+      </p>
+      <h1 id="event-title" class="h2 event__title">
+        <span class="glitch" data-text={e.name}>
+          {e.name}
+        </span>
+      </h1>
+      {e.status && <p class="event__status label">[{s.status[e.status]}]</p>}
+
+      <div class:list={['event__grid', { 'event__grid--poster': e.poster }]}>
+        <div class="event__body">
+          <dl class="event__facts">
+            <div class="event__row">
+              <dt class="label">{s.when}</dt>
+              <dd>
+                <time datetime={e.time ? `${e.date}T${e.time}` : e.date}>{date.long}</time>
+                {e.time && (
+                  <span class="event__time">
+                    {e.time}
+                    {e.end && ` – ${e.end}`}
+                  </span>
+                )}
+              </dd>
+            </div>
+            {e.doors && (
+              <div class="event__row">
+                <dt class="label">{s.doors}</dt>
+                <dd>{e.doors}</dd>
+              </div>
+            )}
+            {e.venue && (
+              <div class="event__row">
+                <dt class="label">{s.where}</dt>
+                <dd>
+                  <strong>{e.venue}</strong>
+                  {e.address && <span>{e.address}</span>}
+                  {city && <span>{city}</span>}
+                </dd>
+              </div>
+            )}
+            {e.lineup && (
+              <div class="event__row">
+                <dt class="label">{s.lineup}</dt>
+                <dd>{['WeTheGods', ...e.lineup].join(', ')}</dd>
+              </div>
+            )}
+          </dl>
+
+          {paragraphs.map((p) => (
+            <p class="event__info">{p}</p>
+          ))}
+
+          <div class="event__cta">
+            {e.tickets && !e.inactive && e.status !== 'sold-out' && (
+              <a class="btn out" href={e.tickets} rel="noopener" target="_blank">
+                {s.link[e.type]}
+              </a>
+            )}
+            {directions && (
+              <a class="btn btn--red out" href={directions} rel="noopener" target="_blank">
+                <Icon name="pin" />
+                {s.directions}
+              </a>
+            )}
+            <a class="btn" href={`${base}shows/${e.slug}.ics`} download={`wethegods-${e.slug}.ics`}>
+              <Icon name="calendar" />
+              {s.calendar}
+            </a>
+          </div>
+        </div>
+
+        {e.poster && (
+          <figure class="event__poster fx-img">
+            <Picture
+              src={e.poster}
+              formats={['avif']}
+              fallbackFormat="webp"
+              widths={[400, 700, 1000]}
+              sizes="(width > 56rem) 35vw, 100vw"
+              alt=""
+              loading="eager"
+            />
+          </figure>
+        )}
+      </div>
+    </div>
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(eventJsonLd(e, url)).replace(/</g, '\\u003c')}
+    />
+  </article>
+</Base>
+
+<style>
+  .event__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--fg);
+  }
+
+  .event__back :global(.icon) {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.25s var(--ease);
+  }
+
+  .event__back:hover :global(.icon) {
+    transform: translateX(-4px);
+  }
+
+  .event__kicker {
+    margin-bottom: 1rem;
+  }
+
+  .event__type {
+    color: var(--ch-a);
+  }
+
+  .event__title {
+    overflow-wrap: anywhere;
+  }
+
+  .event__status {
+    margin-top: 1rem;
+    color: var(--fg);
+  }
+
+  .event__grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 6rem);
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .event__grid--poster {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .event__body {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 52rem;
+  }
+
+  .event__facts {
+    border-top: 1px solid var(--line);
+  }
+
+  .event__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .event__row dd {
+    display: grid;
+    gap: 0.2rem;
+    font-size: 1.05rem;
+  }
+
+  .event__row strong {
+    font: 600 1.3rem/1.2 var(--font-display);
+  }
+
+  .event__time {
+    font: 600 1.3rem/1.2 var(--font-mono);
+  }
+
+  .event__info {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .event__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .event__poster {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    overflow: hidden;
+  }
+
+  .event__poster :global(img) {
+    width: 100%;
+  }
+
+  @media (width <= 56rem) {
+    .event__grid--poster {
+      grid-template-columns: 1fr;
+    }
+
+    .event__poster {
+      position: static;
+    }
+  }
+
+  @media (width <= 30rem) {
+    .event__row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

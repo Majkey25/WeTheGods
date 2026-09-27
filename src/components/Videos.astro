@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import { links, videos } from '../data/site';
+import { getSettings, getVideos } from '../content';
 import SectionHead from './SectionHead.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
@@ -12,6 +12,8 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
+const videos = await getVideos();
+const { youtube } = await getSettings();
 ---
 
 <section id="videos" class="section" aria-labelledby="videos-title">
@@ -28,23 +30,37 @@ const t = dict[lang];
         <li class:list={['video', { 'video--feature': i === 0 }]}>
           <a
             class="yt fx-img"
-            href={`https://www.youtube.com/watch?v=${v.id}`}
-            data-yt={v.id}
+            href={`https://www.youtube.com/watch?v=${v.youtube}`}
+            data-yt={v.youtube}
             data-title={v.title}
             rel="noopener"
             target="_blank"
             aria-label={`${t.videos.play}: ${v.title}`}
           >
-            <Picture
-              src={v.thumb}
-              formats={['avif']}
-              fallbackFormat="webp"
-              widths={i === 0 ? [640, 960, 1280, 1920] : [480, 640, 960]}
-              sizes={i === 0 ? '(width > 56rem) 90vw, 100vw' : '(width > 56rem) 45vw, 100vw'}
-              alt=""
-              loading={!compact && i === 0 ? 'eager' : 'lazy'}
-              fetchpriority={!compact && i === 0 ? 'high' : 'auto'}
-            />
+            {typeof v.thumb === 'string' ? (
+              <Picture
+                src={v.thumb}
+                inferSize
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={i === 0 ? [640, 960, 1280, 1920] : [480, 640, 960]}
+                sizes={i === 0 ? '(width > 56rem) 90vw, 100vw' : '(width > 56rem) 45vw, 100vw'}
+                alt=""
+                loading={!compact && i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={!compact && i === 0 ? 'high' : 'auto'}
+              />
+            ) : (
+              <Picture
+                src={v.thumb}
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={i === 0 ? [640, 960, 1280, 1920] : [480, 640, 960]}
+                sizes={i === 0 ? '(width > 56rem) 90vw, 100vw' : '(width > 56rem) 45vw, 100vw'}
+                alt=""
+                loading={!compact && i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={!compact && i === 0 ? 'high' : 'auto'}
+              />
+            )}
             <span class="yt__play" aria-hidden="true" />
           </a>
           <p class="video__caption">
@@ -56,7 +72,7 @@ const t = dict[lang];
     </ul>
 
     {!compact && (
-      <a class="btn btn--red out videos__more" href={links.youtube} rel="noopener" target="_blank">
+      <a class="btn btn--red out videos__more" href={youtube} rel="noopener" target="_blank">
         {t.videos.more}
       </a>
     )}

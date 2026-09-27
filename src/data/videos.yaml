@@ -1,0 +1,15 @@
+# Music videos, newest first. Edit in the admin (Pages CMS).
+# youtube: paste the YouTube link. thumbnail is optional; without it the YouTube thumbnail is used.
+
+- youtube: https://www.youtube.com/watch?v=zZ1o1wM81SA
+  title: Y.E.B.A.
+  year: 2026
+  thumbnail: ../assets/videos/yeba.jpg
+- youtube: https://www.youtube.com/watch?v=fxt9NIF6qKI
+  title: Labyrinth of Lies
+  year: 2026
+  thumbnail: ../assets/videos/labyrinth-of-lies.jpg
+- youtube: https://www.youtube.com/watch?v=1qFEP1XX3hI
+  title: Illusions
+  year: 2025
+  thumbnail: ../assets/videos/illusions.jpg
