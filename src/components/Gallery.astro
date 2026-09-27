@@ -1,5 +1,6 @@
 ---
 import { Picture, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
 import { gallery } from '../data/site';
 import { dict, type Lang } from '../i18n';
 
@@ -55,7 +56,7 @@ const sizes = (i: number) =>
       {items.map((p, i) => (
         <li>
           <a
-            class="gallery__item"
+            class="gallery__item fx-img"
             href={p.full}
             data-avif={p.avif}
             data-webp={p.webp}
@@ -88,13 +89,14 @@ const sizes = (i: number) =>
     </figure>
     <p class="lightbox__count label" aria-live="polite"></p>
     <button class="lightbox__btn lightbox__close label" type="button">
-      {t.gallery.close} ✕
+      {t.gallery.close}
+      <Icon name="close" />
     </button>
     <button class="lightbox__btn lightbox__prev" type="button" aria-label={t.gallery.prev}>
-      ←
+      <Icon name="arrow-left" />
     </button>
     <button class="lightbox__btn lightbox__next" type="button" aria-label={t.gallery.next}>
-      →
+      <Icon name="arrow-right" />
     </button>
   </dialog>
 </section>
@@ -202,69 +204,6 @@ const sizes = (i: number) =>
     transition: transform 0.9s var(--ease);
   }
 
-  .gallery__item::before,
-  .gallery__item::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    opacity: 0;
-    pointer-events: none;
-    mix-blend-mode: var(--blend);
-  }
-
-  .gallery__item::before {
-    background: var(--ch-a);
-  }
-
-  .gallery__item::after {
-    background: var(--ch-b);
-  }
-
-  .gallery__item:hover :global(img) {
-    transform: scale(1.04);
-  }
-
-  .gallery__item:hover::before {
-    animation: flash-a 0.35s steps(1);
-  }
-
-  .gallery__item:hover::after {
-    animation: flash-b 0.35s steps(1);
-  }
-
-  @keyframes flash-a {
-    0% {
-      opacity: 0.35;
-      clip-path: inset(12% 0 70% 0);
-    }
-    33% {
-      clip-path: inset(60% 0 22% 0);
-    }
-    66% {
-      clip-path: inset(34% 0 52% 0);
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes flash-b {
-    0% {
-      opacity: 0.35;
-      clip-path: inset(72% 0 10% 0);
-    }
-    33% {
-      clip-path: inset(20% 0 64% 0);
-    }
-    66% {
-      clip-path: inset(48% 0 40% 0);
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
   .lightbox {
     width: 100vw;
     max-width: none;
@@ -344,8 +283,19 @@ const sizes = (i: number) =>
     right: clamp(0rem, 1vw, 1.5rem);
   }
 
-  .lightbox__btn:hover {
-    color: var(--accent);
+  .lightbox__btn :global(.icon) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .lightbox__close {
+    gap: 0.5rem;
+    grid-auto-flow: column;
+  }
+
+  .lightbox__close :global(.icon) {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 
   @media (width <= 48rem) {

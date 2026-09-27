@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
 import { dict, homeUrl, langs, type Lang } from '../i18n';
 import { logos } from '../logo';
@@ -108,6 +109,26 @@ const ld = {
           <path d={l.d} />
         </symbol>
       ))}
+      {[
+        { id: 'fx-rgb', dx: 8 },
+        { id: 'fx-rgb-2', dx: 4 },
+      ].map(({ id, dx }) => (
+        <filter id={id} x="-5%" y="0" width="110%" height="100%" color-interpolation-filters="sRGB">
+          <feColorMatrix
+            in="SourceGraphic"
+            values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
+            result="r"
+          />
+          <feOffset in="r" dx={-dx} result="rs" />
+          <feColorMatrix
+            in="SourceGraphic"
+            values="0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"
+            result="gb"
+          />
+          <feOffset in="gb" dx={dx} result="gbs" />
+          <feBlend in="rs" in2="gbs" mode="screen" />
+        </filter>
+      ))}
     </svg>
 
     <div class="intro" aria-hidden="true">
@@ -157,6 +178,8 @@ const ld = {
           </nav>
           <button class="theme" type="button" aria-pressed="false" aria-label={t.nav.theme}>
             <span class="theme__thumb"></span>
+            <Icon name="moon" class="theme__icon theme__icon--dark" />
+            <Icon name="sun" class="theme__icon theme__icon--light" />
           </button>
           <button class="menu-btn label" type="button" popovertarget="nav">
             {t.nav.menu}
@@ -177,8 +200,9 @@ const ld = {
         <div class="footer__row label">
           <p>© {new Date().getFullYear()} WeTheGods</p>
           <p>{t.footer.credits}</p>
-          <a class="ulink" href="#main">
-            {t.footer.top} ↑
+          <a class="footer__top" href="#main">
+            {t.footer.top}
+            <Icon name="arrow-up" />
           </a>
         </div>
       </div>
@@ -207,6 +231,15 @@ const ld = {
           sync();
         };
         if (!document.startViewTransition || reduced.matches) return apply();
+        const box = toggle.getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        root.style.setProperty('--vt-x', `${x}px`);
+        root.style.setProperty('--vt-y', `${y}px`);
+        root.style.setProperty(
+          '--vt-r',
+          `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))}px`,
+        );
         root.classList.add('theme-switching');
         document
           .startViewTransition(apply)
@@ -236,6 +269,14 @@ const ld = {
       );
       document.querySelectorAll('[data-reveal], .section__head').forEach((el) => io.observe(el));
 
+      // The footer logo glitches on a loop, but only while it is on screen.
+      const footer = document.querySelector('.footer');
+      if (footer) {
+        new IntersectionObserver(([entry]) =>
+          footer.classList.toggle('is-visible', entry?.isIntersecting ?? false),
+        ).observe(footer);
+      }
+
       // Mobile menu: close after a link is picked.
       const nav = document.getElementById('nav');
       nav?.addEventListener('click', (e) => {
@@ -252,9 +293,7 @@ const ld = {
     z-index: 50;
     height: var(--header-h);
     border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 80%, transparent);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
   }
 
   .header__bar {
@@ -285,10 +324,6 @@ const ld = {
     letter-spacing: 0.16em;
     text-transform: uppercase;
     transition: color 0.2s;
-  }
-
-  .nav__link:hover {
-    color: var(--accent);
   }
 
   .nav__close {
@@ -323,9 +358,13 @@ const ld = {
 
   .theme {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     flex: none;
-    width: 2.9rem;
-    height: 1.6rem;
+    width: 3.6rem;
+    height: 1.9rem;
+    padding-inline: 0.35rem;
     border: 1px solid var(--fg);
     border-radius: 99px;
   }
@@ -333,14 +372,14 @@ const ld = {
   .theme::after {
     content: '';
     position: absolute;
-    inset: -0.6rem;
+    inset: -0.5rem;
   }
 
   .theme__thumb {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: calc(1.6rem - 8px);
+    top: 2px;
+    left: 2px;
+    width: calc(1.9rem - 6px);
     aspect-ratio: 1;
     border-radius: 50%;
     background: var(--fg);
@@ -348,7 +387,21 @@ const ld = {
   }
 
   [data-theme='light'] .theme__thumb {
-    transform: translateX(1.3rem);
+    transform: translateX(1.7rem);
+  }
+
+  .theme :global(.theme__icon) {
+    position: relative;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+
+  /* The icon under the thumb is the active theme, drawn in the background colour. */
+  :global([data-theme='dark']) .theme :global(.theme__icon--dark),
+  :global([data-theme='light']) .theme :global(.theme__icon--light) {
+    color: var(--bg);
   }
 
   .theme:hover .theme__thumb,
@@ -437,12 +490,96 @@ const ld = {
     display: block;
   }
 
-  .footer__mark:hover :global(.rgb__ch--a) {
-    animation: ch-a 0.55s steps(1);
+  /* One short burst every 4 s. Transform and opacity only, so it stays on the compositor. */
+  .footer__mark :global(.rgb__ch--a) {
+    animation: loop-a 4s steps(1) infinite paused;
   }
 
-  .footer__mark:hover :global(.rgb__ch--b) {
-    animation: ch-b 0.55s steps(1);
+  .footer__mark :global(.rgb__ch--b) {
+    animation: loop-b 4s steps(1) infinite paused;
+  }
+
+  .footer__mark :global(svg:first-child) {
+    animation: loop-main 4s steps(1) infinite paused;
+  }
+
+  .footer:global(.is-visible) .footer__mark :global(svg) {
+    animation-play-state: running;
+  }
+
+  @keyframes loop-a {
+    0%,
+    84%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+    86% {
+      opacity: 1;
+      transform: translate(-10px, 0);
+    }
+    89% {
+      transform: translate(7px, 2px);
+    }
+    92% {
+      transform: translate(-4px, 0);
+    }
+    95% {
+      opacity: 0.8;
+      transform: translate(2px, 0);
+    }
+  }
+
+  @keyframes loop-b {
+    0%,
+    84%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+    86% {
+      opacity: 1;
+      transform: translate(10px, 0);
+    }
+    89% {
+      transform: translate(-6px, -2px);
+    }
+    92% {
+      transform: translate(5px, 0);
+    }
+    95% {
+      opacity: 0.8;
+      transform: translate(-2px, 0);
+    }
+  }
+
+  @keyframes loop-main {
+    0%,
+    84%,
+    97%,
+    100% {
+      transform: none;
+    }
+    87% {
+      transform: translateX(4px) skewX(-3deg);
+    }
+    90% {
+      transform: translateX(-3px);
+    }
+    93% {
+      transform: translateX(2px) skewX(2deg);
+    }
+  }
+
+  .footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .footer__top :global(.icon) {
+    width: 1rem;
+    height: 1rem;
   }
 
   .footer__row {

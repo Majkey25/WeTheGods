@@ -1,5 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
+import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import poster from '../assets/hero-poster.jpg';
 import { releases } from '../data/site';
@@ -44,7 +45,7 @@ const ep = releases[0];
     </h1>
     <p class="hero__tagline">{t.hero.tagline}</p>
     <div class="hero__cta">
-      <a class="btn btn--accent out" href={ep?.href} rel="noopener" target="_blank">
+      <a class="btn btn--solid out" href={ep?.href} rel="noopener" target="_blank">
         {t.hero.listen}
       </a>
       <a class="btn" href="#videos">
@@ -66,7 +67,8 @@ const ep = releases[0];
     data-pause={t.hero.pause}
     aria-label={t.hero.pause}
   >
-    ❚❚
+    <Icon name="pause" class="hero__pause" />
+    <Icon name="play" class="hero__play" />
   </button>
 </section>
 
@@ -75,15 +77,18 @@ const ep = releases[0];
   const video = hero?.querySelector('video');
   const button = hero?.querySelector<HTMLButtonElement>('.hero__toggle');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
-    ?.saveData;
+  // Skip the loop when the visitor asked to save data or is on a slow connection.
+  const connection = (
+    navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
+  ).connection;
+  const lowData = connection?.saveData || /(^|-)(2g|3g)$/.test(connection?.effectiveType ?? '');
 
-  if (hero && video && button && !reduced && !saveData) {
+  if (hero && video && button && !reduced && !lowData) {
     let started = false;
     let paused = false;
     let visible = true;
     const render = () => {
-      button.textContent = paused ? '▶' : '❚❚';
+      button.dataset.paused = String(paused);
       button.setAttribute(
         'aria-label',
         (paused ? button.dataset.play : button.dataset.pause) ?? '',
@@ -183,8 +188,8 @@ const ep = releases[0];
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0.9rem var(--accent);
+    background: var(--ch-a);
+    box-shadow: 0 0 0.8rem var(--ch-a);
     animation: blink 2.4s steps(1) infinite;
   }
 
@@ -219,7 +224,7 @@ const ep = releases[0];
 
   .hero__tagline {
     max-width: 30ch;
-    font: italic 400 clamp(1.5rem, 3vw, 2.4rem) / 1.1 var(--font-display);
+    font: 400 clamp(1.5rem, 3vw, 2.4rem) / 1.1 var(--font-display);
   }
 
   .hero__cta {
@@ -252,6 +257,20 @@ const ep = releases[0];
 
   .hero__toggle[hidden] {
     display: none;
+  }
+
+  .hero__toggle :global(.icon) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .hero__toggle :global(.hero__play),
+  .hero__toggle[data-paused='true'] :global(.hero__pause) {
+    display: none;
+  }
+
+  .hero__toggle[data-paused='true'] :global(.hero__play) {
+    display: block;
   }
 
   @keyframes blink {

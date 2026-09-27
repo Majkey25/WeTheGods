@@ -32,7 +32,7 @@ const facts = [
 
     <div class="about">
       <div class="about__text" data-reveal>
-        <p class="about__lead">{t.about.lead}</p>
+        <p class="about__lead fx">{t.about.lead}</p>
         {t.about.body.map((p) => (
           <p class="about__body">{p}</p>
         ))}
@@ -45,7 +45,7 @@ const facts = [
           ))}
         </dl>
       </div>
-      <figure class="about__photo" data-reveal>
+      <figure class="about__photo fx-img" data-reveal>
         <Picture
           src={photo}
           formats={['avif']}
