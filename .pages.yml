@@ -1,0 +1,153 @@
+# Pages CMS (https://pagescms.org): band members edit the site through forms, no coding.
+# Every save is a commit to main; the build validates it and only a valid site gets deployed.
+
+media:
+  - name: gallery
+    label: Fotky do galerie
+    input: src/assets/gallery
+    output: ../assets/gallery
+    extensions: [jpg, jpeg, png, webp, avif]
+  - name: members
+    label: Fotky členů
+    input: src/assets/members
+    output: ../assets/members
+    extensions: [jpg, jpeg, png, webp, avif]
+
+content:
+  - name: shows
+    label: Koncerty
+    type: file
+    path: src/data/shows.yaml
+    format: yaml
+    list: true
+    fields:
+      - name: date
+        label: Datum
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: time
+        label: Čas (např. 20:00)
+        type: string
+        pattern:
+          regex: '^([01]\d|2[0-3]):[0-5]\d$'
+          message: 'Zadej čas jako HH:MM, např. 20:00'
+      - name: venue
+        label: Klub / místo
+        type: string
+        required: true
+      - name: city
+        label: Město
+        type: string
+        required: true
+      - name: country
+        label: Země (dvoupísmenný kód, např. CZ, SK, DE)
+        type: string
+        default: CZ
+        pattern:
+          regex: '^[A-Z]{2}$'
+          message: 'Dvě velká písmena, např. CZ'
+      - name: event
+        label: Festival / turné (nepovinné)
+        type: string
+      - name: lineup
+        label: Další kapely
+        type: string
+        list: true
+      - name: tickets
+        label: Odkaz na vstupenky (https://…)
+        type: string
+        pattern:
+          regex: '^https://'
+          message: 'Odkaz musí začínat https://'
+      - name: status
+        label: Stav (nech prázdné, pokud je vše normálně)
+        type: select
+        options:
+          values:
+            - { value: sold-out, label: Vyprodáno }
+            - { value: cancelled, label: Zrušeno }
+            - { value: postponed, label: Přesunuto }
+            - { value: free, label: Vstup zdarma }
+
+  - name: gallery
+    label: Galerie
+    type: file
+    path: src/data/gallery.yaml
+    format: yaml
+    list: true
+    fields:
+      - name: image
+        label: Fotka
+        type: image
+        required: true
+        options:
+          media: gallery
+      - name: alt_en
+        label: Popis fotky anglicky (pro nevidomé a Google)
+        type: string
+        required: true
+      - name: alt_cs
+        label: Popis fotky česky
+        type: string
+        required: true
+      - name: credit
+        label: Autor fotky
+        type: string
+
+  - name: members
+    label: Členové kapely
+    type: file
+    path: src/data/members.yaml
+    format: yaml
+    list: true
+    fields:
+      - name: name
+        label: Jméno
+        type: string
+        required: true
+      - name: nickname
+        label: Přezdívka (nepovinné)
+        type: string
+      - name: role_cs
+        label: Nástroj / pozice česky
+        type: string
+        required: true
+      - name: role_en
+        label: Nástroj / pozice anglicky
+        type: string
+        required: true
+      - name: photo
+        label: Fotka (na výšku, 4:5)
+        type: image
+        required: true
+        options:
+          media: members
+
+  - name: about
+    label: O kapele
+    type: file
+    path: src/data/about.yaml
+    format: yaml
+    fields:
+      - { name: lead_cs, label: Úvodní věta česky, type: text, required: true }
+      - { name: lead_en, label: Úvodní věta anglicky, type: text, required: true }
+      - {
+          name: body_cs,
+          label: Text česky (prázdný řádek = nový odstavec),
+          type: text,
+          required: true,
+        }
+      - {
+          name: body_en,
+          label: Text anglicky (prázdný řádek = nový odstavec),
+          type: text,
+          required: true,
+        }
+      - { name: origin_cs, label: Odkud česky, type: string, required: true }
+      - { name: origin_en, label: Odkud anglicky, type: string, required: true }
+      - { name: formed, label: Rok vzniku, type: string, required: true }
+      - { name: genre_cs, label: Žánr česky, type: string, required: true }
+      - { name: genre_en, label: Žánr anglicky, type: string, required: true }
+      - { name: fans, label: Pro fanoušky kapel, type: string, required: true }

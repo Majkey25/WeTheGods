@@ -5,6 +5,7 @@ import Shows from '../../components/Shows.astro';
 import Music from '../../components/Music.astro';
 import Videos from '../../components/Videos.astro';
 import Gallery from '../../components/Gallery.astro';
+import About from '../../components/About.astro';
 import Contact from '../../components/Contact.astro';
 import { langPaths, toLang } from '../../i18n';
 
@@ -18,5 +19,6 @@ const lang = toLang(Astro.params.lang);
   <Music lang={lang} compact />
   <Videos lang={lang} compact />
   <Gallery lang={lang} compact />
+  <About lang={lang} compact />
   <Contact lang={lang} compact />
 </Base>

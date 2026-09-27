@@ -1,5 +1,6 @@
 ---
-import { Font } from 'astro:assets';
+import { Font, Picture } from 'astro:assets';
+import footerPhoto from '../assets/footer-rfp.jpg';
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
@@ -206,14 +207,31 @@ const ld = {
       <slot />
     </main>
 
-    <footer class="footer">
-      <div class="wrap">
+    <footer class="footer" data-loop>
+      <div class="footer__bg" aria-hidden="true">
+        <Picture
+          src={footerPhoto}
+          formats={['avif']}
+          fallbackFormat="webp"
+          widths={[640, 1024, 1600, 2048]}
+          sizes="100vw"
+          quality={60}
+          alt=""
+          loading="lazy"
+        />
+      </div>
+      <div class="wrap footer__inner">
         <a href={pageUrl(lang)} class="footer__mark" aria-label="WeTheGods">
           <Logo name="word" rgb />
         </a>
         <div class="footer__row label">
           <p>© {new Date().getFullYear()} WeTheGods</p>
-          <p>{t.footer.credits}</p>
+          <p>
+            {t.footer.credits}{' '}
+            <a class="ulink" href="https://petrovvisuals.com/" rel="noopener" target="_blank">
+              Petrov Visuals
+            </a>
+          </p>
           <a class="footer__top" href="#main">
             {t.footer.top}
             <Icon name="arrow-up" />
@@ -283,13 +301,12 @@ const ld = {
       );
       document.querySelectorAll('[data-reveal], .section__head').forEach((el) => io.observe(el));
 
-      // The footer logo glitches on a loop, but only while it is on screen.
-      const footer = document.querySelector('.footer');
-      if (footer) {
-        new IntersectionObserver(([entry]) =>
-          footer.classList.toggle('is-visible', entry?.isIntersecting ?? false),
-        ).observe(footer);
-      }
+      // Looping glitches (footer logo, member portraits) only run while on screen.
+      const loops = new IntersectionObserver((entries) => {
+        for (const entry of entries)
+          entry.target.classList.toggle('is-visible', entry.isIntersecting);
+      });
+      document.querySelectorAll('[data-loop]').forEach((el) => loops.observe(el));
 
       // Mobile menu: close after a link is picked.
       const nav = document.getElementById('nav');
@@ -542,16 +559,49 @@ const ld = {
     }
 
     .nav__link {
-      font: 400 clamp(2.2rem, 10vw, 3.6rem) / 1.12 var(--font-display);
+      font: 500 clamp(2.2rem, 10vw, 3.6rem) / 1.12 var(--font-display);
       letter-spacing: -0.01em;
       text-transform: none;
     }
   }
 
   .footer {
-    padding-block: clamp(3.5rem, 9vw, 6.5rem) 2rem;
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(9rem, 24vw, 20rem) 2rem;
     border-top: 1px solid var(--line);
     overflow: hidden;
+  }
+
+  /* Rock for People crowd behind the logo; lazy, so it never competes with the page itself. */
+  .footer__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    filter: var(--footer-filter, none);
+  }
+
+  .footer__bg :global(picture),
+  .footer__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 35%;
+  }
+
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(
+        to bottom,
+        var(--bg) 0%,
+        color-mix(in srgb, var(--bg) 45%, transparent) 45%,
+        color-mix(in srgb, var(--bg) 88%, transparent) 100%
+      ),
+      repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.18) 2px 3px);
   }
 
   .footer__mark {

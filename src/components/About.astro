@@ -1,21 +1,56 @@
 ---
-import { Picture } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import photo from '../assets/gallery/rfp25-arms-up.jpg';
 import SectionHead from './SectionHead.astro';
-import { dict, type Lang } from '../i18n';
+import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
+  /** Short teaser for the home page. */
+  compact?: boolean;
 }
 
-const t = dict[Astro.props.lang];
+const { lang, compact = false } = Astro.props;
+const t = dict[lang];
 const f = t.about.facts;
+
+// Texts and line-up come from src/data/about.yaml and members.yaml (editable in Pages CMS).
+const [entry] = await getCollection('about');
+if (!entry) throw new Error('src/data/about.yaml is empty');
+const about = entry.data;
+const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
+const paragraphs = pick(about.body_en, about.body_cs)
+  .split(/\n\s*\n/)
+  .map((p) => p.trim())
+  .filter(Boolean);
 const facts = [
-  [f.origin, f.originValue],
-  [f.formed, '2024'],
-  [f.genre, f.genreValue],
-  [f.fans, 'Architects, Polaris, Landmvrks, Fit For A King, Wage War'],
+  [f.origin, pick(about.origin_en, about.origin_cs)],
+  [f.formed, about.formed],
+  [f.genre, pick(about.genre_en, about.genre_cs)],
+  [f.fans, about.fans],
 ];
+
+const PHOTO_WIDTHS = [320, 480, 640, 960];
+const members = compact
+  ? []
+  : await Promise.all(
+      (await getCollection('members'))
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map(async ({ data }) => {
+          // Small copies for the glitch layers; same settings as a srcset entry, so the file is shared.
+          const [avif, webp] = await Promise.all(
+            (['avif', 'webp'] as const).map((format) =>
+              getImage({ src: data.photo, width: 480, format }),
+            ),
+          );
+          return {
+            ...data,
+            role: pick(data.role_en, data.role_cs),
+            layers: `image-set(url("${avif.src}") type("image/avif"), url("${webp.src}") type("image/webp"))`,
+          };
+        }),
+    );
 ---
 
 <section id="about" class="section" aria-labelledby="about-title">
@@ -23,39 +58,69 @@ const facts = [
     <SectionHead
       id="about-title"
       title={t.about.heading}
-      channel="CH 04"
-      as={'h1'}
-      more={undefined}
+      as={compact ? 'h2' : 'h1'}
+      more={compact ? { href: pageUrl(lang, 'about'), label: t.more.about } : undefined}
     />
 
-    <div class="about">
-      <div class="about__text" data-reveal>
-        <p class="about__lead fx">{t.about.lead}</p>
-        {t.about.body.map((p) => (
-          <p class="about__body">{p}</p>
-        ))}
-        <dl class="facts">
-          {facts.map(([term, value]) => (
-            <div class="facts__row">
-              <dt class="label">{term}</dt>
-              <dd>{value}</dd>
-            </div>
+    {compact ? (
+      <p class="about__lead about__lead--teaser fx" data-reveal>
+        {pick(about.lead_en, about.lead_cs)}
+      </p>
+    ) : (
+      <div class="about">
+        <div class="about__text" data-reveal>
+          <p class="about__lead fx">{pick(about.lead_en, about.lead_cs)}</p>
+          {paragraphs.map((p) => (
+            <p class="about__body">{p}</p>
           ))}
-        </dl>
+          <dl class="facts">
+            {facts.map(([term, value]) => (
+              <div class="facts__row">
+                <dt class="label">{term}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <figure class="about__photo fx-img" data-reveal>
+          <Picture
+            src={photo}
+            formats={['avif']}
+            fallbackFormat="webp"
+            widths={[400, 700, 1000, 1400]}
+            sizes="(width > 56rem) 40vw, 100vw"
+            alt=""
+            loading="eager"
+            fetchpriority="high"
+          />
+        </figure>
       </div>
-      <figure class="about__photo fx-img" data-reveal>
-        <Picture
-          src={photo}
-          formats={['avif']}
-          fallbackFormat="webp"
-          widths={[400, 700, 1000, 1400]}
-          sizes="(width > 56rem) 40vw, 100vw"
-          alt=""
-          loading="eager"
-          fetchpriority="high"
-        />
-      </figure>
-    </div>
+    )}
+
+    {members.length > 0 && (
+      <>
+        <h2 class="label members__title">{t.about.members}</h2>
+        <ul class="members" data-reveal data-loop>
+          {members.map((m, i) => (
+            <li class="member" style={`--i: ${i}`}>
+              <div class="member__photo fx-img" style={`--layers: ${m.layers}`}>
+                <Picture
+                  src={m.photo}
+                  formats={['avif']}
+                  fallbackFormat="webp"
+                  widths={PHOTO_WIDTHS}
+                  sizes="(width > 56rem) 22vw, 45vw"
+                  alt={m.name}
+                />
+              </div>
+              <p class="member__name fx">{m.name}</p>
+              {m.nickname && <p class="member__nick">aka {m.nickname}</p>}
+              <p class="member__role label">{m.role}</p>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
   </div>
 </section>
 
@@ -73,8 +138,12 @@ const facts = [
   }
 
   .about__lead {
-    font: 400 clamp(1.55rem, 2.9vw, 2.5rem) / 1.18 var(--font-display);
+    font: 500 clamp(1.55rem, 2.9vw, 2.5rem) / 1.18 var(--font-display);
     letter-spacing: -0.01em;
+  }
+
+  .about__lead--teaser {
+    max-width: 38ch;
   }
 
   .about__body {
@@ -111,6 +180,128 @@ const facts = [
     object-position: 45% 50%;
   }
 
+  .members__title {
+    margin: clamp(4.5rem, 10vw, 7.5rem) 0 1.75rem;
+  }
+
+  .members {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .member__photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--panel);
+    isolation: isolate;
+  }
+
+  .member__photo :global(picture),
+  .member__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Seamless RGB split: tinted copies of the portrait, screen-blended, moved by transform only.
+     Channels never switch off (nothing flashes); the loop pauses while the grid is off screen. */
+  .member__photo::before,
+  .member__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: var(--layers) center / cover;
+    background-blend-mode: multiply;
+    mix-blend-mode: screen;
+    opacity: 0.55;
+    animation: member-a 1.6s steps(1) infinite paused;
+    animation-delay: calc(var(--i) * -0.4s);
+  }
+
+  .member__photo::before {
+    background-color: var(--ch-a);
+  }
+
+  .member__photo::after {
+    background-color: var(--ch-b);
+    animation-name: member-b;
+  }
+
+  :global(.is-visible) .member__photo::before,
+  :global(.is-visible) .member__photo::after {
+    animation-play-state: running;
+  }
+
+  @keyframes member-a {
+    0%,
+    100% {
+      transform: translate(-4px, 0);
+    }
+    14% {
+      transform: translate(3px, 1px);
+    }
+    28% {
+      transform: translate(-8px, 0);
+    }
+    42% {
+      transform: translate(-2px, -1px);
+    }
+    57% {
+      transform: translate(5px, 0);
+    }
+    71% {
+      transform: translate(-3px, 0);
+    }
+    85% {
+      transform: translate(-10px, 1px);
+    }
+  }
+
+  @keyframes member-b {
+    0%,
+    100% {
+      transform: translate(4px, 0);
+    }
+    14% {
+      transform: translate(-3px, -1px);
+    }
+    28% {
+      transform: translate(7px, 0);
+    }
+    42% {
+      transform: translate(2px, 1px);
+    }
+    57% {
+      transform: translate(-5px, 0);
+    }
+    71% {
+      transform: translate(3px, 0);
+    }
+    85% {
+      transform: translate(9px, -1px);
+    }
+  }
+
+  .member__name {
+    margin-top: 1rem;
+    font: 600 clamp(1.2rem, 1.8vw, 1.5rem) / 1.2 var(--font-display);
+  }
+
+  .member__nick {
+    margin-top: 0.15rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .member__role {
+    margin-top: 0.5rem;
+    color: var(--fg);
+  }
+
   @media (width <= 56rem) {
     .about {
       grid-template-columns: 1fr;
@@ -119,6 +310,10 @@ const facts = [
     .about__photo {
       position: static;
       aspect-ratio: 4 / 3;
+    }
+
+    .members {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

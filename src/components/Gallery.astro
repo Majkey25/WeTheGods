@@ -1,7 +1,7 @@
 ---
 import { Picture, getImage } from 'astro:assets';
 import Icon from './Icon.astro';
-import { gallery } from '../data/site';
+import { getCollection } from 'astro:content';
 import SectionHead from './SectionHead.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
@@ -13,6 +13,15 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
+
+// Photos come from src/data/gallery.yaml (editable in Pages CMS), in file order.
+const gallery = (await getCollection('gallery'))
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .map(({ data }) => ({
+    src: data.image,
+    alt: { en: data.alt_en, cs: data.alt_cs },
+    credit: data.credit,
+  }));
 
 // The home page teaser shows five photos that link to the gallery page; no lightbox there.
 const photos = compact ? gallery.slice(0, 5) : gallery;
@@ -62,7 +71,6 @@ const sizes = (i: number) =>
     <SectionHead
       id="gallery-title"
       title={t.gallery.heading}
-      channel="CH 05"
       as={compact ? 'h2' : 'h1'}
       more={compact ? { href: pageUrl(lang, 'gallery'), label: t.more.gallery } : undefined}
     />

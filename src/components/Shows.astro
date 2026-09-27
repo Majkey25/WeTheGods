@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { email, links } from '../data/site';
+import { links } from '../data/site';
 import SectionHead from './SectionHead.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
@@ -64,7 +64,6 @@ const ld = upcoming.map((s) => ({
     <SectionHead
       id="shows-title"
       title={t.shows.heading}
-      channel="CH 01"
       as={compact ? 'h2' : 'h1'}
       more={compact ? { href: pageUrl(lang, 'shows'), label: t.more.shows } : undefined}
     />
@@ -112,7 +111,7 @@ const ld = upcoming.map((s) => ({
         <p class="empty__title">{t.shows.emptyTitle}</p>
         <p class="empty__text">{t.shows.emptyText}</p>
         <div class="empty__cta">
-          <a class="btn" href={`mailto:${email}`}>
+          <a class="btn" href={pageUrl(lang, 'contact')}>
             {t.shows.book}
           </a>
           <a class="btn btn--red out" href={links.instagram} rel="noopener" target="_blank">
@@ -178,7 +177,7 @@ const ld = upcoming.map((s) => ({
   }
 
   .show__day {
-    font: 400 clamp(3rem, 6vw, 4.5rem) / 0.85 var(--font-display);
+    font: 500 clamp(3rem, 6vw, 4.5rem) / 0.85 var(--font-display);
   }
 
   .show__where {
@@ -187,7 +186,7 @@ const ld = upcoming.map((s) => ({
   }
 
   .show__venue {
-    font: 500 clamp(1.4rem, 2.5vw, 2rem) / 1.05 var(--font-display);
+    font: 600 clamp(1.4rem, 2.5vw, 2rem) / 1.05 var(--font-display);
   }
 
   .show__lineup {
@@ -215,7 +214,7 @@ const ld = upcoming.map((s) => ({
   }
 
   .empty__title {
-    font: 400 clamp(1.7rem, 3.5vw, 2.8rem) / 1.05 var(--font-display);
+    font: 500 clamp(1.7rem, 3.5vw, 2.8rem) / 1.05 var(--font-display);
   }
 
   .empty__text {
@@ -273,7 +272,7 @@ const ld = upcoming.map((s) => ({
   }
 
   .past__venue {
-    font: 500 1.2rem/1.2 var(--font-display);
+    font: 600 1.2rem/1.2 var(--font-display);
   }
 
   .past__city {

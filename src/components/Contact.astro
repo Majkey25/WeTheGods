@@ -11,6 +11,13 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
+const form = t.contact.form;
+// No server: FormSubmit relays the message to the band inbox. Without JS the browser posts the
+// form and FormSubmit sends the visitor back here with ?sent=1.
+const next = new URL(
+  `${pageUrl(lang, 'contact')}?sent=1`,
+  Astro.site ?? 'https://majkey25.github.io',
+).href;
 ---
 
 <section id="contact" class="section" aria-labelledby="contact-title">
@@ -18,7 +25,6 @@ const t = dict[lang];
     <SectionHead
       id="contact-title"
       title={t.contact.heading}
-      channel="CH 06"
       as={compact ? 'h2' : 'h1'}
       more={compact ? { href: pageUrl(lang, 'contact'), label: t.more.contact } : undefined}
     />
@@ -34,30 +40,85 @@ const t = dict[lang];
     </div>
 
     {!compact && (
-      <div class="cols" data-reveal>
-        <div>
-          <h3 class="label">{t.contact.presskit}</h3>
-          <a class="cols__link ulink out" href={links.presskit} rel="noopener" target="_blank">
-            Google Drive
-          </a>
-        </div>
-        <div>
-          <h3 class="label">{t.contact.merch}</h3>
-          <a class="cols__link ulink out" href={links.merch} rel="noopener" target="_blank">
-            Big Cartel
-          </a>
-        </div>
-        <div>
-          <h3 class="label">{t.contact.follow}</h3>
-          <ul class="socials">
-            {socials.map((s) => (
-              <li>
-                <a class="cols__link ulink out" href={s.href} rel="noopener" target="_blank">
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <div class="contact" data-reveal>
+        <form
+          class="form"
+          action={`https://formsubmit.co/${email}`}
+          method="POST"
+          data-endpoint={`https://formsubmit.co/ajax/${email}`}
+          data-sending={form.sending}
+          data-sent={form.sent}
+          data-error={form.error}
+        >
+          <h2 class="form__title">{form.title}</h2>
+          <div class="form__row">
+            <label class="field">
+              <span class="label">{form.name}</span>
+              <input name="name" autocomplete="name" required maxlength="100" />
+            </label>
+            <label class="field">
+              <span class="label">{form.email}</span>
+              <input type="email" name="email" autocomplete="email" required maxlength="200" />
+            </label>
+          </div>
+          <label class="field">
+            <span class="label">{form.topic}</span>
+            <select name="topic">
+              {Object.values(form.topics).map((label) => (
+                <option>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label class="field">
+            <span class="label">{form.message}</span>
+            <textarea name="message" rows="6" required maxlength="5000"></textarea>
+          </label>
+          <input
+            class="form__trap"
+            type="text"
+            name="_honey"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <input type="hidden" name="_subject" value="WeTheGods web" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_next" value={next} />
+          <div class="form__foot">
+            <button class="btn" type="submit">
+              {form.send}
+            </button>
+            <p class="form__note">{form.privacy}</p>
+          </div>
+          <p class="form__status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="cols">
+          <div>
+            <h3 class="label">{t.contact.presskit}</h3>
+            <a class="cols__link ulink out" href={links.presskit} rel="noopener" target="_blank">
+              Google Drive
+            </a>
+          </div>
+          <div>
+            <h3 class="label">{t.contact.merch}</h3>
+            <a class="cols__link ulink out" href={links.merch} rel="noopener" target="_blank">
+              Big Cartel
+            </a>
+          </div>
+          <div class="cols__follow">
+            <h3 class="label">{t.contact.follow}</h3>
+            <ul class="socials">
+              {socials.map((s) => (
+                <li>
+                  <a class="cols__link ulink out" href={s.href} rel="noopener" target="_blank">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     )}
@@ -77,6 +138,48 @@ const t = dict[lang];
       }
     });
   });
+
+  const form = document.querySelector<HTMLFormElement>('.form');
+  const status = form?.querySelector('.form__status');
+  const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (form && status && button) {
+    const say = (text: string, ok: boolean) => {
+      status.textContent = text;
+      status.classList.toggle('is-error', !ok);
+    };
+    // Back from the no-JS fallback.
+    if (new URLSearchParams(location.search).has('sent')) say(form.dataset.sent ?? '', true);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      // Bots fill every field; people never see this one. Pretend it worked.
+      if (data._honey) return say(form.dataset.sent ?? '', true);
+      delete data._honey;
+      delete data._next;
+      data._subject = `WeTheGods web — ${data.topic}: ${data.name}`;
+      data._replyto = data.email ?? '';
+      const label = button.textContent;
+      button.disabled = true;
+      button.textContent = form.dataset.sending ?? label;
+      try {
+        const res = await fetch(form.dataset.endpoint ?? form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const body = (await res.json().catch(() => ({}))) as { success?: string | boolean };
+        if (!res.ok || String(body.success) !== 'true') throw new Error(`status ${res.status}`);
+        form.reset();
+        say(form.dataset.sent ?? '', true);
+      } catch {
+        say(form.dataset.error ?? '', false);
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
+      }
+    });
+  }
 </script>
 
 <style>
@@ -89,10 +192,9 @@ const t = dict[lang];
   }
 
   .mail__link {
-    font: 400 clamp(1.6rem, 5.4vw, 5rem) / 1 var(--font-display);
+    font: 500 clamp(1.6rem, 5.4vw, 5rem) / 1 var(--font-display);
     letter-spacing: -0.02em;
     overflow-wrap: anywhere;
-    transition: color 0.2s;
   }
 
   .mail__copy {
@@ -107,19 +209,112 @@ const t = dict[lang];
     border-color: var(--fg);
   }
 
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    padding-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .form {
+    display: grid;
+    gap: 1.25rem;
+    align-content: start;
+  }
+
+  .form__title {
+    font: 500 clamp(1.8rem, 3.2vw, 2.6rem) / 1.1 var(--font-display);
+  }
+
+  .form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    color: var(--fg);
+    background: var(--panel);
+    font: 400 1rem/1.5 var(--font-body);
+    transition: border-color 0.2s;
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--muted);
+  }
+
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--fg);
+    outline-offset: 0;
+  }
+
+  .form__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+
+  .form__foot .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .form__note {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .form__status:not(:empty) {
+    padding: 0.9rem 1rem;
+    border-left: 2px solid var(--fg);
+    background: var(--panel);
+  }
+
+  .form__status.is-error {
+    border-left-color: var(--ch-a);
+  }
+
   .cols {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.5rem 2rem;
-    padding-top: clamp(2.5rem, 6vw, 4rem);
+    gap: 2.25rem;
+    align-content: start;
   }
 
   .cols h3 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
   }
 
   .cols__link {
-    font: 500 clamp(1.25rem, 1.9vw, 1.6rem) / 1.35 var(--font-display);
+    font: 600 clamp(1.25rem, 1.9vw, 1.6rem) / 1.35 var(--font-display);
   }
 
   .socials {
@@ -127,13 +322,23 @@ const t = dict[lang];
     gap: 0.15rem;
   }
 
-  @media (width <= 48rem) {
+  @media (width <= 56rem) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+
     .cols {
       grid-template-columns: 1fr 1fr;
     }
 
-    .cols > div:last-child {
+    .cols__follow {
       grid-column: 1 / -1;
+    }
+  }
+
+  @media (width <= 30rem) {
+    .form__row {
+      grid-template-columns: 1fr;
     }
   }
 </style>
