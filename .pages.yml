@@ -70,15 +70,15 @@ content:
         label: 'Začátek (např. 20:00)'
         type: string
         pattern:
-          { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM, např. 20:00' }
+          { regex: '^$|^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM, např. 20:00' }
       - name: doors
         label: 'Otevření dveří (např. 19:00)'
         type: string
-        pattern: { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
+        pattern: { regex: '^$|^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
       - name: end
         label: 'Konec (např. 23:00)'
         type: string
-        pattern: { regex: '^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
+        pattern: { regex: '^$|^([01]\d|2[0-3]):[0-5]\d$', message: 'Zadej čas jako HH:MM' }
       - name: venue
         label: Klub / místo (u koncertu povinné)
         type: string
@@ -92,11 +92,11 @@ content:
         label: 'Země (dvoupísmenný kód, např. CZ, SK, DE)'
         type: string
         default: CZ
-        pattern: { regex: '^[A-Z]{2}$', message: 'Dvě velká písmena, např. CZ' }
+        pattern: { regex: '^$|^[A-Z]{2}$', message: 'Dvě velká písmena, např. CZ' }
       - name: map
         label: 'Vlastní odkaz na mapu (nepovinné, jinak se vytvoří sám)'
         type: string
-        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+        pattern: { regex: '^$|^https://', message: 'Odkaz musí začínat https://' }
       - name: lineup
         label: Další kapely
         type: string
@@ -104,7 +104,7 @@ content:
       - name: tickets
         label: 'Odkaz na vstupenky / poslech (https://...)'
         type: string
-        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+        pattern: { regex: '^$|^https://', message: 'Odkaz musí začínat https://' }
       - name: status
         label: 'Stav (nech prázdné, pokud je vše normálně)'
         type: select
