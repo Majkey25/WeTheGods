@@ -1,4 +1,4 @@
-import type { Event } from './content';
+import { nextDay, type Event } from './content';
 
 // iCalendar (RFC 5545) file for one event, so visitors can add it to any calendar app.
 
@@ -6,16 +6,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const utc = (d: Date) =>
   `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
 
-/** Wall-clock time in Prague to a UTC instant; UTC keeps every calendar app in agreement. */
-const pragueToUtc = (date: string, time: string) => {
-  const guess = new Date(`${date}T${time}:00Z`);
+/** Prague's UTC offset in minutes at a given instant (+60 in winter, +120 in summer). */
+const pragueOffset = (at: Date) => {
   const zone =
     new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Prague', timeZoneName: 'longOffset' })
-      .formatToParts(guess)
+      .formatToParts(at)
       .find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
   const m = /GMT([+-])(\d{2}):?(\d{2})?/.exec(zone);
-  const offset = m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3] ?? 0)) : 0;
-  return new Date(guess.getTime() - offset * 60_000);
+  return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3] ?? 0)) : 0;
+};
+
+/** Wall-clock time in Prague to a UTC instant; UTC keeps every calendar app in agreement. */
+const pragueToUtc = (date: string, time: string) => {
+  const wall = new Date(`${date}T${time}:00Z`).getTime();
+  // Two passes: the offset at the first guess can sit on the other side of a DST switch.
+  const first = new Date(wall - pragueOffset(new Date(wall)) * 60_000);
+  return new Date(wall - pragueOffset(first) * 60_000);
 };
 
 const escape = (text: string) =>
@@ -55,15 +61,15 @@ export const buildIcs = (e: Event, url: string, now: Date) => {
   ];
   if (e.time) {
     const start = pragueToUtc(e.date, e.time);
-    let end = e.end ? pragueToUtc(e.date, e.end) : new Date(start.getTime() + 2 * 3_600_000);
-    if (end <= start) end = new Date(end.getTime() + 24 * 3_600_000); // ends after midnight
+    // An end at or before the start is after midnight: take it on the next local day.
+    const end = !e.end
+      ? new Date(start.getTime() + 2 * 3_600_000)
+      : pragueToUtc(e.end > e.time ? e.date : nextDay(e.date), e.end);
     lines.push(`DTSTART:${utc(start)}`, `DTEND:${utc(end)}`);
   } else {
-    const next = new Date(`${e.date}T00:00:00Z`);
-    next.setUTCDate(next.getUTCDate() + 1);
     lines.push(
       `DTSTART;VALUE=DATE:${e.date.replaceAll('-', '')}`,
-      `DTEND;VALUE=DATE:${next.toISOString().slice(0, 10).replaceAll('-', '')}`,
+      `DTEND;VALUE=DATE:${nextDay(e.date).replaceAll('-', '')}`,
     );
   }
   const place = [e.venue, e.address, e.city, e.country === 'CZ' ? '' : e.country]

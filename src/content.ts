@@ -102,6 +102,13 @@ export const cityLabel = (locale: string, e: Event) => {
 
 const eventStatus = { cancelled: 'EventCancelled', postponed: 'EventPostponed' } as const;
 
+/** The calendar day after an ISO date: nextDay('2026-12-31') -> '2027-01-01'. */
+export const nextDay = (date: string) => {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
 /** schema.org Event for search engines; concerts become MusicEvent. */
 export const eventJsonLd = (e: Event, url: string) => ({
   '@context': 'https://schema.org',
@@ -109,7 +116,8 @@ export const eventJsonLd = (e: Event, url: string) => ({
   name: `WeTheGods — ${e.name}`,
   url,
   startDate: e.time ? `${e.date}T${e.time}` : e.date,
-  ...(e.end && { endDate: `${e.date}T${e.end}` }),
+  // An end at or before the start is after midnight, on the next day.
+  ...(e.time && e.end && { endDate: `${e.end > e.time ? e.date : nextDay(e.date)}T${e.end}` }),
   eventStatus: `https://schema.org/${e.status === 'cancelled' || e.status === 'postponed' ? eventStatus[e.status] : 'EventScheduled'}`,
   eventAttendanceMode: `https://schema.org/${e.venue ? 'OfflineEventAttendanceMode' : 'OnlineEventAttendanceMode'}`,
   location: e.venue
