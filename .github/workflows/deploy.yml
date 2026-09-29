@@ -33,11 +33,13 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - run: npm ci
       # Processed images are cached between runs; rebuilding them all takes minutes.
+      # One cache per workflow: CI builds at "/", Deploy at the Pages base path, so their
+      # images differ and a shared key made Deploy reuse CI's cache and regenerate everything.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro
-          key: astro-${{ hashFiles('src/assets/**', 'package-lock.json', 'astro.config.mjs') }}
-          restore-keys: astro-
+          key: astro-${{ github.workflow }}-${{ hashFiles('src/assets/**', 'package-lock.json', 'astro.config.mjs') }}
+          restore-keys: astro-${{ github.workflow }}-
       # Site URL and base path come from the Pages settings (github.io now, custom domain later).
       - run: npm run build -- --site "$SITE" --base "${BASE:-/}"
         env:
