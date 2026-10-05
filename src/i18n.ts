@@ -82,6 +82,9 @@ const en = {
   videos: {
     heading: 'Videos',
     play: 'Play video',
+    privacy:
+      'Playing a video connects to YouTube. Google receives your IP address and browser data and may store data on your device.',
+    privacyLink: 'Google privacy policy',
     more: 'All videos on YouTube',
   },
   about: {
@@ -114,7 +117,7 @@ const en = {
     follow: 'Follow',
     form: {
       title: 'Send us a message',
-      name: 'Name',
+      name: 'Name (optional)',
       email: 'Email',
       topic: 'Topic',
       topics: { booking: 'Booking', press: 'Press & media', fans: 'Fans', other: 'Something else' },
@@ -123,12 +126,14 @@ const en = {
       sending: 'Sending…',
       sent: 'Thanks, your message is on its way. We will get back to you soon.',
       error: 'Sending failed. Please try again or email us directly.',
-      privacy: 'Messages are delivered to our inbox by FormSubmit.',
+      privacy:
+        'Your email, message and optional name are sent through FormSubmit to the band inbox. Include only information needed for your enquiry.',
     },
   },
   footer: {
     credits: 'Live photos: Petr Ovsík /',
     top: 'Back to top',
+    privacy: 'Website privacy',
   },
   notFound: {
     title: 'Signal lost',
@@ -230,6 +235,9 @@ const cs: Dict = {
   videos: {
     heading: 'Klipy',
     play: 'Přehrát klip',
+    privacy:
+      'Přehrání videa naváže spojení s YouTube. Google obdrží vaši IP adresu a údaje o prohlížeči a může ukládat data do zařízení.',
+    privacyLink: 'Zásady ochrany soukromí Google',
     more: 'Všechna videa na YouTube',
   },
   about: {
@@ -262,7 +270,7 @@ const cs: Dict = {
     follow: 'Sledujte nás',
     form: {
       title: 'Napište nám',
-      name: 'Jméno',
+      name: 'Jméno (nepovinné)',
       email: 'E-mail',
       topic: 'Téma',
       topics: { booking: 'Booking', press: 'Média a tisk', fans: 'Fanoušci', other: 'Něco jiného' },
@@ -271,12 +279,14 @@ const cs: Dict = {
       sending: 'Odesílám…',
       sent: 'Díky, zpráva je na cestě. Brzy se ozveme.',
       error: 'Odeslání se nepovedlo. Zkuste to znovu nebo nám napište e-mail.',
-      privacy: 'Zprávy nám do schránky doručuje služba FormSubmit.',
+      privacy:
+        'E-mail, zprávu a případné jméno odešle služba FormSubmit do schránky kapely. Uveďte pouze údaje potřebné pro vyřízení dotazu.',
     },
   },
   footer: {
     credits: 'Živé fotky: Petr Ovsík /',
     top: 'Nahoru',
+    privacy: 'Soukromí na webu',
   },
   notFound: {
     title: 'Signál ztracen',
