@@ -25,6 +25,12 @@ const { youtube } = await getSettings();
       more={compact ? { href: pageUrl(lang, 'videos'), label: t.more.videos } : undefined}
     />
 
+    <p class="video-privacy">
+      {t.videos.privacy}{' '}
+      <a class="ulink" href="https://policies.google.com/privacy">
+        {t.videos.privacyLink}
+      </a>
+    </p>
     <ul class="videos" data-reveal>
       {(compact ? videos.slice(0, 1) : videos).map((v, i) => (
         <li class:list={['video', { 'video--feature': i === 0 }]}>
@@ -97,6 +103,11 @@ const { youtube } = await getSettings();
 </script>
 
 <style>
+  .video-privacy {
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+  }
+
   .videos {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

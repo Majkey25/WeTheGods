@@ -45,7 +45,7 @@ const next = new URL(
           <div class="form__row">
             <label class="field">
               <span class="label">{form.name}</span>
-              <input name="name" autocomplete="name" required maxlength="100" />
+              <input name="name" autocomplete="name" maxlength="100" />
             </label>
             <label class="field">
               <span class="label">{form.email}</span>
@@ -80,7 +80,12 @@ const next = new URL(
             <button class="btn" type="submit">
               {form.send}
             </button>
-            <p class="form__note">{form.privacy}</p>
+            <p class="form__note">
+              {form.privacy}{' '}
+              <a class="ulink" href="#privacy">
+                {t.footer.privacy}
+              </a>
+            </p>
           </div>
           <p class="form__status" role="status" aria-live="polite"></p>
         </form>
@@ -128,6 +133,80 @@ const next = new URL(
         {t.contact.copy}
       </button>
     </div>
+    {!compact && (
+      <section id="privacy" class="privacy" aria-labelledby="privacy-title">
+        <h2 id="privacy-title">{t.footer.privacy}</h2>
+        {lang === 'cs' ? (
+          <>
+            <p>
+              Kontaktní formulář odešle e-mail, zprávu, téma a případné jméno službě FormSubmit,
+              která je doručí do schránky kapely. FormSubmit při odeslání obdrží také technické
+              údaje spojení. Místo formuláře můžete použít vlastní e-mailovou aplikaci.
+            </p>
+            <p>
+              Dotazy k údajům ve zprávách, žádosti o přístup, opravu nebo výmaz posílejte na{' '}
+              <a class="ulink" href={`mailto:${email}`}>
+                {email}
+              </a>
+              . Neposílejte citlivé údaje ani údaje jiných lidí, které nejsou pro dotaz potřebné.
+            </p>
+            <p>
+              Web neobsahuje analytické ani reklamní skripty. Volbu motivu uchovává místně ve vašem
+              prohlížeči do jejího smazání; údaj o přehrání úvodní animace zůstává jen po dobu
+              relace. Tyto údaje lze odstranit vymazáním dat webu v prohlížeči.
+            </p>
+            <p>
+              GitHub Pages při načtení webu obdrží IP adresu a další technické údaje požadavku.
+              YouTube se připojí až po spuštění videa. Odkazy na sociální sítě, obchod a prodejce
+              vstupenek vedou na samostatné služby s vlastními podmínkami a pravidly soukromí.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              The contact form sends your email, message, topic and optional name to FormSubmit,
+              which relays them to the band inbox. FormSubmit also receives technical connection
+              data when you submit. You can use your own email application instead.
+            </p>
+            <p>
+              For questions about data in your messages, including access, correction or deletion
+              requests, contact{' '}
+              <a class="ulink" href={`mailto:${email}`}>
+                {email}
+              </a>
+              . Do not send sensitive information or other people's details that are unnecessary for
+              your enquiry.
+            </p>
+            <p>
+              This site has no analytics or advertising scripts. Your theme choice stays in your
+              browser until cleared; the intro animation flag lasts for the browser session. You can
+              remove these preferences by clearing this site's browser data.
+            </p>
+            <p>
+              GitHub Pages receives your IP address and other technical request data when serving
+              the site. YouTube connects only when you play a video. Social, store and ticket links
+              open separate services with their own terms and privacy practices.
+            </p>
+          </>
+        )}
+        <p>
+          <a class="ulink" href="https://formsubmit.co/privacy.pdf">
+            FormSubmit
+          </a>
+          {' · '}
+          <a
+            class="ulink"
+            href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+          >
+            GitHub
+          </a>
+          {' · '}
+          <a class="ulink" href="https://policies.google.com/privacy">
+            Google / YouTube
+          </a>
+        </p>
+      </section>
+    )}
   </div>
 </section>
 
@@ -189,6 +268,17 @@ const next = new URL(
 </script>
 
 <style>
+  .privacy {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    max-width: 75ch;
+  }
+
+  .privacy p {
+    margin-top: 1rem;
+  }
+
   .mail {
     display: flex;
     flex-wrap: wrap;
