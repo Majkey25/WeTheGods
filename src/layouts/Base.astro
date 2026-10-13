@@ -84,7 +84,10 @@ const ld = {
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content={t.locale.replace('-', '_')} />
     <meta name="twitter:card" content="summary_large_image" />
-    <Font cssVariable="--font-display" preload={[{ subset: 'latin', style: 'normal' }]} />
+    <Font
+      cssVariable="--font-display"
+      preload={[{ weight: page === '' ? 500 : 600, style: 'normal' }]}
+    />
     <Font cssVariable="--font-body" preload={[{ subset: 'latin' }]} />
     <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
     <script is:inline>
@@ -290,11 +293,19 @@ const ld = {
       // Intro: any input skips it; it leaves the DOM once finished.
       const intro = document.querySelector('.intro');
       if (intro) {
-        const done = () => intro.remove();
-        if (root.classList.contains('no-intro')) done();
-        intro.addEventListener('animationend', (e) => e.target === intro && done());
-        intro.addEventListener('pointerdown', done);
-        addEventListener('keydown', done, { once: true });
+        if (root.classList.contains('no-intro')) intro.remove();
+        else {
+          const events = new AbortController();
+          const done = () => {
+            intro.remove();
+            events.abort();
+          };
+          intro.addEventListener('animationend', (e) => e.target === intro && done(), {
+            signal: events.signal,
+          });
+          intro.addEventListener('pointerdown', done, { signal: events.signal });
+          addEventListener('keydown', done, { once: true, signal: events.signal });
+        }
       }
 
       // Reveal sections and fire the heading glitch once they scroll into view.
