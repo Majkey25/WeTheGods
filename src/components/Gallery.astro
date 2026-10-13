@@ -132,6 +132,7 @@ const sizes = (i: number) =>
   if (dialog && source && img && caption && count && links.length) {
     let index = 0;
     let selection = 0;
+    let cancelPending = () => {};
     const template = img.parentElement!.cloneNode(true) as HTMLPictureElement;
     const show = async (i: number) => {
       index = (i + links.length) % links.length;
@@ -140,6 +141,7 @@ const sizes = (i: number) =>
       if (!link || !thumbnail || !img) return;
       const data = link.dataset;
       const request = ++selection;
+      cancelPending();
       const picture = template.cloneNode(true) as HTMLPictureElement;
       const preview = picture.querySelector('img')!;
       const previewSource = picture.querySelector('source')!;
@@ -149,8 +151,15 @@ const sizes = (i: number) =>
       preview.alt = data.alt ?? '';
       const full = template.cloneNode(true) as HTMLPictureElement;
       const fullImage = full.querySelector('img')!;
+      fullImage.fetchPriority = 'high';
+      const fullSource = full.querySelector('source')!;
       // A viewport change can replace the responsive candidate during decoding.
       const ready = new Promise<boolean>((resolve) => {
+        cancelPending = () => {
+          resolve(false);
+          fullSource.srcset = '';
+          fullImage.srcset = '';
+        };
         fullImage.onload = () => {
           const loaded = fullImage.currentSrc;
           void fullImage.decode().then(
@@ -162,7 +171,7 @@ const sizes = (i: number) =>
         };
         fullImage.onerror = () => resolve(false);
       });
-      full.querySelector('source')!.srcset = data.avif ?? '';
+      fullSource.srcset = data.avif ?? '';
       fullImage.srcset = data.webp ?? '';
       if (!dialog.open) {
         img.style.visibility = 'hidden';
@@ -175,7 +184,7 @@ const sizes = (i: number) =>
         preview.srcset = `${preview.src} ${preview.naturalWidth}w`;
         await preview.decode();
       } catch {
-        if (await ready) {
+        if ((await ready) && request === selection && dialog.open) {
           previewSource.srcset = data.avif ?? '';
           preview.srcset = data.webp ?? '';
           await preview.decode().catch(() => {});
