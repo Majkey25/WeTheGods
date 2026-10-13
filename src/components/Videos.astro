@@ -50,7 +50,11 @@ const { youtube } = await getSettings();
                 formats={['avif']}
                 fallbackFormat="webp"
                 widths={i === 0 ? [640, 960, 1280, 1920] : [480, 640, 960]}
-                sizes={i === 0 ? '(width > 56rem) 90vw, 100vw' : '(width > 56rem) 45vw, 100vw'}
+                sizes={
+                  i === 0
+                    ? '(width > 56rem) 90vw, 100vw'
+                    : '(width > 56rem) 45vw, (width > 40rem) 50vw, 100vw'
+                }
                 alt=""
                 loading={!compact && i === 0 ? 'eager' : 'lazy'}
                 fetchpriority={!compact && i === 0 ? 'high' : 'auto'}
@@ -61,7 +65,13 @@ const { youtube } = await getSettings();
                 formats={['avif']}
                 fallbackFormat="webp"
                 widths={i === 0 ? [640, 960, 1280, 1920] : [480, 640, 960]}
-                sizes={i === 0 ? '(width > 56rem) 90vw, 100vw' : '(width > 56rem) 45vw, 100vw'}
+                sizes={
+                  i === 0
+                    ? '(width > 56rem) 90vw, 100vw'
+                    : v.thumb.width * 9 <= v.thumb.height * 16
+                      ? '(width > 56rem) 45vw, (width > 40rem) 50vw, 100vw'
+                      : '(width > 56rem) 45vw, 100vw'
+                }
                 alt=""
                 loading={!compact && i === 0 ? 'eager' : 'lazy'}
                 fetchpriority={!compact && i === 0 ? 'high' : 'auto'}

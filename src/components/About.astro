@@ -212,7 +212,8 @@ const members = compact
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: var(--layers) center / cover;
+    background-position: center;
+    background-size: cover;
     background-blend-mode: multiply;
     mix-blend-mode: screen;
     opacity: 0;
@@ -227,6 +228,11 @@ const members = compact
   }
 
   @media (hover: hover) {
+    .member__photo::before,
+    .member__photo::after {
+      background-image: var(--layers);
+    }
+
     .member:hover .member__photo::before,
     .member:hover .member__photo::after {
       opacity: 0.6;

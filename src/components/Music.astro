@@ -96,7 +96,11 @@ const fullDate = (iso: string) =>
                     formats={['avif']}
                     fallbackFormat="webp"
                     widths={[300, 500, 700]}
-                    sizes="(width > 56rem) 22vw, (width > 30rem) 45vw, 90vw"
+                    sizes={
+                      r.cover.width === r.cover.height
+                        ? '(width > 56rem) 22vw, (width > 30rem) 45vw, 50vw'
+                        : '(width > 56rem) 22vw, (width > 30rem) 45vw, 90vw'
+                    }
                     alt=""
                   />
                 </span>
