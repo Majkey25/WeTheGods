@@ -18,7 +18,7 @@ const settings = await getSettings();
 const shown = compact ? upcoming.slice(0, 3) : upcoming;
 const detail = (e: Event) => `${pageUrl(lang, 'shows')}${e.slug}/`;
 const site = Astro.site ?? new URL('https://majkey25.github.io');
-const ld = upcoming.map((e) => eventJsonLd(e, new URL(detail(e), site).href));
+const ld = shown.map((e) => eventJsonLd(e, new URL(detail(e), site).href, lang)).filter(Boolean);
 ---
 
 <section id="shows" class="section" aria-labelledby="shows-title">

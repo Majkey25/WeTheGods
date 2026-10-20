@@ -3,14 +3,28 @@ const en = {
   meta: {
     title: 'WeTheGods — Alternative metalcore from Czechia',
     description:
-      'Official site of WeTheGods, an alternative metalcore band from Uherské Hradiště. Shows, music, videos, photos and booking.',
+      'WeTheGods are an alternative metalcore band from Uherské Hradiště, Czechia. Explore their music, official videos, live photos, concert dates and booking contacts.',
+    titles: {
+      shows: 'Concert dates & past shows — WeTheGods',
+      music: 'Music, EPs & singles — WeTheGods',
+      videos: 'Official music videos — WeTheGods',
+      about: 'About the band & members — WeTheGods',
+      gallery: 'Live concert photo gallery — WeTheGods',
+      contact: 'Contact, booking & press kit — WeTheGods',
+    },
     pages: {
-      shows: 'Upcoming and past WeTheGods shows, with tickets and dates.',
-      music: 'Debut EP ONE and every WeTheGods single, with links to all streaming services.',
-      videos: 'Official WeTheGods music videos.',
-      about: 'Who WeTheGods are: alternative metalcore from Uherské Hradiště, formed in 2024.',
-      gallery: 'Live photos of WeTheGods from Rock for People, Front Line Fest and more.',
-      contact: 'Booking, press kit, merch and social links for WeTheGods.',
+      shows:
+        'Find WeTheGods concert dates and past shows, with venues, line-ups, event details and calendar downloads. Tickets are linked when available.',
+      music:
+        'Listen to WeTheGods releases, explore EP tracklists and earlier singles, and choose your streaming service. Alternative metalcore from Czechia.',
+      videos:
+        'Watch official WeTheGods music videos and find more on the band’s YouTube channel. Videos play on request, with no YouTube connection before you choose to play.',
+      about:
+        'Meet WeTheGods, the alternative metalcore band from Uherské Hradiště, formed in 2024. Read their story, meet the members and discover the debut EP ONE.',
+      gallery:
+        'See WeTheGods live at Rock for People, Front Line Fest and other shows. Browse concert photos by Petr Ovsík / Petrov Visuals and open them in the full-size viewer.',
+      contact:
+        'Contact WeTheGods for concert booking, press or other enquiries. Send the band a message, download the press kit and find official social and merch links.',
     },
   },
   more: {
@@ -78,6 +92,7 @@ const en = {
     listen: 'Listen',
     tracklist: 'Tracklist',
     singles: 'Earlier releases',
+    cover: 'Cover artwork',
   },
   videos: {
     heading: 'Videos',
@@ -140,6 +155,8 @@ const en = {
     title: 'Signal lost',
     text: 'This page does not exist.',
     home: 'Back to the homepage',
+    description:
+      'This WeTheGods page could not be found. Return to the English or Czech homepage to find music, videos, concert dates and booking contacts.',
   },
 };
 
@@ -150,15 +167,28 @@ const cs: Dict = {
   meta: {
     title: 'WeTheGods — Alternativní metalcore z Česka',
     description:
-      'Oficiální web kapely WeTheGods, alternativního metalcoru z Uherského Hradiště. Koncerty, hudba, klipy, fotky a booking.',
+      'WeTheGods jsou alternativní metalcorová kapela z Uherského Hradiště. Objevte jejich hudbu, oficiální videoklipy, koncertní fotky, termíny koncertů a kontakt pro booking.',
+    titles: {
+      shows: 'Termíny koncertů a proběhlé akce — WeTheGods',
+      music: 'Hudba, EP a singly — WeTheGods',
+      videos: 'Oficiální videoklipy — WeTheGods',
+      about: 'O kapele a její sestavě — WeTheGods',
+      gallery: 'Galerie koncertních fotografií — WeTheGods',
+      contact: 'Kontakt, booking a press kit — WeTheGods',
+    },
     pages: {
-      shows: 'Nadcházející a proběhlé koncerty WeTheGods, termíny a vstupenky.',
-      music: 'Debutové EP ONE a všechny singly WeTheGods s odkazy na streamovací služby.',
-      videos: 'Oficiální videoklipy kapely WeTheGods.',
+      shows:
+        'Prohlédněte si termíny koncertů WeTheGods a archiv proběhlých akcí. U každé najdete místo, sestavu kapel, detail a stažení do kalendáře, případně odkaz na vstupenky.',
+      music:
+        'Poslechněte si vydání kapely WeTheGods, prohlédněte seznamy skladeb EP i starší singly a vyberte si streamovací službu. Alternativní metalcore z Česka.',
+      videos:
+        'Pusťte si oficiální videoklipy WeTheGods a najděte další videa na YouTube kanálu kapely. Spojení s YouTube vznikne až po vašem kliknutí na přehrání.',
       about:
-        'Kdo jsou WeTheGods: alternativní metalcore z Uherského Hradiště, založeno v roce 2024.',
-      gallery: 'Živé fotky WeTheGods z Rock for People, Front Line Festu a dalších koncertů.',
-      contact: 'Booking, press kit, merch a sociální sítě kapely WeTheGods.',
+        'Poznejte WeTheGods, alternativní metalcorovou kapelu z Uherského Hradiště založenou v roce 2024. Přečtěte si její příběh, seznamte se se členy a debutovým EP ONE.',
+      gallery:
+        'Prohlédněte si WeTheGods na Rock for People, Front Line Festu a dalších koncertech. Koncertní fotky Petra Ovsíka / Petrov Visuals otevřete ve velkém prohlížeči.',
+      contact:
+        'Kontaktujte WeTheGods kvůli koncertnímu bookingu, médiím nebo dalším dotazům. Napište kapele, stáhněte press kit a najděte oficiální sociální sítě a merch.',
     },
   },
   more: {
@@ -232,6 +262,7 @@ const cs: Dict = {
     listen: 'Poslechnout',
     tracklist: 'Seznam skladeb',
     singles: 'Starší vydání',
+    cover: 'Obal vydání',
   },
   videos: {
     heading: 'Klipy',
@@ -294,6 +325,8 @@ const cs: Dict = {
     title: 'Signál ztracen',
     text: 'Tahle stránka neexistuje.',
     home: 'Zpět na úvod',
+    description:
+      'Tuto stránku WeTheGods se nepodařilo najít. Vraťte se na český nebo anglický úvod a objevte hudbu, videoklipy, koncerty a kontakt pro booking.',
   },
 };
 

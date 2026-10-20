@@ -86,7 +86,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
         <div class="cols">
           {presskit && (
             <div>
-              <h3 class="label">{t.contact.presskit}</h3>
+              <h2 class="label">{t.contact.presskit}</h2>
               <a class="cols__link ulink out" href={presskit} rel="noopener" target="_blank">
                 {t.contact.presskitLink}
               </a>
@@ -94,14 +94,14 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
           )}
           {merch && (
             <div>
-              <h3 class="label">{t.contact.merch}</h3>
+              <h2 class="label">{t.contact.merch}</h2>
               <a class="cols__link ulink out" href={merch} rel="noopener" target="_blank">
                 {t.contact.merchLink}
               </a>
             </div>
           )}
           <div class="cols__follow">
-            <h3 class="label">{t.contact.follow}</h3>
+            <h2 class="label">{t.contact.follow}</h2>
             <ul class="socials">
               {socials.map((s) => (
                 <li>
@@ -416,7 +416,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
     align-content: start;
   }
 
-  .cols h3 {
+  .cols h2 {
     margin-bottom: 0.9rem;
   }
 

@@ -13,6 +13,7 @@ interface Props {
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
 const [ep, ...singles] = await getReleases();
+const ReleaseHeading = compact ? 'h3' : 'h2';
 const fullDate = (iso: string) =>
   new Intl.DateTimeFormat(t.locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
     new Date(`${iso}T12:00:00Z`),
@@ -29,7 +30,7 @@ const fullDate = (iso: string) =>
     />
 
     {ep && (
-      <article class="feature" data-reveal>
+      <article class="feature" data-reveal={compact || undefined}>
         <a
           class="feature__cover fx-img"
           href={ep.link}
@@ -42,8 +43,8 @@ const fullDate = (iso: string) =>
             formats={['avif']}
             fallbackFormat="webp"
             widths={[400, 700, 1000]}
-            sizes="(width > 56rem) 45vw, 100vw"
-            alt={`${ep.title} — cover`}
+            sizes="(width > 56rem) calc((min(100vw - clamp(2.5rem, 8vw, 6rem), 90rem) - clamp(2rem, 5vw, 5rem)) / 2), calc(100vw - clamp(2.5rem, 8vw, 6rem))"
+            alt={`${t.music.cover}: ${ep.title} — WeTheGods`}
             loading={compact ? 'lazy' : 'eager'}
             fetchpriority={compact ? 'auto' : 'high'}
           />
@@ -52,7 +53,7 @@ const fullDate = (iso: string) =>
           <p class="label">
             {t.music.kinds[ep.type]} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
           </p>
-          <h3 class="feature__title fx">{ep.title}</h3>
+          <ReleaseHeading class="feature__title fx">{ep.title}</ReleaseHeading>
           {ep.tracks && (
             <ol class="tracks" aria-label={t.music.tracklist}>
               {ep.tracks.map((track, i) => (
@@ -85,7 +86,7 @@ const fullDate = (iso: string) =>
 
     {!compact && singles.length > 0 && (
       <>
-        <h3 class="label singles__title">{t.music.singles}</h3>
+        <h2 class="label singles__title">{t.music.singles}</h2>
         <ul class="singles" data-reveal>
           {singles.map((r) => (
             <li>
