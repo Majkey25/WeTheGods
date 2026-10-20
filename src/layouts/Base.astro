@@ -235,6 +235,18 @@ const ld = {
         </a>
         <div class="footer__row label">
           <p>© {new Date().getFullYear()} WeTheGods</p>
+          <p class="footer__credit">
+            Made by{' '}
+            <a
+              class="footer__author ulink"
+              href="https://majkey25.github.io/init/"
+              aria-label="Makey25"
+            >
+              <span class="glitch" data-text="Makey25">
+                Makey25
+              </span>
+            </a>
+          </p>
           <p>
             {t.footer.credits}{' '}
             <a class="ulink" href="https://petrovvisuals.com/" rel="noopener" target="_blank">
@@ -790,6 +802,78 @@ const ld = {
     }
     53% {
       translate: 2px 0;
+    }
+  }
+
+  .footer__credit {
+    white-space: nowrap;
+  }
+
+  .footer__author {
+    display: inline-block;
+    padding-block: 0.875rem;
+    margin-block: -0.875rem;
+    color: var(--fg);
+    background-origin: content-box;
+  }
+
+  .footer__author .glitch {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .footer__author:is(:hover, :focus-visible) .glitch {
+      animation: credit-jolt 0.9s steps(1);
+    }
+
+    .footer__author:is(:hover, :focus-visible) .glitch::before {
+      animation:
+        ch-a 0.9s steps(1),
+        credit-code 0.9s steps(1);
+      text-shadow: -2px 0 var(--ch-a);
+    }
+
+    .footer__author:is(:hover, :focus-visible) .glitch::after {
+      animation:
+        ch-b 0.9s steps(1),
+        credit-code 0.9s steps(1) reverse;
+      text-shadow: 2px 0 var(--ch-b);
+    }
+  }
+
+  @keyframes credit-jolt {
+    0%,
+    100% {
+      transform: none;
+    }
+    12%,
+    42% {
+      transform: translate(-5px, 1px) skewX(-16deg);
+    }
+    25%,
+    65% {
+      transform: translate(6px, -1px) skewX(12deg) scaleY(1.12);
+    }
+    78% {
+      transform: translate(-2px, 0) skewX(-5deg);
+    }
+  }
+
+  @keyframes credit-code {
+    0%,
+    100% {
+      content: attr(data-text);
+    }
+    12%,
+    42% {
+      content: '#7{*_}/';
+    }
+    25%,
+    65% {
+      content: 'M4K3Y25';
+    }
+    78% {
+      content: 'M#K%Y25';
     }
   }
 
