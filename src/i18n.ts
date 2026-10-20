@@ -124,10 +124,11 @@ const en = {
       message: 'Message',
       send: 'Send message',
       sending: 'Sending…',
-      sent: 'Thanks, your message is on its way. We will get back to you soon.',
-      error: 'Sending failed. Please try again or email us directly.',
+      sent: 'Thanks, your message was accepted for sending.',
+      error:
+        'We could not confirm sending. Your message is still in the form. Avoid sending it again immediately; you can email us directly.',
       privacy:
-        'Your email, message and optional name are sent through FormSubmit to the band inbox. Include only information needed for your enquiry.',
+        'Your email, message, topic and optional name are sent through Web3Forms to the band inbox. Include only information needed for your enquiry.',
     },
   },
   footer: {
@@ -277,10 +278,11 @@ const cs: Dict = {
       message: 'Zpráva',
       send: 'Odeslat zprávu',
       sending: 'Odesílám…',
-      sent: 'Díky, zpráva je na cestě. Brzy se ozveme.',
-      error: 'Odeslání se nepovedlo. Zkuste to znovu nebo nám napište e-mail.',
+      sent: 'Díky, zpráva byla přijata k odeslání.',
+      error:
+        'Odeslání se nepodařilo potvrdit. Zpráva zůstala ve formuláři. Neodesílejte ji hned znovu; můžete nám napsat e-mail.',
       privacy:
-        'E-mail, zprávu a případné jméno odešle služba FormSubmit do schránky kapely. Uveďte pouze údaje potřebné pro vyřízení dotazu.',
+        'E-mail, zprávu, téma a případné jméno odešle služba Web3Forms do schránky kapely. Uveďte pouze údaje potřebné pro vyřízení dotazu.',
     },
   },
   footer: {

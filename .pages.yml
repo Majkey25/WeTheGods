@@ -261,12 +261,14 @@ content:
     path: src/data/settings.yaml
     format: yaml
     fields:
-      - {
-          name: email,
-          label: 'Kontaktní e-mail (sem chodí i zprávy z formuláře)',
-          type: string,
-          required: true,
-        }
+      - { name: email, label: Kontaktní e-mail, type: string, required: true }
+      - name: web3forms_access_key
+        label: Web3Forms access key
+        description: 'Veřejný klíč pro formulář. Příjemce se nastavuje ve Web3Forms zvlášť. Bez klíče zůstane dostupný kontaktní e-mail.'
+        type: string
+        pattern:
+          regex: '^$|^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-8][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
+          message: Zadej platný UUID klíč Web3Forms.
       - {
           name: hero_kicker_cs,
           label: Nápis nad logem na úvodu česky,

@@ -20,7 +20,7 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 | Galerie         | Fotky: přidat, smazat, přetáhnout pořadí. Každá potřebuje krátký popis česky a anglicky.     |
 | Členové kapely  | Jméno, přezdívka, nástroj, fotka (na výšku).                                                 |
 | O kapele        | Texty česky i anglicky a fotka vedle nich.                                                   |
-| Nastavení webu  | E-mail pro formulář, texty, tlačítka a video na úvodu, sociální sítě, press kit, merch.      |
+| Nastavení webu  | E-mail, klíč Web3Forms, texty, tlačítka, úvodní video, sociální sítě, press kit, merch.      |
 
 ## Nový koncert
 
@@ -52,5 +52,9 @@ chybějící fotku), **nezveřejní se nic a web zůstane jak byl**. Chybu oprav
   role **Write**. Pak se může přihlásit do Pages CMS.
 - **Pages CMS** si při prvním přihlášení vyžádá instalaci své GitHub aplikace. Povol ji jen
   pro repozitář WeTheGods.
-- **Kontaktní formulář** posílá zprávy přes FormSubmit. Po první skutečné zprávě přijde na
-  e-mail kapely aktivační e-mail. Jednou na odkaz klikni, jinak zprávy chodit nebudou.
+- **Kontaktní formulář** posílá zprávy přes Web3Forms. V Nastavení webu vlož veřejný UUID
+  do pole **Web3Forms access key**. Příjemce se nastavuje ve Web3Forms zvlášť, změna kontaktního
+  e-mailu na webu ho nezmění. Bez klíče se formulář nezobrazí; kontaktní e-mail zůstane dostupný.
+  Účet spravuje osobní přihlášení, příjemcem musí být ověřená kapelní schránka. Pro formulář je
+  nastavená bezplatná šablona Plain a mazání podání starších než 7 dní; při změně uchování uprav
+  také české a anglické informace o soukromí na kontaktní stránce.

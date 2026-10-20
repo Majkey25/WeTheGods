@@ -25,7 +25,7 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 - **Seven pages, two languages**: Home, Shows, Music, Videos, About, Gallery and Contact in English (`/`) and Czech (`/cs/`), with `hreflang` alternates. Links prerender on hover and pages change with a native cross-document view transition.
 - **Events with their own pages**: shows, releases, parties and signings, each with details, directions and a downloadable calendar file (`.ics`). Finished events move to the archive during the nightly rebuild.
 - **Everything editable without code**: shows, releases, videos, gallery, line-up, About text and site settings live in [`src/data`](src/data) and are edited through [Pages CMS](https://pagescms.org) ([guide in Czech](docs/editace.md)). Every field is validated at build time, so a broken edit never reaches the live site.
-- **Contact form without a server**: messages are relayed by FormSubmit, with a honeypot and a no-JS fallback.
+- **Contact form without a server**: Web3Forms relays messages when `web3forms_access_key` is set in site settings. The recipient is configured separately in Web3Forms. Provider spam filters and a hidden honeypot apply; without JavaScript, the browser submits to the provider's confirmation page. Without a key, the contact email remains available.
 - **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred hero loop (size-capped, skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
 - **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
 

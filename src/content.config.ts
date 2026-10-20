@@ -180,6 +180,14 @@ const settings = defineCollection({
   schema: ({ image }) =>
     z.strictObject({
       email: z.email(),
+      web3forms_access_key: optional(
+        z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+            'Web3Forms access key must be a UUID',
+          ),
+      ),
       presskit: optional(https('Press kit')),
       merch: optional(https('Merch')),
       youtube: https('YouTube'),
