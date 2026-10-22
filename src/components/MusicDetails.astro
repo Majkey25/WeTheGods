@@ -1,7 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import type { getMusicCatalog } from '../content';
-import { dict, type Lang } from '../i18n';
+import { dict, pageUrl, type Lang } from '../i18n';
 import Icon from './Icon.astro';
 import TrackList from './TrackList.astro';
 
@@ -49,7 +49,12 @@ const panels = [
 ];
 ---
 
-<dialog id="music-details" class="music-detail" aria-label={t.music.details}>
+<dialog
+  id="music-details"
+  class="music-detail"
+  aria-label={t.music.details}
+  data-music-url={pageUrl(lang, 'music')}
+>
   <div class="music-detail__bar">
     <span class="label">WeTheGods / {t.music.heading}</span>
     <button type="button" class="music-detail__close label" aria-label={t.music.close}>
@@ -181,37 +186,76 @@ const panels = [
 <script>
   const dialog = document.querySelector<HTMLDialogElement>('#music-details');
   if (dialog) {
-    const panels = [...dialog.querySelectorAll<HTMLElement>('[data-music-panel]')];
+    const panels = new Map(
+      [...dialog.querySelectorAll<HTMLElement>('[data-music-panel]')].map((panel) => [
+        panel.dataset.musicPanel,
+        panel,
+      ]),
+    );
+    const triggers = [...document.querySelectorAll<HTMLElement>('[data-music-open]')];
     let opener: HTMLElement | undefined;
-    const close = () => dialog.close();
+    const show = (panel: HTMLElement, trigger?: HTMLElement) => {
+      if (dialog.open && !panel.hidden) return;
+      if (!dialog.open)
+        opener =
+          trigger ??
+          triggers.find(
+            (item) => !dialog.contains(item) && item.dataset.musicOpen === panel.dataset.musicPanel,
+          );
+      panels.forEach((item) => {
+        item.hidden = item !== panel;
+      });
+      panel.querySelectorAll('details').forEach((details) => {
+        details.open = false;
+      });
+      const title = panel.querySelector<HTMLElement>('h2');
+      if (title) dialog.setAttribute('aria-labelledby', title.id);
+      document.documentElement.classList.add('music-detail-open');
+      if (!dialog.open) dialog.showModal();
+      dialog.scrollTop = 0;
+      title?.focus({ preventScroll: true });
+    };
+    const close = () => {
+      dialog.close();
+      if (!panels.has(location.hash.slice(1))) return;
+      if (history.state === 'music-detail') history.back();
+      else history.replaceState(history.state, '', location.pathname + location.search);
+    };
+    const sync = () => {
+      const panel = panels.get(location.hash.slice(1));
+      if (panel) show(panel);
+      else if (dialog.open) dialog.close();
+    };
 
-    document.querySelectorAll<HTMLElement>('[data-music-open]').forEach((trigger) => {
+    triggers.forEach((trigger) => {
+      const id = trigger.dataset.musicOpen;
+      const panel = panels.get(id);
+      if (!panel) return;
+      // Keep streaming links as the no-JavaScript fallback; upgrade them for sharing here.
+      if (trigger instanceof HTMLAnchorElement && dialog.dataset.musicUrl)
+        trigger.href = `${dialog.dataset.musicUrl}#${id}`;
       trigger.addEventListener('click', (event) => {
         if (
           event instanceof MouseEvent &&
           (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
         )
           return;
-        const panel = panels.find((item) => item.dataset.musicPanel === trigger.dataset.musicOpen);
-        if (!panel) return;
         event.preventDefault();
-        if (!dialog.open) opener = trigger;
-        panels.forEach((item) => {
-          item.hidden = item !== panel;
-        });
-        panel.querySelectorAll('details').forEach((details) => {
-          details.open = false;
-        });
-        const title = panel.querySelector<HTMLElement>('h2');
-        if (title) dialog.setAttribute('aria-labelledby', title.id);
-        if (!dialog.open) dialog.showModal();
-        document.documentElement.classList.add('music-detail-open');
-        dialog.scrollTop = 0;
-        title?.focus({ preventScroll: true });
+        // One history entry lets Back close the whole popup after navigating between songs.
+        if (dialog.open) history.replaceState(history.state, '', `#${id}`);
+        else history.pushState('music-detail', '', `#${id}`);
+        show(panel, trigger);
       });
     });
 
+    window.addEventListener('hashchange', sync);
+    window.addEventListener('pageshow', sync);
+    sync();
     dialog.querySelector('.music-detail__close')?.addEventListener('click', close);
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      close();
+    });
     dialog.addEventListener('close', () => {
       document.documentElement.classList.remove('music-detail-open');
       opener?.focus({ preventScroll: true });
@@ -243,6 +287,10 @@ const panels = [
     scrollbar-gutter: stable;
   }
 
+  :global(html.music-detail-open body::after) {
+    animation-play-state: paused;
+  }
+
   .music-detail {
     width: min(72rem, calc(100% - 2rem));
     max-width: none;
@@ -257,7 +305,6 @@ const panels = [
 
   .music-detail::backdrop {
     background: rgb(0 0 0 / 0.8);
-    backdrop-filter: blur(8px);
   }
 
   .music-detail__bar {
@@ -483,13 +530,26 @@ const panels = [
 
   @media (prefers-reduced-motion: no-preference) {
     .music-detail[open] {
-      animation: detail-in 0.2s var(--ease);
+      animation: detail-in 0.16s var(--ease);
+    }
+
+    .music-detail__lyrics-disclosure[open] .music-detail__lyrics {
+      animation: lyrics-in 0.18s ease-out;
+    }
+
+    @keyframes lyrics-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes detail-in {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(4px);
       }
       to {
         opacity: 1;
