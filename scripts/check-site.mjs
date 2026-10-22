@@ -58,6 +58,16 @@ for (const file of htmlFiles) {
   const html = await readFile(new URL(file, dist), 'utf8');
   if (['index.html', 'cs/index.html', 'music/index.html', 'cs/music/index.html'].includes(file)) {
     assert(/<dialog\b[^>]*id="music-details"/.test(html), `${file}: missing music detail dialog`);
+    const musicPath = `${base}${file.startsWith('cs/') ? 'cs/' : ''}music/`;
+    assert(
+      html.includes(`data-music-url="${musicPath}"`),
+      `${file}: share links must use the localized music page and deploy base`,
+    );
+    if (file.endsWith('music/index.html'))
+      assert(
+        !html.slice(0, html.indexOf('<dialog')).includes('class="tracks__description"'),
+        `${file}: track descriptions belong in the popup`,
+      );
     const panelIds = [...html.matchAll(/data-music-panel="([^"]+)"/g)].map((m) => m[1]);
     const panels = new Set(panelIds);
     assert.equal(panels.size, panelIds.length, `${file}: duplicate music panel ID`);

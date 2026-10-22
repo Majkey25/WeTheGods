@@ -7,9 +7,10 @@ interface Props {
   songs: CollectionEntry<'songs'>['data'][];
   link: string;
   lang: Lang;
+  showDescriptions?: boolean;
 }
 
-const { songs, link, lang } = Astro.props;
+const { songs, link, lang, showDescriptions = true } = Astro.props;
 const t = dict[lang];
 ---
 
@@ -30,7 +31,9 @@ const t = dict[lang];
         </span>
         <span class="tracks__body">
           <strong>{song.title}</strong>
-          <span class="tracks__description">{song[`description_${lang}`]}</span>
+          {showDescriptions && (
+            <span class="tracks__description">{song[`description_${lang}`]}</span>
+          )}
         </span>
         <Icon name="arrow-right" />
       </a>
