@@ -192,6 +192,7 @@ content:
         }
       - { name: description_cs, label: Krátký popis (česky), type: text, required: true }
       - { name: description_en, label: Krátký popis (anglicky), type: text, required: true }
+      - { name: writers, label: Autoři skladby (nepovinné), type: string }
       - { name: meaning_cs, label: Význam a interpretace (česky), type: text, required: true }
       - { name: meaning_en, label: Význam a interpretace (anglicky), type: text, required: true }
       - name: meaning_basis

@@ -4,6 +4,7 @@
 
 - slug: yeba
   title: Y.E.B.A.
+  writers: Damián Kučera, Michal Oharek, Milan Puška
   description_en: A smile on the outside, a struggle underneath. ONE opens with a portrait of a mind pushed to its limits.
   description_cs: Navenek úsměv, uvnitř boj. Úvodní skladba ONE zachycuje mysl, která se dostává na hranici svých sil.
   meaning_en: The contrast between an outward smile and private suffering runs through the song. Its narrator feels trapped by relentless thoughts and a disappearing sense of possibility. Read as an account of a crisis, it gives voice to pain that can stay hidden from everyone nearby.
@@ -64,10 +65,10 @@
     My body is a cage
     Tomorrow I'll be lost
     Only in your memory
-    Writer(s): Damián Kučera, Michal Oharek, Milan Puška
 
 - slug: alone-i-stand
   title: Alone I Stand
+  writers: Damián Kučera, Michal Oharek, Milan Puška
   description_en: Alone in an open space, still searching for someone to hear. A song about isolation and the need for connection.
   description_cs: Sám uprostřed prázdna, přesto s potřebou být vyslyšen. Skladba o izolaci a touze najít cestu k druhým.
   meaning_en: Images of cold, sleeplessness and an inner hiding place make loneliness feel physical. The repeated search for someone who can help suggests that isolation is also a barrier to being understood. The song leaves an uneasy question about whether solitude offers shelter or keeps us trapped.
@@ -128,10 +129,10 @@
     No one
     No one
     No one to save me now
-    Writer(s): Damián Kučera, Michal Oharek, Milan Puška
 
 - slug: labyrinth-of-lies
   title: Labyrinth of Lies
+  writers: Damián Kučera, Milan Puška, Ondrej Hrabal
   description_en: Information overload, manufactured truths and a world that wants another customer. Finding a way out starts with questioning the script.
   description_cs: Informační přetlak, hotové pravdy a svět, který chce dalšího zákazníka. Cesta ven začíná otázkou, komu vlastně věříme.
   meaning_en: The labyrinth becomes a picture of competing messages, consumer promises and choices shaped by those in power. Personal identity is caught in the middle. The refusal to accept a ready-made version of reality can be read as the song's call to think independently.
@@ -184,10 +185,10 @@
     So don't think twice
     Unless you wanna stay stuck
     In the labyrinth of lies
-    Writer(s): Damián Kučera, Milan Puška, Ondrej Hrabal
 
 - slug: illusions
   title: Illusions
+  writers: Damián Kučera, Michal Oharek, Milan Puška
   description_en: The hardest mask to remove is the one we wear for ourselves. Illusions follows the tension between self-doubt and another attempt to move forward.
   description_cs: Nejtěžší je sundat masku, kterou nosíme sami před sebou. Illusions sleduje napětí mezi pochybnostmi a dalším pokusem jít dál.
   meaning_en: An unreliable inner voice and a sense of never being enough turn the conflict inward. The illusions can be read as beliefs that distort how the narrator sees themself. Alongside exhaustion, the lyrics leave room for the small but deliberate act of trying again.
@@ -240,7 +241,6 @@
     I know it's hard to escape, but I can always try
     No shooting star, will help me brake apart
     All the illusions
-    Writer(s): Damián Kučera, Michal Oharek, Milan Puška
 
 - slug: disconnect-exe
   title: Disconnect.exe
@@ -254,6 +254,7 @@
 
 - slug: reflection
   title: Reflection (feat. Damián Kučera)
+  writers: Michal Oharek, Milan Puška
   description_en: A look in the mirror that reaches beyond the individual. Reflection asks what our choices will leave for those who come after us.
   description_cs: Pohled do zrcadla, který nekončí u jednotlivce. Reflection se ptá, co naše rozhodnutí zanechají těm, kdo přijdou po nás.
   meaning_en: The song connects a lack of self-reflection with the harm our decisions can cause. Its questions about children and the future extend that responsibility across generations. Change appears as something that requires honest scrutiny of our own behaviour, rather than another promise.

@@ -85,6 +85,10 @@ for (const file of htmlFiles) {
       const lyricsSection =
         /<section\b[^>]*aria-labelledby="lyrics-[^"]+"[^>]*>([\s\S]*?)<\/section>/.exec(panel);
       if (lyricsSection) {
+        assert(
+          !lyricsSection[1].includes('Writer(s):'),
+          `${file}: writer credits belong beside the description, outside the lyrics`,
+        );
         const href = /<a\b[^>]*href="([^"]+)"/.exec(lyricsSection[1])?.[1];
         assert(href && URL.canParse(decode(href)), `${file}: missing lyrics destination`);
         const url = new URL(decode(href));

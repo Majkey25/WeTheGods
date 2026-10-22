@@ -170,6 +170,7 @@ const songs = defineCollection({
     title: text,
     description_en: text,
     description_cs: text,
+    writers: optional(text),
     meaning_en: text,
     meaning_cs: text,
     meaning_basis: z.enum(['lyrics', 'title']).default('lyrics'),
