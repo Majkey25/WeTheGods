@@ -32,6 +32,8 @@ jobs:
       - id: pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - run: npm ci
+      - run: npm run format:check
+      - run: npm run check
       # Processed images are cached between runs; rebuilding them all takes minutes.
       # One cache per workflow: CI builds at "/", Deploy at the Pages base path, so their
       # images differ and a shared key made Deploy reuse CI's cache and regenerate everything.
@@ -42,6 +44,10 @@ jobs:
           restore-keys: astro-${{ github.workflow }}-
       # Site URL and base path come from the Pages settings (github.io now, custom domain later).
       - run: npm run build -- --site "$SITE" --base "${BASE:-/}"
+        env:
+          SITE: ${{ steps.pages.outputs.origin }}
+          BASE: ${{ steps.pages.outputs.base_path }}
+      - run: npm test -- "$SITE" "${BASE%/}/"
         env:
           SITE: ${{ steps.pages.outputs.origin }}
           BASE: ${{ steps.pages.outputs.base_path }}

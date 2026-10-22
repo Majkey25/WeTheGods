@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { dict, type Lang } from './i18n';
 
 // Read helpers for the YAML content in src/data (all editable in Pages CMS).
 
@@ -36,6 +37,43 @@ const slugify = (text: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+
+/** Shared song details for singles and EP tracklists; broken CMS references stop the build. */
+export const getMusicCatalog = async () => {
+  const [releases, entries] = await Promise.all([getReleases(), getCollection('songs')]);
+  const songs = entries.map((entry) => entry.data);
+  const byTitle = new Map(songs.map((song) => [song.title, song]));
+  if (
+    byTitle.size !== songs.length ||
+    new Set(songs.map((song) => song.slug)).size !== songs.length
+  )
+    throw new Error('Song titles and slugs must be unique in src/data/songs.yaml');
+  const panelIds = [
+    ...songs.map((song) => song.slug),
+    ...releases.filter((r) => r.type !== 'single').map((r) => `release-${slugify(r.title)}`),
+  ];
+  if (new Set(panelIds).size !== panelIds.length)
+    throw new Error('Music panel IDs must be unique across release titles and song slugs');
+  const findSong = (title: string) => {
+    const song = byTitle.get(title);
+    if (!song) throw new Error(`Add song details for "${title}" in src/data/songs.yaml`);
+    return song;
+  };
+  return releases.map((release) => {
+    const song = release.type === 'single' ? findSong(release.title) : undefined;
+    const platforms = release.platforms ?? [];
+    const musixmatch = { name: 'Musixmatch', url: 'https://www.musixmatch.com/artist/WETHEGODS' };
+    return {
+      ...release,
+      platforms: platforms.some((platform) => platform.url === musixmatch.url)
+        ? platforms
+        : [...platforms, musixmatch],
+      song,
+      songs: (release.tracks ?? []).map(findSong),
+      detailId: song?.slug ?? `release-${slugify(release.title)}`,
+    };
+  });
+};
 
 export type Event = CollectionEntry<'shows'>['data'] & {
   name: string;
@@ -109,36 +147,64 @@ export const nextDay = (date: string) => {
   return d.toISOString().slice(0, 10);
 };
 
-/** schema.org Event for search engines; concerts become MusicEvent. */
-export const eventJsonLd = (e: Event, url: string) => ({
-  '@context': 'https://schema.org',
-  '@type': e.type === 'show' ? 'MusicEvent' : 'Event',
-  name: `WeTheGods — ${e.name}`,
-  url,
-  startDate: e.time ? `${e.date}T${e.time}` : e.date,
-  // An end at or before the start is after midnight, on the next day.
-  ...(e.time && e.end && { endDate: `${e.end > e.time ? e.date : nextDay(e.date)}T${e.end}` }),
-  eventStatus: `https://schema.org/${e.status === 'cancelled' || e.status === 'postponed' ? eventStatus[e.status] : 'EventScheduled'}`,
-  eventAttendanceMode: `https://schema.org/${e.venue ? 'OfflineEventAttendanceMode' : 'OnlineEventAttendanceMode'}`,
-  location: e.venue
+/** Reuse the visible localized event facts for the snippet and schema. */
+export const eventDescription = (e: Event, lang: Lang) => {
+  const t = dict[lang];
+  const facts = [
+    e.name,
+    dateParts(t.locale, e.date).long,
+    e.title && e.venue,
+    cityLabel(t.locale, e),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const info = lang === 'cs' ? (e.info_cs ?? e.info_en) : (e.info_en ?? e.info_cs);
+  return [
+    `WeTheGods · ${facts}.`,
+    e.status && `${t.shows.status[e.status]}.`,
+    e.lineup?.length && `${t.shows.lineup}: ${['WeTheGods', ...e.lineup].join(', ')}.`,
+    info?.replace(/\s+/g, ' ').trim(),
+  ]
+    .filter(Boolean)
+    .join(' ');
+};
+
+/** Only physical events are marked up; an album release is not an online concert. */
+export const eventJsonLd = (e: Event, url: string, lang: Lang) =>
+  e.venue && e.city
     ? {
-        '@type': 'Place',
-        name: e.venue,
-        address: {
-          '@type': 'PostalAddress',
-          ...(e.address && { streetAddress: e.address }),
-          addressLocality: e.city,
-          addressCountry: e.country,
+        '@context': 'https://schema.org',
+        '@type': e.type === 'show' ? 'MusicEvent' : 'Event',
+        name: `WeTheGods — ${e.name}`,
+        url,
+        startDate: e.time ? `${e.date}T${e.time}` : e.date,
+        // An end at or before the start is after midnight, on the next day.
+        ...(e.time &&
+          e.end && { endDate: `${e.end > e.time ? e.date : nextDay(e.date)}T${e.end}` }),
+        eventStatus: `https://schema.org/${e.status === 'cancelled' || e.status === 'postponed' ? eventStatus[e.status] : 'EventScheduled'}`,
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: {
+          '@type': 'Place',
+          name: e.venue,
+          address: {
+            '@type': 'PostalAddress',
+            ...(e.address && { streetAddress: e.address }),
+            addressLocality: e.city,
+            addressCountry: e.country,
+          },
         },
+        performer: {
+          '@type': 'MusicGroup',
+          '@id': new URL(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}#band`, url).href,
+          name: 'WeTheGods',
+        },
+        description: eventDescription(e, lang),
+        ...(e.tickets && {
+          offers: {
+            '@type': 'Offer',
+            url: e.tickets,
+            availability: `https://schema.org/${e.status === 'sold-out' ? 'SoldOut' : 'InStock'}`,
+          },
+        }),
       }
-    : { '@type': 'VirtualLocation', url },
-  performer: { '@type': 'MusicGroup', name: 'WeTheGods' },
-  ...(e.info_en && { description: e.info_en }),
-  ...(e.tickets && {
-    offers: {
-      '@type': 'Offer',
-      url: e.tickets,
-      availability: `https://schema.org/${e.status === 'sold-out' ? 'SoldOut' : 'InStock'}`,
-    },
-  }),
-});
+    : undefined;

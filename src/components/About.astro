@@ -19,6 +19,9 @@ const [entry] = await getCollection('about');
 if (!entry) throw new Error('src/data/about.yaml is empty');
 const about = entry.data;
 const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
+const photo = (await getCollection('gallery')).find(
+  ({ data }) => data.image.src === about.photo.src,
+)?.data;
 const paragraphs = pick(about.body_en, about.body_cs)
   .split(/\n\s*\n/)
   .map((p) => p.trim())
@@ -88,7 +91,7 @@ const members = compact
             fallbackFormat="webp"
             widths={[400, 700, 1000, 1400]}
             sizes="(width > 56rem) 40vw, 100vw"
-            alt=""
+            alt={photo ? pick(photo.alt_en, photo.alt_cs) : 'WeTheGods'}
             loading="eager"
             fetchpriority="high"
           />
