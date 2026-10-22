@@ -23,14 +23,14 @@
   },
   "dependencies": {
     "astro": "^7.4.0",
-    "js-yaml": "^5.4.2",
-    "sharp": "^0.35.4"
+    "js-yaml": "^5.4.3",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@types/node": "^24.19.0",
-    "prettier": "^3.9.9",
-    "prettier-plugin-astro": "^1.1.0",
+    "@types/node": "^24.19.2",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3"
   }
 }
