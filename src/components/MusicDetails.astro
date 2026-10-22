@@ -121,7 +121,16 @@ const panels = [
               </p>
             )}
           </header>
-          {description && <p class="music-detail__description">{description}</p>}
+          {description && (
+            <div class="music-detail__description">
+              <p>{description}</p>
+              {song?.writers && (
+                <p class="music-detail__writers">
+                  {t.music.writers}: {song.writers}
+                </p>
+              )}
+            </div>
+          )}
           {song ? (
             <section class="music-detail__section" aria-labelledby={`meaning-${id}`}>
               <h3 id={`meaning-${id}`} class="label">
@@ -407,6 +416,12 @@ const panels = [
     font-size: 1.1rem;
     line-height: 1.7;
     text-align: center;
+  }
+
+  .music-detail__writers {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: 0.8rem;
   }
 
   .music-detail__section {
