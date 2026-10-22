@@ -1,7 +1,7 @@
 # Band members in display order. Edit in the admin (Pages CMS).
 # Photos live in src/assets/members; portrait (4:5) crops look best.
 
-- name: Majkl Krasomil Nádherný
+- name: Michal Oharek
   role_en: Vocals
   role_cs: Zpěv
   photo: ../assets/members/majkl.jpg
