@@ -158,6 +158,8 @@ content:
         required: true
         pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
       - { name: tracks, label: Skladby, type: string, list: true }
+      - { name: description_cs, label: Krátký popis vydání (česky), type: text }
+      - { name: description_en, label: Krátký popis vydání (anglicky), type: text }
       - name: platforms
         label: 'Odkazy na služby (Spotify, Apple Music...)'
         type: object
@@ -169,6 +171,51 @@ content:
             type: string
             required: true
             pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+
+  - name: songs
+    label: Skladby (popisy a texty)
+    type: file
+    path: src/data/songs.yaml
+    format: yaml
+    list: true
+    fields:
+      - name: slug
+        label: 'Unikátní identifikátor (např. alone-i-stand)'
+        type: string
+        required: true
+        pattern: { regex: '^[a-z0-9]+(?:-[a-z0-9]+)*$', message: 'Malá písmena, číslice a pomlčky' }
+      - {
+          name: title,
+          label: 'Název (přesně jako v Hudba / Skladby)',
+          type: string,
+          required: true,
+        }
+      - { name: description_cs, label: Krátký popis (česky), type: text, required: true }
+      - { name: description_en, label: Krátký popis (anglicky), type: text, required: true }
+      - { name: meaning_cs, label: Význam a interpretace (česky), type: text, required: true }
+      - { name: meaning_en, label: Význam a interpretace (anglicky), type: text, required: true }
+      - name: meaning_basis
+        label: Z čeho vychází interpretace
+        type: select
+        default: lyrics
+        options:
+          values:
+            - { value: lyrics, label: Z textu skladby }
+            - { value: title, label: Pouze z názvu (text není dostupný) }
+      - name: lyrics_url
+        label: Odkaz na skladbu na Musixmatch
+        type: string
+        required: true
+        pattern: { regex: '^https://', message: 'Odkaz musí začínat https://' }
+      - {
+          name: lyrics_available,
+          label: Text je dostupný na Musixmatch,
+          type: boolean,
+          default: true,
+        }
+      - name: lyrics
+        label: 'Vlastní text skladby od kapely (volitelné, zachovává řádky)'
+        type: text
 
   - name: videos
     label: Klipy

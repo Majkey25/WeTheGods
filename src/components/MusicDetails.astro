@@ -1,0 +1,500 @@
+---
+import { Picture } from 'astro:assets';
+import type { getMusicCatalog } from '../content';
+import { dict, type Lang } from '../i18n';
+import Icon from './Icon.astro';
+import TrackList from './TrackList.astro';
+
+interface Props {
+  lang: Lang;
+  releases: Awaited<ReturnType<typeof getMusicCatalog>>;
+}
+
+const { lang, releases } = Astro.props;
+const t = dict[lang];
+const songs = [
+  ...new Map(
+    releases.flatMap((r) => (r.song ? [r.song] : r.songs)).map((song) => [song.slug, song]),
+  ).values(),
+];
+const fullDate = (date: string) =>
+  new Intl.DateTimeFormat(t.locale, {
+    dateStyle: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T12:00:00Z`));
+const panels = [
+  ...releases
+    .filter((r) => !r.song)
+    .map((r) => ({
+      id: r.detailId,
+      release: r,
+      song: undefined,
+      album: undefined,
+      title: r.title,
+      description: r[`description_${lang}`],
+    })),
+  ...songs.map((song) => {
+    const album = releases.find((r) => r.songs.some((track) => track.slug === song.slug));
+    const release = releases.find((r) => r.song?.slug === song.slug) ?? album;
+    if (!release) throw new Error(`No release for ${song.title}`);
+    return {
+      id: song.slug,
+      release,
+      song,
+      album,
+      title: song.title,
+      description: song[`description_${lang}`],
+    };
+  }),
+];
+---
+
+<dialog id="music-details" class="music-detail" aria-label={t.music.details}>
+  <div class="music-detail__bar">
+    <span class="label">WeTheGods / {t.music.heading}</span>
+    <button type="button" class="music-detail__close label" aria-label={t.music.close}>
+      <span class="music-detail__close-label">{t.music.close}</span>
+      <Icon name="close" />
+    </button>
+  </div>
+  {panels.map(({ id, release, song, album, title, description }) => (
+    <article data-music-panel={id} hidden>
+      <div class="music-detail__layout">
+        <div class="music-detail__artwork">
+          <Picture
+            src={release.cover}
+            formats={['avif']}
+            fallbackFormat="webp"
+            widths={[400, 700]}
+            sizes="(width > 48rem) 420px, (width > 30rem) 400px, 85vw"
+            alt={`${t.music.cover}: ${release.title} — WeTheGods`}
+            loading="lazy"
+          />
+          <a
+            class="btn out music-detail__listen"
+            href={release.link}
+            target="_blank"
+            rel="noopener"
+          >
+            {t.music.listen}
+            <Icon name="arrow-up-right" class="out__icon" />
+          </a>
+          {release.platforms && (
+            <ul class="music-detail__platforms">
+              {release.platforms.map((p) => (
+                <li>
+                  <a class="label ulink out" href={p.url} target="_blank" rel="noopener">
+                    {p.name}
+                    <Icon name="arrow-up-right" class="out__icon" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div class="music-detail__body">
+          <header>
+            <p class="label">
+              {song && release.type !== 'single' ? t.music.track : t.music.kinds[release.type]}
+              {' · '}
+              <time datetime={release.date}>{fullDate(release.date)}</time>
+            </p>
+            <h2 id={`music-title-${id}`} class="music-detail__title" tabindex="-1">
+              {title}
+            </h2>
+            {album && (
+              <p class="music-detail__album label">
+                {t.music.onRelease}{' '}
+                <button type="button" class="ulink" data-music-open={album.detailId}>
+                  {album.title}
+                </button>
+                {' / '}
+                {String(album.songs.findIndex((track) => track.slug === song?.slug) + 1).padStart(
+                  2,
+                  '0',
+                )}
+              </p>
+            )}
+          </header>
+          {description && <p class="music-detail__description">{description}</p>}
+          {song ? (
+            <section class="music-detail__section" aria-labelledby={`meaning-${id}`}>
+              <h3 id={`meaning-${id}`} class="label">
+                {t.music.meaning}
+              </h3>
+              <p>{song[`meaning_${lang}`]}</p>
+              <p class="music-detail__note">
+                {song.meaning_basis === 'title' ? t.music.titleNote : t.music.meaningNote}
+              </p>
+            </section>
+          ) : (
+            <>
+              {release.songs.length > 0 && (
+                <section aria-labelledby={`tracks-${id}`}>
+                  <h3 id={`tracks-${id}`} class="label music-detail__track-heading">
+                    {t.music.tracklist}
+                  </h3>
+                  <TrackList songs={release.songs} link={release.link} lang={lang} />
+                </section>
+              )}
+              <a
+                class="label ulink out"
+                href="https://www.musixmatch.com/artist/WETHEGODS"
+                target="_blank"
+                rel="noopener"
+              >
+                {t.music.lyricsLink}
+                <Icon name="arrow-up-right" class="out__icon" />
+              </a>
+            </>
+          )}
+        </div>
+        {song && (
+          <section class="music-detail__lyrics-section" aria-labelledby={`lyrics-${id}`}>
+            <h3 id={`lyrics-${id}`} class="label">
+              {t.music.lyrics}
+            </h3>
+            {song.lyrics ? (
+              <details class="music-detail__lyrics-disclosure">
+                <summary class="music-detail__lyrics-toggle">
+                  <span class="music-detail__lyrics-show">{t.music.lyricsShow}</span>
+                  <span class="music-detail__lyrics-hide">{t.music.lyricsHide}</span>
+                </summary>
+                <p class="music-detail__lyrics">{song.lyrics}</p>
+              </details>
+            ) : (
+              <p class="music-detail__note">
+                {song.lyrics_available ? t.music.lyricsText : t.music.lyricsPending}
+              </p>
+            )}
+            <a class="label ulink out" href={song.lyrics_url} target="_blank" rel="noopener">
+              {song.lyrics_available ? t.music.lyricsLink : t.music.lyricsPage}
+              <Icon name="arrow-up-right" class="out__icon" />
+            </a>
+          </section>
+        )}
+      </div>
+    </article>
+  ))}
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#music-details');
+  if (dialog) {
+    const panels = [...dialog.querySelectorAll<HTMLElement>('[data-music-panel]')];
+    let opener: HTMLElement | undefined;
+    const close = () => dialog.close();
+
+    document.querySelectorAll<HTMLElement>('[data-music-open]').forEach((trigger) => {
+      trigger.addEventListener('click', (event) => {
+        if (
+          event instanceof MouseEvent &&
+          (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
+        )
+          return;
+        const panel = panels.find((item) => item.dataset.musicPanel === trigger.dataset.musicOpen);
+        if (!panel) return;
+        event.preventDefault();
+        if (!dialog.open) opener = trigger;
+        panels.forEach((item) => {
+          item.hidden = item !== panel;
+        });
+        panel.querySelectorAll('details').forEach((details) => {
+          details.open = false;
+        });
+        const title = panel.querySelector<HTMLElement>('h2');
+        if (title) dialog.setAttribute('aria-labelledby', title.id);
+        if (!dialog.open) dialog.showModal();
+        document.documentElement.classList.add('music-detail-open');
+        dialog.scrollTop = 0;
+        title?.focus({ preventScroll: true });
+      });
+    });
+
+    dialog.querySelector('.music-detail__close')?.addEventListener('click', close);
+    dialog.addEventListener('close', () => {
+      document.documentElement.classList.remove('music-detail-open');
+      opener?.focus({ preventScroll: true });
+    });
+    let backdropPress = false;
+    const outside = (event: PointerEvent) => {
+      const box = dialog.getBoundingClientRect();
+      return (
+        event.target === dialog &&
+        (event.clientX < box.left ||
+          event.clientX > box.right ||
+          event.clientY < box.top ||
+          event.clientY > box.bottom)
+      );
+    };
+    dialog.addEventListener('pointerdown', (event) => {
+      backdropPress = outside(event);
+    });
+    dialog.addEventListener('pointerup', (event) => {
+      if (backdropPress && outside(event)) close();
+      backdropPress = false;
+    });
+  }
+</script>
+
+<style>
+  :global(html.music-detail-open) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
+  .music-detail {
+    width: min(72rem, calc(100% - 2rem));
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    background: var(--bg);
+    overscroll-behavior: contain;
+  }
+
+  .music-detail::backdrop {
+    background: rgb(0 0 0 / 0.8);
+    backdrop-filter: blur(8px);
+  }
+
+  .music-detail__bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem clamp(1rem, 3vw, 2.5rem);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .music-detail__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .music-detail__close :global(.icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .music-detail__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .music-detail__artwork,
+  .music-detail__body {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .music-detail__artwork :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  .music-detail__artwork {
+    width: min(100%, 26rem);
+    justify-self: center;
+  }
+
+  .music-detail__body > header {
+    text-align: center;
+  }
+
+  .music-detail__listen {
+    justify-content: center;
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .music-detail__listen:hover {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .music-detail__platforms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem 1rem;
+  }
+
+  .music-detail__title {
+    margin-top: 1rem;
+    font: 600 clamp(2rem, 4.5vw, 4.25rem)/1.05 var(--font-display);
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  .music-detail__album {
+    margin-top: 1rem;
+  }
+
+  .music-detail__title:focus {
+    outline: none;
+  }
+
+  .music-detail__album button {
+    color: var(--fg);
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  .music-detail__description {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  .music-detail__section {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .music-detail__section > p {
+    color: var(--muted);
+  }
+
+  .music-detail__note {
+    font-size: 0.8rem;
+  }
+
+  .music-detail__lyrics-section {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding-top: clamp(1.5rem, 4vw, 2.5rem);
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .music-detail__lyrics-section > h3,
+  .music-detail__lyrics-section > a {
+    color: var(--muted);
+  }
+
+  .music-detail__lyrics-disclosure {
+    width: 100%;
+  }
+
+  .music-detail__lyrics-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3rem;
+    padding: 0.5rem;
+    font: 500 clamp(1.25rem, 3vw, 1.75rem)/1.4 var(--font-display);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .music-detail__lyrics-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .music-detail__lyrics-toggle::after {
+    content: '+';
+    font: 400 1.5rem/1 var(--font-mono);
+  }
+
+  .music-detail__lyrics-toggle:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .music-detail__lyrics-hide,
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-show {
+    display: none;
+  }
+
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-hide {
+    display: inline;
+  }
+
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-toggle::after {
+    transform: rotate(45deg);
+  }
+
+  .music-detail__lyrics {
+    width: min(100%, 52ch);
+    margin: clamp(1.5rem, 4vw, 3rem) auto;
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    line-height: 2;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .music-detail__track-heading {
+    margin-bottom: 1rem;
+  }
+
+  @media (width <= 48rem) {
+    .music-detail__layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .music-detail__body {
+      display: contents;
+    }
+
+    .music-detail__body > header {
+      grid-row: 1;
+    }
+
+    .music-detail__artwork :global(picture) {
+      width: min(100%, 25rem);
+      justify-self: center;
+    }
+  }
+
+  @media (width <= 30rem) {
+    .music-detail__close-label {
+      display: none;
+    }
+
+    .music-detail__close {
+      justify-content: center;
+      min-width: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .music-detail[open] {
+      animation: detail-in 0.2s var(--ease);
+    }
+
+    @keyframes detail-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+</style>

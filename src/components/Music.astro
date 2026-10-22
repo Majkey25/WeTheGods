@@ -1,7 +1,10 @@
 ---
 import { Picture } from 'astro:assets';
-import { getReleases } from '../content';
+import { getMusicCatalog } from '../content';
 import SectionHead from './SectionHead.astro';
+import MusicDetails from './MusicDetails.astro';
+import TrackList from './TrackList.astro';
+import Icon from './Icon.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -12,7 +15,9 @@ interface Props {
 
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
-const [ep, ...singles] = await getReleases();
+const releases = await getMusicCatalog();
+const [ep, ...singles] = releases;
+const featuredDescription = ep?.song?.[`description_${lang}`] ?? ep?.[`description_${lang}`];
 const ReleaseHeading = compact ? 'h3' : 'h2';
 const fullDate = (iso: string) =>
   new Intl.DateTimeFormat(t.locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
@@ -34,9 +39,12 @@ const fullDate = (iso: string) =>
         <a
           class="feature__cover fx-img"
           href={ep.link}
+          data-music-open={ep.detailId}
+          aria-haspopup="dialog"
+          aria-controls="music-details"
+          aria-label={`${t.music.details}: ${ep.title}`}
           rel="noopener"
           target="_blank"
-          tabindex="-1"
         >
           <Picture
             src={ep.cover}
@@ -54,19 +62,20 @@ const fullDate = (iso: string) =>
             {t.music.kinds[ep.type]} · <time datetime={ep.date}>{fullDate(ep.date)}</time>
           </p>
           <ReleaseHeading class="feature__title fx">{ep.title}</ReleaseHeading>
-          {ep.tracks && (
-            <ol class="tracks" aria-label={t.music.tracklist}>
-              {ep.tracks.map((track, i) => (
-                <li>
-                  <span class="label">{String(i + 1).padStart(2, '0')}</span>
-                  {track}
-                </li>
-              ))}
-            </ol>
-          )}
+          {featuredDescription && <p class="feature__description">{featuredDescription}</p>}
+          {ep.songs.length > 0 && <TrackList songs={ep.songs} link={ep.link} lang={lang} />}
           <div class="feature__cta">
-            <a class="btn out" href={ep.link} rel="noopener" target="_blank">
-              {t.music.listen}
+            <a
+              class="btn"
+              href={ep.link}
+              data-music-open={ep.detailId}
+              aria-haspopup="dialog"
+              aria-controls="music-details"
+              rel="noopener"
+              target="_blank"
+            >
+              {t.music.details}
+              <Icon name="arrow-right" />
             </a>
             {ep.platforms && (
               <ul class="platforms">
@@ -74,6 +83,7 @@ const fullDate = (iso: string) =>
                   <li>
                     <a class="label ulink out" href={p.url} rel="noopener" target="_blank">
                       {p.name}
+                      <Icon name="arrow-up-right" class="out__icon" />
                     </a>
                   </li>
                 ))}
@@ -90,7 +100,15 @@ const fullDate = (iso: string) =>
         <ul class="singles" data-reveal>
           {singles.map((r) => (
             <li>
-              <a class="single fx-img" href={r.link} rel="noopener" target="_blank">
+              <a
+                class="single fx-img"
+                href={r.link}
+                data-music-open={r.detailId}
+                aria-haspopup="dialog"
+                aria-controls="music-details"
+                rel="noopener"
+                target="_blank"
+              >
                 <span class="single__cover">
                   <Picture
                     src={r.cover}
@@ -109,6 +127,15 @@ const fullDate = (iso: string) =>
                 <span class="label">
                   {t.music.kinds[r.type]} · {r.date.slice(0, 4)}
                 </span>
+                {(r.song?.[`description_${lang}`] ?? r[`description_${lang}`]) && (
+                  <span class="single__description">
+                    {r.song?.[`description_${lang}`] ?? r[`description_${lang}`]}
+                  </span>
+                )}
+                <span class="single__more label">
+                  {r.song ? t.music.songDetails : t.music.details}
+                  <Icon name="arrow-right" />
+                </span>
               </a>
             </li>
           ))}
@@ -116,6 +143,7 @@ const fullDate = (iso: string) =>
       </>
     )}
   </div>
+  <MusicDetails lang={lang} releases={releases} />
 </section>
 
 <style>
@@ -151,19 +179,9 @@ const fullDate = (iso: string) =>
     letter-spacing: -0.02em;
   }
 
-  .tracks {
-    display: grid;
-    width: 100%;
-    border-top: 1px solid var(--line);
-  }
-
-  .tracks li {
-    display: flex;
-    gap: 1.25rem;
-    align-items: baseline;
-    padding-block: 0.7rem;
-    border-bottom: 1px solid var(--line);
-    font: 600 1.2rem/1.25 var(--font-display);
+  .feature__description {
+    max-width: 45ch;
+    color: var(--muted);
   }
 
   .feature__cta {
@@ -216,6 +234,25 @@ const fullDate = (iso: string) =>
 
   .single__title {
     font: 600 1.3rem/1.15 var(--font-display);
+  }
+
+  .single__description {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .single__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--fg);
+    margin-top: 0.25rem;
+  }
+
+  .single__more :global(.icon) {
+    width: 1rem;
+    height: 1rem;
   }
 
   @media (width <= 56rem) {

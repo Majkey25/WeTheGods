@@ -6,11 +6,14 @@
   date: 2026-05-26
   cover: ../assets/releases/one.jpg
   link: https://distrokid.com/hyperfollow/wethegods/one
+  description_en: Five tracks connected by inner conflict, isolation and the search for a way through. Explore the debut EP ONE, one song at a time.
+  description_cs: Pět skladeb propojených vnitřním neklidem, izolací a hledáním cesty dál. Projděte debutové EP ONE píseň po písni.
   tracks: [Y.E.B.A., Alone I Stand, Labyrinth of Lies, Illusions, Disconnect.exe]
   platforms:
     - { name: Spotify, url: 'https://open.spotify.com/album/0Z6fnxi8DO7o3rtjO70MSO' }
     - { name: Apple Music, url: 'https://music.apple.com/cz/album/one-ep/6770138158' }
     - { name: Deezer, url: 'https://www.deezer.com/album/984091021' }
+    - { name: Musixmatch, url: 'https://www.musixmatch.com/artist/WETHEGODS' }
     - { name: Tidal, url: 'https://tidal.com/album/525223320/u' }
 - title: Labyrinth of Lies
   type: single
