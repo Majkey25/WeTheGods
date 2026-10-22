@@ -6,7 +6,7 @@ Web se upravuje přes **Pages CMS**, formuláře v prohlížeči. Programovat ne
 
 1. Otevři **https://app.pagescms.org** a přihlas se přes GitHub.
 2. Vyber repozitář **WeTheGods**.
-3. Vlevo je menu: **Koncerty a akce, Hudba, Klipy, Galerie, Členové kapely, O kapele, Nastavení webu**.
+3. Vlevo je menu: **Koncerty a akce, Hudba, Skladby, Klipy, Galerie, Členové kapely, O kapele, Nastavení webu**.
 
 Co uložíš, je na webu zhruba **do 3 minut**.
 
@@ -29,6 +29,28 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 3. **Save**. Koncert se sám zařadí mezi nadcházející. Po datu se přesune do proběhlých.
 
 Každá akce má vlastní stránku s navigací a tlačítkem **Přidat do kalendáře**.
+
+## Hudba: detaily skladeb a lyrics
+
+Kliknutí na obal, skladbu v seznamu EP nebo tlačítko **Prozkoumat vydání** otevře detail.
+Uvnitř je obal, datum, popis, výklad a odkazy na poslech a Musixmatch. Z detailu EP lze
+otevřít jednotlivé skladby a tlačítkem s názvem EP se vrátit zpět.
+
+- **Hudba (vydání):** obal, datum, odkaz na poslech, popis EP v obou jazycích, seznam skladeb
+  a odkazy na služby. Musixmatch je mezi službami vedle Spotify, Apple Music a Deezer.
+- **Skladby (popisy a texty):** jedna položka pro každou píseň. Název musí přesně odpovídat
+  názvu singlu nebo položce seznamu skladeb EP. Vyplň unikátní identifikátor, oba jazykové
+  popisy a výklady a přímý odkaz na Musixmatch. Jedna položka se sdílí mezi singlem a EP.
+- **Výklady** jsou na webu označené jako interpretace. U Disconnect.exe vycházejí pouze
+  z názvu, protože Musixmatch při přípravě změny text neuváděl. Až bude dostupný, uprav výklad,
+  jeho zdroj i přepínač dostupnosti textu.
+- **Vlastní text skladby od kapely:** volitelné pole pro lyrics dodané kapelou k publikování.
+  Zachová zalomení řádků a zobrazí text přímo v detailu. Když zůstane prázdné, zobrazí se
+  odkaz na kompletní text na Musixmatch, případně zpráva o jeho nedostupnosti.
+- **Nová skladba:** nejprve přidej její detail do Skladeb, potom ji použij v Hudbě. Chybějící
+  detail nebo duplicitní identifikátor zastaví sestavení, aby se na web nedostal nefunkční odkaz.
+
+Bez JavaScriptu vedou odkazy dál přímo na původní poslechovou službu.
 
 ## Úvod: tlačítka a video za logem
 

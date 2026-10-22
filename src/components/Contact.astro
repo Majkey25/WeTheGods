@@ -1,6 +1,7 @@
 ---
 import { getSettings } from '../content';
 import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -89,6 +90,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
               <h2 class="label">{t.contact.presskit}</h2>
               <a class="cols__link ulink out" href={presskit} rel="noopener" target="_blank">
                 {t.contact.presskitLink}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             </div>
           )}
@@ -97,6 +99,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
               <h2 class="label">{t.contact.merch}</h2>
               <a class="cols__link ulink out" href={merch} rel="noopener" target="_blank">
                 {t.contact.merchLink}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             </div>
           )}
@@ -107,6 +110,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
                 <li>
                   <a class="cols__link ulink out" href={s.url} rel="noopener" target="_blank">
                     {s.name}
+                    <Icon name="arrow-up-right" class="out__icon" />
                   </a>
                 </li>
               ))}

@@ -112,12 +112,14 @@ const ld = eventJsonLd(e, url, lang);
             {e.tickets && !e.inactive && e.status !== 'sold-out' && (
               <a class="btn out" href={e.tickets} rel="noopener" target="_blank">
                 {s.link[e.type]}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             )}
             {directions && (
               <a class="btn btn--red out" href={directions} rel="noopener" target="_blank">
                 <Icon name="pin" />
                 {s.directions}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             )}
             <a class="btn" href={`${base}shows/${e.slug}.ics`} download={`wethegods-${e.slug}.ics`}>
