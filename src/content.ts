@@ -48,6 +48,12 @@ export const getMusicCatalog = async () => {
     new Set(songs.map((song) => song.slug)).size !== songs.length
   )
     throw new Error('Song titles and slugs must be unique in src/data/songs.yaml');
+  const panelIds = [
+    ...songs.map((song) => song.slug),
+    ...releases.filter((r) => r.type !== 'single').map((r) => `release-${slugify(r.title)}`),
+  ];
+  if (new Set(panelIds).size !== panelIds.length)
+    throw new Error('Music panel IDs must be unique across release titles and song slugs');
   const findSong = (title: string) => {
     const song = byTitle.get(title);
     if (!song) throw new Error(`Add song details for "${title}" in src/data/songs.yaml`);

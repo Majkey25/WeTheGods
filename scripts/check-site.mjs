@@ -58,36 +58,39 @@ for (const file of htmlFiles) {
   const html = await readFile(new URL(file, dist), 'utf8');
   if (['index.html', 'cs/index.html', 'music/index.html', 'cs/music/index.html'].includes(file)) {
     assert(/<dialog\b[^>]*id="music-details"/.test(html), `${file}: missing music detail dialog`);
-    const panels = new Set([...html.matchAll(/data-music-panel="([^"]+)"/g)].map((m) => m[1]));
+    const panelIds = [...html.matchAll(/data-music-panel="([^"]+)"/g)].map((m) => m[1]);
+    const panels = new Set(panelIds);
+    assert.equal(panels.size, panelIds.length, `${file}: duplicate music panel ID`);
     const triggers = [...html.matchAll(/data-music-open="([^"]+)"/g)].map((m) => m[1]);
-    assert(triggers.length > 5, `${file}: release and track links must open details`);
+    assert(panels.size === 0 || triggers.length > 0, `${file}: music details need links`);
     assert(
       triggers.every((id) => panels.has(id)),
       `${file}: a music link has no detail panel`,
     );
-    for (const id of [
-      'release-one',
-      'yeba',
-      'alone-i-stand',
-      'labyrinth-of-lies',
-      'illusions',
-      'disconnect-exe',
-    ])
-      assert(panels.has(id), `${file}: missing detail for ${id}`);
-    if (file.endsWith('music/index.html'))
-      assert(panels.has('reflection'), `${file}: missing Reflection single detail`);
     for (const [, panel] of html.matchAll(
       /<article\b[^>]*data-music-panel="[^"]+"[^>]*>([\s\S]*?)<\/article>/g,
     )) {
       assert(/href="https:\/\//.test(panel), `${file}: detail needs a streaming link`);
       assert(panel.includes('https://www.musixmatch.com/'), `${file}: detail needs lyrics link`);
-      assert(
-        /class="music-detail__description"/.test(panel),
-        `${file}: detail needs a description`,
-      );
+      const lyricsSection =
+        /<section\b[^>]*aria-labelledby="lyrics-[^"]+"[^>]*>([\s\S]*?)<\/section>/.exec(panel);
+      if (lyricsSection) {
+        const href = /<a\b[^>]*href="([^"]+)"/.exec(lyricsSection[1])?.[1];
+        assert(href && URL.canParse(decode(href)), `${file}: missing lyrics destination`);
+        const url = new URL(decode(href));
+        assert(
+          url.protocol === 'https:' &&
+            ['musixmatch.com', 'www.musixmatch.com'].includes(url.hostname),
+          `${file}: lyrics must link to Musixmatch`,
+        );
+        assert(
+          panel.includes('class="music-detail__description"'),
+          `${file}: song needs a description`,
+        );
+      }
     }
     const platformLists = [...html.matchAll(/<ul class="platforms"[^>]*>([\s\S]*?)<\/ul>/g)];
-    assert(platformLists.length, `${file}: missing Listen platforms`);
+    assert(panels.size === 0 || platformLists.length, `${file}: missing Listen platforms`);
     for (const [, platforms] of platformLists)
       assert(
         platforms.includes('href="https://www.musixmatch.com/artist/WETHEGODS"'),

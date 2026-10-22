@@ -173,7 +173,12 @@ const songs = defineCollection({
     meaning_en: text,
     meaning_cs: text,
     meaning_basis: z.enum(['lyrics', 'title']).default('lyrics'),
-    lyrics_url: https('Musixmatch'),
+    lyrics_url: https('Musixmatch').refine(
+      (value) =>
+        URL.canParse(value) &&
+        ['musixmatch.com', 'www.musixmatch.com'].includes(new URL(value).hostname),
+      { error: 'Musixmatch link must use musixmatch.com or www.musixmatch.com' },
+    ),
     lyrics_available: z.boolean().default(true),
     lyrics: optional(text),
   }),
