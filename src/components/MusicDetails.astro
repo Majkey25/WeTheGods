@@ -118,31 +118,15 @@ const panels = [
           </header>
           {description && <p class="music-detail__description">{description}</p>}
           {song ? (
-            <>
-              <section class="music-detail__section" aria-labelledby={`meaning-${id}`}>
-                <h3 id={`meaning-${id}`} class="label">
-                  {t.music.meaning}
-                </h3>
-                <p>{song[`meaning_${lang}`]}</p>
-                <p class="music-detail__note">
-                  {song.meaning_basis === 'title' ? t.music.titleNote : t.music.meaningNote}
-                </p>
-              </section>
-              <section class="music-detail__section" aria-labelledby={`lyrics-${id}`}>
-                <h3 id={`lyrics-${id}`} class="label">
-                  {t.music.lyrics}
-                </h3>
-                {song.lyrics ? (
-                  <p class="music-detail__lyrics">{song.lyrics}</p>
-                ) : (
-                  <p>{song.lyrics_available ? t.music.lyricsText : t.music.lyricsPending}</p>
-                )}
-                <a class="btn out" href={song.lyrics_url} target="_blank" rel="noopener">
-                  {song.lyrics_available ? t.music.lyricsLink : t.music.lyricsPage}
-                  <Icon name="arrow-up-right" class="out__icon" />
-                </a>
-              </section>
-            </>
+            <section class="music-detail__section" aria-labelledby={`meaning-${id}`}>
+              <h3 id={`meaning-${id}`} class="label">
+                {t.music.meaning}
+              </h3>
+              <p>{song[`meaning_${lang}`]}</p>
+              <p class="music-detail__note">
+                {song.meaning_basis === 'title' ? t.music.titleNote : t.music.meaningNote}
+              </p>
+            </section>
           ) : (
             <>
               {release.songs.length > 0 && (
@@ -165,6 +149,30 @@ const panels = [
             </>
           )}
         </div>
+        {song && (
+          <section class="music-detail__lyrics-section" aria-labelledby={`lyrics-${id}`}>
+            <h3 id={`lyrics-${id}`} class="label">
+              {t.music.lyrics}
+            </h3>
+            {song.lyrics ? (
+              <details class="music-detail__lyrics-disclosure">
+                <summary class="music-detail__lyrics-toggle">
+                  <span class="music-detail__lyrics-show">{t.music.lyricsShow}</span>
+                  <span class="music-detail__lyrics-hide">{t.music.lyricsHide}</span>
+                </summary>
+                <p class="music-detail__lyrics">{song.lyrics}</p>
+              </details>
+            ) : (
+              <p class="music-detail__note">
+                {song.lyrics_available ? t.music.lyricsText : t.music.lyricsPending}
+              </p>
+            )}
+            <a class="label ulink out" href={song.lyrics_url} target="_blank" rel="noopener">
+              {song.lyrics_available ? t.music.lyricsLink : t.music.lyricsPage}
+              <Icon name="arrow-up-right" class="out__icon" />
+            </a>
+          </section>
+        )}
       </div>
     </article>
   ))}
@@ -190,6 +198,9 @@ const panels = [
         if (!dialog.open) opener = trigger;
         panels.forEach((item) => {
           item.hidden = item !== panel;
+        });
+        panel.querySelectorAll('details').forEach((details) => {
+          details.open = false;
         });
         const title = panel.querySelector<HTMLElement>('h2');
         if (title) dialog.setAttribute('aria-labelledby', title.id);
@@ -297,6 +308,15 @@ const panels = [
     object-fit: cover;
   }
 
+  .music-detail__artwork {
+    width: min(100%, 26rem);
+    justify-self: center;
+  }
+
+  .music-detail__body > header {
+    text-align: center;
+  }
+
   .music-detail__listen {
     justify-content: center;
     background: var(--fg);
@@ -311,6 +331,7 @@ const panels = [
   .music-detail__platforms {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.65rem 1rem;
   }
 
@@ -338,14 +359,16 @@ const panels = [
   .music-detail__description {
     font-size: 1.1rem;
     line-height: 1.7;
+    text-align: center;
   }
 
   .music-detail__section {
     display: grid;
-    justify-items: start;
+    justify-items: center;
     gap: 1rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--line);
+    text-align: center;
   }
 
   .music-detail__section > p {
@@ -356,8 +379,72 @@ const panels = [
     font-size: 0.8rem;
   }
 
+  .music-detail__lyrics-section {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding-top: clamp(1.5rem, 4vw, 2.5rem);
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .music-detail__lyrics-section > h3,
+  .music-detail__lyrics-section > a {
+    color: var(--muted);
+  }
+
+  .music-detail__lyrics-disclosure {
+    width: 100%;
+  }
+
+  .music-detail__lyrics-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3rem;
+    padding: 0.5rem;
+    font: 500 clamp(1.25rem, 3vw, 1.75rem)/1.4 var(--font-display);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .music-detail__lyrics-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .music-detail__lyrics-toggle::after {
+    content: '+';
+    font: 400 1.5rem/1 var(--font-mono);
+  }
+
+  .music-detail__lyrics-toggle:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .music-detail__lyrics-hide,
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-show {
+    display: none;
+  }
+
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-hide {
+    display: inline;
+  }
+
+  .music-detail__lyrics-disclosure[open] .music-detail__lyrics-toggle::after {
+    transform: rotate(45deg);
+  }
+
   .music-detail__lyrics {
+    width: min(100%, 52ch);
+    margin: clamp(1.5rem, 4vw, 3rem) auto;
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    line-height: 2;
     white-space: pre-line;
+    overflow-wrap: anywhere;
   }
 
   .music-detail__track-heading {
