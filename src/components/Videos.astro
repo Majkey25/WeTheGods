@@ -2,6 +2,7 @@
 import { Picture } from 'astro:assets';
 import { getSettings, getVideos } from '../content';
 import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -90,6 +91,7 @@ const { youtube } = await getSettings();
     {!compact && (
       <a class="btn btn--red out videos__more" href={youtube} rel="noopener" target="_blank">
         {t.videos.more}
+        <Icon name="arrow-up-right" class="out__icon" />
       </a>
     )}
   </div>

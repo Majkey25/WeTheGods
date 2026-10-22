@@ -64,6 +64,7 @@ const href = (url: string) =>
               target={external ? '_blank' : undefined}
             >
               {pick(b.text_en, b.text_cs)}
+              {external && !release && <Icon name="arrow-up-right" class="out__icon" />}
             </a>
           );
         })}

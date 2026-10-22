@@ -76,8 +76,8 @@ const panels = [
             target="_blank"
             rel="noopener"
           >
-            <Icon name="play" />
             {t.music.listen}
+            <Icon name="arrow-up-right" class="out__icon" />
           </a>
           {release.platforms && (
             <ul class="music-detail__platforms">
@@ -85,6 +85,7 @@ const panels = [
                 <li>
                   <a class="label ulink out" href={p.url} target="_blank" rel="noopener">
                     {p.name}
+                    <Icon name="arrow-up-right" class="out__icon" />
                   </a>
                 </li>
               ))}
@@ -138,6 +139,7 @@ const panels = [
                 )}
                 <a class="btn out" href={song.lyrics_url} target="_blank" rel="noopener">
                   {song.lyrics_available ? t.music.lyricsLink : t.music.lyricsPage}
+                  <Icon name="arrow-up-right" class="out__icon" />
                 </a>
               </section>
             </>
@@ -158,6 +160,7 @@ const panels = [
                 rel="noopener"
               >
                 {t.music.lyricsLink}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             </>
           )}
