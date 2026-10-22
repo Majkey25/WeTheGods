@@ -258,19 +258,19 @@ main > .section:first-child {
   height: 1.1em;
 }
 
-/* External-link arrow drawn with a mask, so no font needs to carry the glyph. */
-.out::after {
-  content: '';
+/* External links use the same SVG icon family as the rest of the site. */
+.out > .out__icon {
   display: inline-block;
-  flex: none;
-  width: 0.85em;
-  height: 0.85em;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
   margin-left: 0.4em;
-  background: currentColor;
-  -webkit-mask: var(--arrow) center / contain no-repeat;
-  mask: var(--arrow) center / contain no-repeat;
+  vertical-align: -0.1em;
   transition: transform 0.2s var(--ease);
-  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7M8 7h9v9'/%3E%3C/svg%3E");
+}
+
+.btn.out > .out__icon {
+  margin-left: 0;
 }
 
 /* Distortion on hover: RGB-split text shadow in a few hard steps. */
@@ -308,7 +308,7 @@ main > .section:first-child {
   }
 }
 
-.out:hover::after {
+.out:hover > .out__icon {
   transform: translate(2px, -2px);
 }
 

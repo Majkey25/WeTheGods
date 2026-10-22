@@ -58,12 +58,15 @@ const items = await Promise.all(
   }),
 );
 
+const contentWidth = 'min(100vw - clamp(2.5rem, 8vw, 6rem), 90rem)';
+const gap = 'clamp(0.5rem, 1vw, 1rem)';
+const half = `calc((${contentWidth} - ${gap}) / 2)`;
 const sizes = (i: number) =>
   i % 5 === 0
-    ? '(width > 48rem) 66vw, 100vw'
+    ? `(width > 48rem) calc((${contentWidth}) * 2 / 3 - ${gap} / 3), calc(${contentWidth})`
     : i % 5 < 3
-      ? '(width > 48rem) 33vw, 50vw'
-      : '(width > 48rem) 50vw, 50vw';
+      ? `(width > 48rem) calc((${contentWidth}) / 3 - ${gap} * 2 / 3), ${half}`
+      : half;
 ---
 
 <section id="gallery" class="section" aria-labelledby="gallery-title">
@@ -75,7 +78,7 @@ const sizes = (i: number) =>
       more={compact ? { href: pageUrl(lang, 'gallery'), label: t.more.gallery } : undefined}
     />
 
-    <ul class="gallery" data-reveal>
+    <ul class="gallery" data-reveal={compact || undefined}>
       {items.map((p, i) => (
         <li>
           <a class="gallery__item fx-img" href={p.href} {...p.data} aria-label={p.label}>
@@ -83,7 +86,7 @@ const sizes = (i: number) =>
               src={p.src}
               formats={['avif']}
               fallbackFormat="webp"
-              widths={[480, 800, 1200, 1600]}
+              widths={[320, 480, 640, 800, 1200, 1600]}
               sizes={sizes(i)}
               quality={72}
               alt={p.alt[lang]}

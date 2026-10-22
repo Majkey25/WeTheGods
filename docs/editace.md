@@ -6,7 +6,7 @@ Web se upravuje přes **Pages CMS**, formuláře v prohlížeči. Programovat ne
 
 1. Otevři **https://app.pagescms.org** a přihlas se přes GitHub.
 2. Vyber repozitář **WeTheGods**.
-3. Vlevo je menu: **Koncerty a akce, Hudba, Klipy, Galerie, Členové kapely, O kapele, Nastavení webu**.
+3. Vlevo je menu: **Koncerty a akce, Hudba, Skladby, Klipy, Galerie, Členové kapely, O kapele, Nastavení webu**.
 
 Co uložíš, je na webu zhruba **do 3 minut**.
 
@@ -20,7 +20,7 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 | Galerie         | Fotky: přidat, smazat, přetáhnout pořadí. Každá potřebuje krátký popis česky a anglicky.     |
 | Členové kapely  | Jméno, přezdívka, nástroj, fotka (na výšku).                                                 |
 | O kapele        | Texty česky i anglicky a fotka vedle nich.                                                   |
-| Nastavení webu  | E-mail pro formulář, texty, tlačítka a video na úvodu, sociální sítě, press kit, merch.      |
+| Nastavení webu  | E-mail, klíč Web3Forms, texty, tlačítka, úvodní video, sociální sítě, press kit, merch.      |
 
 ## Nový koncert
 
@@ -29,6 +29,28 @@ Co uložíš, je na webu zhruba **do 3 minut**.
 3. **Save**. Koncert se sám zařadí mezi nadcházející. Po datu se přesune do proběhlých.
 
 Každá akce má vlastní stránku s navigací a tlačítkem **Přidat do kalendáře**.
+
+## Hudba: detaily skladeb a lyrics
+
+Kliknutí na obal, skladbu v seznamu EP nebo tlačítko **Prozkoumat vydání** otevře detail.
+Uvnitř je obal, datum, popis, výklad a odkazy na poslech a Musixmatch. Z detailu EP lze
+otevřít jednotlivé skladby a tlačítkem s názvem EP se vrátit zpět.
+
+- **Hudba (vydání):** obal, datum, odkaz na poslech, popis EP v obou jazycích, seznam skladeb
+  a odkazy na služby. Musixmatch je mezi službami vedle Spotify, Apple Music a Deezer.
+- **Skladby (popisy a texty):** jedna položka pro každou píseň. Název musí přesně odpovídat
+  názvu singlu nebo položce seznamu skladeb EP. Vyplň unikátní identifikátor, oba jazykové
+  popisy a výklady a přímý odkaz na Musixmatch. Jedna položka se sdílí mezi singlem a EP.
+- **Výklady** jsou na webu označené jako interpretace. U Disconnect.exe vycházejí pouze
+  z názvu, protože Musixmatch při přípravě změny text neuváděl. Až bude dostupný, uprav výklad,
+  jeho zdroj i přepínač dostupnosti textu.
+- **Vlastní text skladby od kapely:** volitelné pole pro lyrics dodané kapelou k publikování.
+  Zachová zalomení řádků a zobrazí text přímo v detailu. Když zůstane prázdné, zobrazí se
+  odkaz na kompletní text na Musixmatch, případně zpráva o jeho nedostupnosti.
+- **Nová skladba:** nejprve přidej její detail do Skladeb, potom ji použij v Hudbě. Chybějící
+  detail nebo duplicitní identifikátor zastaví sestavení, aby se na web nedostal nefunkční odkaz.
+
+Bez JavaScriptu vedou odkazy dál přímo na původní poslechovou službu.
 
 ## Úvod: tlačítka a video za logem
 
@@ -52,5 +74,9 @@ chybějící fotku), **nezveřejní se nic a web zůstane jak byl**. Chybu oprav
   role **Write**. Pak se může přihlásit do Pages CMS.
 - **Pages CMS** si při prvním přihlášení vyžádá instalaci své GitHub aplikace. Povol ji jen
   pro repozitář WeTheGods.
-- **Kontaktní formulář** posílá zprávy přes FormSubmit. Po první skutečné zprávě přijde na
-  e-mail kapely aktivační e-mail. Jednou na odkaz klikni, jinak zprávy chodit nebudou.
+- **Kontaktní formulář** posílá zprávy přes Web3Forms. V Nastavení webu vlož veřejný UUID
+  do pole **Web3Forms access key**. Příjemce se nastavuje ve Web3Forms zvlášť, změna kontaktního
+  e-mailu na webu ho nezmění. Bez klíče se formulář nezobrazí; kontaktní e-mail zůstane dostupný.
+  Účet spravuje osobní přihlášení, příjemcem musí být ověřená kapelní schránka. Pro formulář je
+  nastavená bezplatná šablona Plain a mazání podání starších než 7 dní; při změně uchování uprav
+  také české a anglické informace o soukromí na kontaktní stránce.

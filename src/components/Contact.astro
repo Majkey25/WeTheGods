@@ -1,6 +1,7 @@
 ---
 import { getSettings } from '../content';
 import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -12,13 +13,7 @@ interface Props {
 const { lang, compact = false } = Astro.props;
 const t = dict[lang];
 const form = t.contact.form;
-const { email, presskit, merch, socials } = await getSettings();
-// No server: FormSubmit relays the message to the band inbox. Without JS the browser posts the
-// form and FormSubmit sends the visitor back here with ?sent=1.
-const next = new URL(
-  `${pageUrl(lang, 'contact')}?sent=1`,
-  Astro.site ?? 'https://majkey25.github.io',
-).href;
+const { email, web3forms_access_key, presskit, merch, socials } = await getSettings();
 ---
 
 <section id="contact" class="section" aria-labelledby="contact-title">
@@ -32,88 +27,90 @@ const next = new URL(
 
     {!compact && (
       <div class="contact" data-reveal>
-        <form
-          class="form"
-          action={`https://formsubmit.co/${email}`}
-          method="POST"
-          data-endpoint={`https://formsubmit.co/ajax/${email}`}
-          data-sending={form.sending}
-          data-sent={form.sent}
-          data-error={form.error}
-        >
-          <h2 class="form__title">{form.title}</h2>
-          <div class="form__row">
+        {web3forms_access_key && (
+          <form
+            class="form"
+            action="https://api.web3forms.com/submit"
+            method="POST"
+            data-sending={form.sending}
+            data-sent={form.sent}
+            data-error={form.error}
+          >
+            <h2 class="form__title">{form.title}</h2>
+            <div class="form__row">
+              <label class="field">
+                <span class="label">{form.name}</span>
+                <input name="name" autocomplete="name" maxlength="100" />
+              </label>
+              <label class="field">
+                <span class="label">{form.email}</span>
+                <input type="email" name="email" autocomplete="email" required maxlength="200" />
+              </label>
+            </div>
             <label class="field">
-              <span class="label">{form.name}</span>
-              <input name="name" autocomplete="name" maxlength="100" />
+              <span class="label">{form.topic}</span>
+              <select name="topic">
+                {Object.values(form.topics).map((label) => (
+                  <option>{label}</option>
+                ))}
+              </select>
             </label>
             <label class="field">
-              <span class="label">{form.email}</span>
-              <input type="email" name="email" autocomplete="email" required maxlength="200" />
+              <span class="label">{form.message}</span>
+              <textarea name="message" rows="6" required maxlength="5000"></textarea>
             </label>
-          </div>
-          <label class="field">
-            <span class="label">{form.topic}</span>
-            <select name="topic">
-              {Object.values(form.topics).map((label) => (
-                <option>{label}</option>
-              ))}
-            </select>
-          </label>
-          <label class="field">
-            <span class="label">{form.message}</span>
-            <textarea name="message" rows="6" required maxlength="5000"></textarea>
-          </label>
-          <input
-            class="form__trap"
-            type="text"
-            name="_honey"
-            tabindex="-1"
-            autocomplete="off"
-            aria-hidden="true"
-          />
-          <input type="hidden" name="_subject" value="WeTheGods web" />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="hidden" name="_next" value={next} />
-          <div class="form__foot">
-            <button class="btn" type="submit">
-              {form.send}
-            </button>
-            <p class="form__note">
-              {form.privacy}{' '}
-              <a class="ulink" href="#privacy">
-                {t.footer.privacy}
-              </a>
-            </p>
-          </div>
-          <p class="form__status" role="status" aria-live="polite"></p>
-        </form>
+            <input
+              type="checkbox"
+              name="botcheck"
+              hidden
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+            />
+            <input type="hidden" name="access_key" value={web3forms_access_key} />
+            <input type="hidden" name="subject" value="WeTheGods web" />
+            <div class="form__foot">
+              <button class="btn" type="submit">
+                {form.send}
+              </button>
+              <p class="form__note">
+                {form.privacy}{' '}
+                <a class="ulink" href="#privacy">
+                  {t.footer.privacy}
+                </a>
+              </p>
+            </div>
+            <p class="form__status" role="status" aria-live="polite"></p>
+          </form>
+        )}
 
         <div class="cols">
           {presskit && (
             <div>
-              <h3 class="label">{t.contact.presskit}</h3>
+              <h2 class="label">{t.contact.presskit}</h2>
               <a class="cols__link ulink out" href={presskit} rel="noopener" target="_blank">
                 {t.contact.presskitLink}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             </div>
           )}
           {merch && (
             <div>
-              <h3 class="label">{t.contact.merch}</h3>
+              <h2 class="label">{t.contact.merch}</h2>
               <a class="cols__link ulink out" href={merch} rel="noopener" target="_blank">
                 {t.contact.merchLink}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             </div>
           )}
           <div class="cols__follow">
-            <h3 class="label">{t.contact.follow}</h3>
+            <h2 class="label">{t.contact.follow}</h2>
             <ul class="socials">
               {socials.map((s) => (
                 <li>
                   <a class="cols__link ulink out" href={s.url} rel="noopener" target="_blank">
                     {s.name}
+                    <Icon name="arrow-up-right" class="out__icon" />
                   </a>
                 </li>
               ))}
@@ -139,9 +136,12 @@ const next = new URL(
         {lang === 'cs' ? (
           <>
             <p>
-              Kontaktní formulář odešle e-mail, zprávu, téma a případné jméno službě FormSubmit,
-              která je doručí do schránky kapely. FormSubmit při odeslání obdrží také technické
-              údaje spojení. Místo formuláře můžete použít vlastní e-mailovou aplikaci.
+              Kontaktní formulář odešle e-mail, zprávu, téma a případné jméno službě Web3Forms pro
+              přeposlání do schránky kapely. Web3Forms obdrží také technické údaje spojení a může
+              předat IP adresu a e-mail antispamovým službám. Pro tento formulář jsme nastavili
+              automatické mazání přijatých podání starších než sedm dní. Služba působí z Indie a
+              její infrastruktura může data zpracovávat v dalších regionech. Místo formuláře můžete
+              použít vlastní e-mailovou aplikaci.
             </p>
             <p>
               Dotazy k údajům ve zprávách, žádosti o přístup, opravu nebo výmaz posílejte na{' '}
@@ -164,9 +164,12 @@ const next = new URL(
         ) : (
           <>
             <p>
-              The contact form sends your email, message, topic and optional name to FormSubmit,
-              which relays them to the band inbox. FormSubmit also receives technical connection
-              data when you submit. You can use your own email application instead.
+              The contact form sends your email, message, topic and optional name to Web3Forms for
+              forwarding to the band inbox. Web3Forms also receives technical connection data and
+              may share your IP address and email with spam filters. We configured this form to
+              automatically delete submissions older than seven days. The service operates from
+              India and its infrastructure may process data in other regions. You can use your own
+              email application instead.
             </p>
             <p>
               For questions about data in your messages, including access, correction or deletion
@@ -190,8 +193,8 @@ const next = new URL(
           </>
         )}
         <p>
-          <a class="ulink" href="https://formsubmit.co/privacy.pdf">
-            FormSubmit
+          <a class="ulink" href="https://web3forms.com/privacy">
+            Web3Forms
           </a>
           {' · '}
           <a
@@ -232,35 +235,48 @@ const next = new URL(
       status.textContent = text;
       status.classList.toggle('is-error', !ok);
     };
-    // Back from the no-JS fallback.
-    if (new URLSearchParams(location.search).has('sent')) say(form.dataset.sent ?? '', true);
-
+    let submitting = false;
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
-      // Bots fill every field; people never see this one. Pretend it worked.
-      if (data._honey) return say(form.dataset.sent ?? '', true);
-      delete data._honey;
-      delete data._next;
-      data._subject = `WeTheGods web — ${data.topic}: ${data.name}`;
-      data._replyto = data.email ?? '';
+      if (submitting || !form.reportValidity()) return;
+      const data = Object.fromEntries(new FormData(form));
+      if (data.botcheck) return say(form.dataset.error ?? '', false);
+      data.subject = `WeTheGods web — ${data.topic}: ${data.name}`;
       const label = button.textContent;
+      const controller = new AbortController();
+      const deadline = setTimeout(() => controller.abort(), 60_000);
+      submitting = true;
       button.disabled = true;
+      form.setAttribute('aria-busy', 'true');
       button.textContent = form.dataset.sending ?? label;
+      status.textContent = '';
       try {
-        const res = await fetch(form.dataset.endpoint ?? form.action, {
+        const res = await fetch(form.action, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          credentials: 'omit',
+          redirect: 'error',
           body: JSON.stringify(data),
+          signal: controller.signal,
         });
-        const body = (await res.json().catch(() => ({}))) as { success?: string | boolean };
-        if (!res.ok || String(body.success) !== 'true') throw new Error(`status ${res.status}`);
+        const body: unknown = await res.json();
+        if (
+          !res.ok ||
+          !body ||
+          typeof body !== 'object' ||
+          !('success' in body) ||
+          body.success !== true
+        )
+          throw new Error(`status ${res.status}`);
         form.reset();
         say(form.dataset.sent ?? '', true);
       } catch {
         say(form.dataset.error ?? '', false);
       } finally {
+        clearTimeout(deadline);
+        submitting = false;
         button.disabled = false;
+        form.removeAttribute('aria-busy');
         button.textContent = label;
       }
     });
@@ -371,14 +387,6 @@ const next = new URL(
     outline-offset: 0;
   }
 
-  .form__trap {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-  }
-
   .form__foot {
     display: flex;
     flex-wrap: wrap;
@@ -412,7 +420,7 @@ const next = new URL(
     align-content: start;
   }
 
-  .cols h3 {
+  .cols h2 {
     margin-bottom: 0.9rem;
   }
 

@@ -18,7 +18,7 @@ const settings = await getSettings();
 const shown = compact ? upcoming.slice(0, 3) : upcoming;
 const detail = (e: Event) => `${pageUrl(lang, 'shows')}${e.slug}/`;
 const site = Astro.site ?? new URL('https://majkey25.github.io');
-const ld = upcoming.map((e) => eventJsonLd(e, new URL(detail(e), site).href));
+const ld = shown.map((e) => eventJsonLd(e, new URL(detail(e), site).href, lang)).filter(Boolean);
 ---
 
 <section id="shows" class="section" aria-labelledby="shows-title">
@@ -61,6 +61,7 @@ const ld = upcoming.map((e) => eventJsonLd(e, new URL(detail(e), site).href));
                 {e.tickets && (!e.status || e.status === 'free') && (
                   <a class="btn out show__tickets" href={e.tickets} rel="noopener" target="_blank">
                     {t.shows.link[e.type]}
+                    <Icon name="arrow-up-right" class="out__icon" />
                   </a>
                 )}
                 <span class="show__more label" aria-hidden="true">
@@ -82,6 +83,7 @@ const ld = upcoming.map((e) => eventJsonLd(e, new URL(detail(e), site).href));
           </a>
           <a class="btn btn--red out" href={settings.instagram} rel="noopener" target="_blank">
             {t.shows.follow}
+            <Icon name="arrow-up-right" class="out__icon" />
           </a>
         </div>
       </div>

@@ -6,6 +6,9 @@
         "http://localhost/",
         "http://localhost/cs/",
         "http://localhost/shows/",
+        "http://localhost/music/",
+        "http://localhost/about/",
+        "http://localhost/contact/",
         "http://localhost/gallery/"
       ],
       "numberOfRuns": 3
