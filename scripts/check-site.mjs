@@ -82,6 +82,11 @@ for (const file of htmlFiles) {
     )) {
       assert(/href="https:\/\//.test(panel), `${file}: detail needs a streaming link`);
       assert(panel.includes('https://www.musixmatch.com/'), `${file}: detail needs lyrics link`);
+      const cover = attributes(/<img\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/.exec(panel)?.[0] ?? '');
+      assert(
+        cover.loading === 'eager' && cover.fetchpriority === 'low',
+        `${file}: popup covers must preload at low priority`,
+      );
       const lyricsSection =
         /<section\b[^>]*aria-labelledby="lyrics-[^"]+"[^>]*>([\s\S]*?)<\/section>/.exec(panel);
       if (lyricsSection) {
@@ -120,6 +125,10 @@ for (const file of htmlFiles) {
   const title = /<title>([^<]+)<\/title>/.exec(html)?.[1];
   const description = meta.find((m) => m.name === 'description')?.content;
   assert(title && description, `${file}: missing title or description`);
+  assert(
+    title.includes(' | ') && !/\s[—–-]\s/.test(title),
+    `${file}: page titles must use a pipe separator`,
+  );
   assert(!titles.has(title), `${file}: duplicate title`);
   assert(!descriptions.has(description), `${file}: duplicate description`);
   titles.add(title);
