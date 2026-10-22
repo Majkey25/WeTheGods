@@ -58,12 +58,15 @@ const items = await Promise.all(
   }),
 );
 
+const contentWidth = 'min(100vw - clamp(2.5rem, 8vw, 6rem), 90rem)';
+const gap = 'clamp(0.5rem, 1vw, 1rem)';
+const half = `calc((${contentWidth} - ${gap}) / 2)`;
 const sizes = (i: number) =>
   i % 5 === 0
-    ? '(width > 48rem) 66vw, 100vw'
+    ? `(width > 48rem) calc((${contentWidth}) * 2 / 3 - ${gap} / 3), calc(${contentWidth})`
     : i % 5 < 3
-      ? '(width > 48rem) 33vw, 50vw'
-      : '(width > 48rem) 50vw, 50vw';
+      ? `(width > 48rem) calc((${contentWidth}) / 3 - ${gap} * 2 / 3), ${half}`
+      : half;
 ---
 
 <section id="gallery" class="section" aria-labelledby="gallery-title">
@@ -75,7 +78,7 @@ const sizes = (i: number) =>
       more={compact ? { href: pageUrl(lang, 'gallery'), label: t.more.gallery } : undefined}
     />
 
-    <ul class="gallery" data-reveal>
+    <ul class="gallery" data-reveal={compact || undefined}>
       {items.map((p, i) => (
         <li>
           <a class="gallery__item fx-img" href={p.href} {...p.data} aria-label={p.label}>
@@ -83,7 +86,7 @@ const sizes = (i: number) =>
               src={p.src}
               formats={['avif']}
               fallbackFormat="webp"
-              widths={[480, 800, 1200, 1600]}
+              widths={[320, 480, 640, 800, 1200, 1600]}
               sizes={sizes(i)}
               quality={72}
               alt={p.alt[lang]}
@@ -124,23 +127,79 @@ const sizes = (i: number) =>
   const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
   const links = [...document.querySelectorAll<HTMLAnchorElement>('.gallery__item')];
   const source = dialog?.querySelector('source');
-  const img = dialog?.querySelector<HTMLImageElement>('.lightbox__img');
+  let img = dialog?.querySelector<HTMLImageElement>('.lightbox__img');
   const caption = dialog?.querySelector('.lightbox__caption');
   const count = dialog?.querySelector('.lightbox__count');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
   if (dialog && source && img && caption && count && links.length) {
     let index = 0;
-    const show = (i: number) => {
+    let selection = 0;
+    let cancelPending = () => {};
+    const template = img.parentElement!.cloneNode(true) as HTMLPictureElement;
+    const show = async (i: number) => {
       index = (i + links.length) % links.length;
-      const data = links[index]?.dataset ?? {};
-      source.srcset = data.avif ?? '';
-      img.srcset = data.webp ?? '';
-      img.alt = data.alt ?? '';
+      const link = links[index];
+      const thumbnail = link?.querySelector('img');
+      if (!link || !thumbnail || !img) return;
+      const data = link.dataset;
+      const request = ++selection;
+      cancelPending();
+      const picture = template.cloneNode(true) as HTMLPictureElement;
+      const preview = picture.querySelector('img')!;
+      const previewSource = picture.querySelector('source')!;
+      previewSource.srcset = '';
+      preview.srcset = '';
+      preview.src = thumbnail.complete && thumbnail.naturalWidth > 0 ? thumbnail.currentSrc : '';
+      preview.alt = data.alt ?? '';
+      const full = template.cloneNode(true) as HTMLPictureElement;
+      const fullImage = full.querySelector('img')!;
+      fullImage.fetchPriority = 'high';
+      const fullSource = full.querySelector('source')!;
+      // A viewport change can replace the responsive candidate during decoding.
+      const ready = new Promise<boolean>((resolve) => {
+        cancelPending = () => {
+          resolve(false);
+          fullSource.srcset = '';
+          fullImage.srcset = '';
+        };
+        fullImage.onload = () => {
+          const loaded = fullImage.currentSrc;
+          void fullImage.decode().then(
+            () => resolve(true),
+            () => {
+              if (fullImage.complete && fullImage.currentSrc === loaded) resolve(false);
+            },
+          );
+        };
+        fullImage.onerror = () => resolve(false);
+      });
+      fullSource.srcset = data.avif ?? '';
+      fullImage.srcset = data.webp ?? '';
+      if (!dialog.open) {
+        img.style.visibility = 'hidden';
+        caption.textContent = '';
+        count.textContent = '';
+      }
+      try {
+        await preview.decode();
+        // Keep the full photo's intrinsic size while displaying its cached thumbnail.
+        preview.srcset = `${preview.src} ${preview.naturalWidth}w`;
+        await preview.decode();
+      } catch {
+        if ((await ready) && request === selection && dialog.open) {
+          previewSource.srcset = data.avif ?? '';
+          preview.srcset = data.webp ?? '';
+          await preview.decode().catch(() => {});
+        }
+      }
+      if (request !== selection || !dialog.open) return;
+      img.parentElement!.replaceWith(picture);
+      img = preview;
       caption.textContent = data.caption ?? '';
       count.textContent = `${String(index + 1).padStart(2, '0')} / ${String(links.length).padStart(2, '0')}`;
       if (!reduced.matches) {
-        img.animate(
+        preview.animate(
           [
             { transform: 'translateX(-10px)', opacity: 0.4 },
             { transform: 'translateX(6px)', opacity: 1 },
@@ -148,6 +207,10 @@ const sizes = (i: number) =>
           ],
           { duration: 240, easing: 'steps(3)' },
         );
+      }
+      if ((await ready) && request === selection && dialog.open) {
+        previewSource.srcset = data.avif ?? '';
+        preview.srcset = data.webp ?? '';
       }
     };
 

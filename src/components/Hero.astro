@@ -2,7 +2,7 @@
 import { Picture } from 'astro:assets';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
-import { getSettings } from '../content';
+import { getMusicCatalog, getSettings } from '../content';
 import { dict, type Lang } from '../i18n';
 
 interface Props {
@@ -13,6 +13,7 @@ const { lang } = Astro.props;
 const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const settings = await getSettings();
+const releases = await getMusicCatalog();
 const pick = (en: string, cs: string) => (lang === 'cs' ? cs : en);
 // Site pages are written as /videos/ in the CMS; the base path and language are added here.
 const href = (url: string) =>
@@ -51,14 +52,19 @@ const href = (url: string) =>
       <div class="hero__cta">
         {settings.hero_buttons.map((b, i) => {
           const external = b.url.startsWith('https://');
+          const release = releases.find((r) => r.link === b.url);
           return (
             <a
-              class:list={['btn', { 'btn--red': i > 0, out: external }]}
+              class:list={['btn', { 'btn--red': i > 0, out: external && !release }]}
               href={href(b.url)}
+              data-music-open={release?.detailId}
+              aria-haspopup={release ? 'dialog' : undefined}
+              aria-controls={release ? 'music-details' : undefined}
               rel={external ? 'noopener' : undefined}
               target={external ? '_blank' : undefined}
             >
               {pick(b.text_en, b.text_cs)}
+              {external && !release && <Icon name="arrow-up-right" class="out__icon" />}
             </a>
           );
         })}

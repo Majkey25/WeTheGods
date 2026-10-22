@@ -1,5 +1,6 @@
 ---
-import { Font, Picture } from 'astro:assets';
+import { Font, Picture, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import footerPhoto from '../assets/footer-rfp.jpg';
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
@@ -24,34 +25,63 @@ const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const site = Astro.site ?? new URL('https://majkey25.github.io');
 const url = (path: string) => new URL(path, site).href;
-const pageTitle = title ?? (page ? `${t.nav[page]} — WeTheGods` : t.meta.title);
-const description = pageDescription ?? (page ? t.meta.pages[page] : t.meta.description);
+const pageTitle = title ?? (page ? t.meta.titles[page] : t.meta.title);
+const description =
+  pageDescription ??
+  (page === undefined ? t.notFound.description : page ? t.meta.pages[page] : t.meta.description);
 const ogImage = url(`${base}og.jpg`);
+const ogAlt =
+  lang === 'cs'
+    ? 'WeTheGods: logo kapely nad koncertní fotografií'
+    : 'WeTheGods wordmark over a live concert photograph';
 const settings = await getSettings();
-const releases = await getReleases();
 const navPages = pages.filter((p) => p !== '');
 // Prerender a page when the visitor hovers its link, so navigation feels instant (Chromium).
 const speculation = { prerender: [{ where: { href_matches: `${base}*` }, eagerness: 'moderate' }] };
 
-const ld = {
-  '@context': 'https://schema.org',
-  '@type': 'MusicGroup',
-  name: 'WeTheGods',
-  alternateName: ['We The Gods', 'WETHEGODS', 'WTG'],
-  url: url(pageUrl(lang)),
-  image: ogImage,
-  genre: 'Alternative metalcore',
-  foundingDate: '2024',
-  foundingLocation: { '@type': 'Place', name: 'Uherské Hradiště, Czech Republic' },
-  email: settings.email,
-  sameAs: settings.socials.map((s) => s.url),
-  album: releases.map((r) => ({
+const isBandPage = page === '' || page === 'about' || page === 'music';
+const [about] = isBandPage ? await getCollection('about') : [];
+const releases = page === '' || page === 'music' ? await getReleases() : [];
+const bandId = url(`${pageUrl('en')}#band`);
+const albums = await Promise.all(
+  (page === '' ? releases.slice(0, 1) : releases).map(async (r, i) => ({
     '@type': 'MusicAlbum',
+    '@id': r.link,
     name: r.title,
     datePublished: r.date,
     albumReleaseType: `https://schema.org/${{ album: 'AlbumRelease', ep: 'EPRelease', single: 'SingleRelease' }[r.type]}`,
     url: r.link,
+    image: url(
+      (await getImage({ src: r.cover, width: Math.min(700, r.cover.width), format: 'webp' })).src,
+    ),
+    byArtist: { '@id': bandId },
+    ...(r.platforms?.length && { sameAs: r.platforms.map((p) => p.url) }),
+    ...(i === 0 &&
+      r.tracks?.length && {
+        numTracks: r.tracks.length,
+        track: r.tracks.map((name) => ({
+          '@type': 'MusicRecording',
+          name,
+          byArtist: { '@id': bandId },
+        })),
+      }),
   })),
+);
+const ld = about && {
+  '@context': 'https://schema.org',
+  '@type': 'MusicGroup',
+  '@id': bandId,
+  name: 'WeTheGods',
+  alternateName: ['We The Gods', 'WETHEGODS', 'WTG'],
+  url: url(pageUrl('en')),
+  image: ogImage,
+  description: lang === 'cs' ? about.data.lead_cs : about.data.lead_en,
+  genre: about.data.genre_en,
+  foundingDate: about.data.formed,
+  foundingLocation: { '@type': 'Place', name: about.data.origin_en },
+  email: settings.email,
+  sameAs: settings.socials.map((s) => s.url),
+  ...(albums.length && { album: albums }),
 };
 ---
 
@@ -62,9 +92,14 @@ const ld = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    <meta
+      name="robots"
+      content={page === undefined ? 'noindex, follow' : 'index, follow, max-image-preview:large'}
+    />
     <meta name="theme-color" content="#0a0a0b" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <link rel="sitemap" type="application/xml" href={`${base}sitemap.xml`} />
     {page !== undefined && (
       <>
         <link rel="canonical" href={url(here(lang))} />
@@ -82,9 +117,23 @@ const ld = {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta property="og:locale" content={t.locale.replace('-', '_')} />
+    {langs
+      .filter((l) => l !== lang)
+      .map((l) => (
+        <meta property="og:locale:alternate" content={dict[l].locale.replace('-', '_')} />
+      ))}
     <meta name="twitter:card" content="summary_large_image" />
-    <Font cssVariable="--font-display" preload={[{ subset: 'latin', style: 'normal' }]} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+    <Font
+      cssVariable="--font-display"
+      preload={[{ weight: page === '' ? 500 : 600, style: 'normal' }]}
+    />
     <Font cssVariable="--font-body" preload={[{ subset: 'latin' }]} />
     <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
     <script is:inline>
@@ -102,7 +151,7 @@ const ld = {
           document.querySelector('meta[name="theme-color"]').setAttribute('content', '#efede7');
       })();
     </script>
-    {page === '' && (
+    {ld && (
       <script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
     )}
     <script type="speculationrules" set:html={JSON.stringify(speculation)} />
@@ -136,9 +185,11 @@ const ld = {
       ))}
     </svg>
 
-    <div class="intro" aria-hidden="true">
-      <Logo name="mono" rgb class="intro__logo" />
-    </div>
+    {page === '' && (
+      <div class="intro" aria-hidden="true">
+        <Logo name="mono" rgb class="intro__logo" />
+      </div>
+    )}
 
     <a class="skip" href="#main">
       {t.nav.skip}
@@ -232,12 +283,27 @@ const ld = {
         </a>
         <div class="footer__row label">
           <p>© {new Date().getFullYear()} WeTheGods</p>
+          <p class="footer__credit">
+            Made by{' '}
+            <a
+              class="footer__author ulink"
+              href="https://majkey25.github.io/init/"
+              aria-label="Makey25"
+            >
+              <span class="glitch" data-text="Makey25">
+                Makey25
+              </span>
+            </a>
+          </p>
           <p>
             {t.footer.credits}{' '}
             <a class="ulink" href="https://petrovvisuals.com/" rel="noopener" target="_blank">
               Petrov Visuals
             </a>
           </p>
+          <a class="ulink" href={`${pageUrl(lang, 'contact')}#privacy`}>
+            {t.footer.privacy}
+          </a>
           <a class="footer__top" href="#main">
             {t.footer.top}
             <Icon name="arrow-up" />
@@ -287,11 +353,19 @@ const ld = {
       // Intro: any input skips it; it leaves the DOM once finished.
       const intro = document.querySelector('.intro');
       if (intro) {
-        const done = () => intro.remove();
-        if (root.classList.contains('no-intro')) done();
-        intro.addEventListener('animationend', (e) => e.target === intro && done());
-        intro.addEventListener('pointerdown', done);
-        addEventListener('keydown', done, { once: true });
+        if (root.classList.contains('no-intro')) intro.remove();
+        else {
+          const events = new AbortController();
+          const done = () => {
+            intro.remove();
+            events.abort();
+          };
+          intro.addEventListener('animationend', (e) => e.target === intro && done(), {
+            signal: events.signal,
+          });
+          intro.addEventListener('pointerdown', done, { signal: events.signal });
+          addEventListener('keydown', done, { once: true, signal: events.signal });
+        }
       }
 
       // Reveal sections and fire the heading glitch once they scroll into view.
@@ -776,6 +850,78 @@ const ld = {
     }
     53% {
       translate: 2px 0;
+    }
+  }
+
+  .footer__credit {
+    white-space: nowrap;
+  }
+
+  .footer__author {
+    display: inline-block;
+    padding-block: 0.875rem;
+    margin-block: -0.875rem;
+    color: var(--fg);
+    background-origin: content-box;
+  }
+
+  .footer__author .glitch {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .footer__author:is(:hover, :focus-visible) .glitch {
+      animation: credit-jolt 0.9s steps(1);
+    }
+
+    .footer__author:is(:hover, :focus-visible) .glitch::before {
+      animation:
+        ch-a 0.9s steps(1),
+        credit-code 0.9s steps(1);
+      text-shadow: -2px 0 var(--ch-a);
+    }
+
+    .footer__author:is(:hover, :focus-visible) .glitch::after {
+      animation:
+        ch-b 0.9s steps(1),
+        credit-code 0.9s steps(1) reverse;
+      text-shadow: 2px 0 var(--ch-b);
+    }
+  }
+
+  @keyframes credit-jolt {
+    0%,
+    100% {
+      transform: none;
+    }
+    12%,
+    42% {
+      transform: translate(-5px, 1px) skewX(-16deg);
+    }
+    25%,
+    65% {
+      transform: translate(6px, -1px) skewX(12deg) scaleY(1.12);
+    }
+    78% {
+      transform: translate(-2px, 0) skewX(-5deg);
+    }
+  }
+
+  @keyframes credit-code {
+    0%,
+    100% {
+      content: attr(data-text);
+    }
+    12%,
+    42% {
+      content: '#7{*_}/';
+    }
+    25%,
+    65% {
+      content: 'M4K3Y25';
+    }
+    78% {
+      content: 'M#K%Y25';
     }
   }
 

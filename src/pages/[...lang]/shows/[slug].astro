@@ -2,7 +2,15 @@
 import { Picture } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
 import Icon from '../../../components/Icon.astro';
-import { cityLabel, dateParts, eventJsonLd, getEvents, mapUrl, type Event } from '../../../content';
+import {
+  cityLabel,
+  dateParts,
+  eventDescription,
+  eventJsonLd,
+  getEvents,
+  mapUrl,
+  type Event,
+} from '../../../content';
 import { dict, langs, pageUrl, toLang } from '../../../i18n';
 
 // One page per event and language: /shows/<slug>/ and /cs/shows/<slug>/.
@@ -29,15 +37,16 @@ const info = lang === 'cs' ? (e.info_cs ?? e.info_en) : (e.info_en ?? e.info_cs)
 const paragraphs = (info ?? '').split(/\n\s*\n/).filter((p) => p.trim());
 const directions = mapUrl(e);
 const city = cityLabel(t.locale, e);
-const summary = [s.types[e.type], date.long, e.venue, city].filter(Boolean).join(' · ');
+const description = eventDescription(e, lang);
+const ld = eventJsonLd(e, url, lang);
 ---
 
 <Base
   lang={lang}
   page="shows"
   sub={e.slug}
-  title={`${e.name} — WeTheGods`}
-  description={info?.slice(0, 160) ?? summary}
+  title={`${e.name}${e.city ? `, ${e.city}` : ''} · ${date.short} — WeTheGods`}
+  description={description}
 >
   <article class="section event" aria-labelledby="event-title">
     <div class="wrap">
@@ -103,12 +112,14 @@ const summary = [s.types[e.type], date.long, e.venue, city].filter(Boolean).join
             {e.tickets && !e.inactive && e.status !== 'sold-out' && (
               <a class="btn out" href={e.tickets} rel="noopener" target="_blank">
                 {s.link[e.type]}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             )}
             {directions && (
               <a class="btn btn--red out" href={directions} rel="noopener" target="_blank">
                 <Icon name="pin" />
                 {s.directions}
+                <Icon name="arrow-up-right" class="out__icon" />
               </a>
             )}
             <a class="btn" href={`${base}shows/${e.slug}.ics`} download={`wethegods-${e.slug}.ics`}>
@@ -126,17 +137,16 @@ const summary = [s.types[e.type], date.long, e.venue, city].filter(Boolean).join
               fallbackFormat="webp"
               widths={[400, 700, 1000]}
               sizes="(width > 56rem) 35vw, 100vw"
-              alt=""
+              alt={`${e.name} · ${date.short} — WeTheGods`}
               loading="eager"
             />
           </figure>
         )}
       </div>
     </div>
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify(eventJsonLd(e, url)).replace(/</g, '\\u003c')}
-    />
+    {ld && (
+      <script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
+    )}
   </article>
 </Base>
 

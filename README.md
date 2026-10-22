@@ -20,14 +20,14 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 
 ## Features
 
-- **Signal-interference look**: a 2-second glitch intro on the WTG emblem, RGB-split distortion on hover for text and photos, a looping glitch on the footer logo, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`.
+- **Signal-interference look**: a 2-second homepage intro on the WTG emblem, RGB-split distortion on hover for text and photos, a looping glitch on the footer logo, film grain and scanlines. All CSS, stepped animations, off under `prefers-reduced-motion`. Direct links to other pages open without the intro.
 - **Dark and light themes**: the light theme inverts the palette and turns the hero footage into a negative. The new theme surges out of the moon/sun switch with a view transition.
 - **Seven pages, two languages**: Home, Shows, Music, Videos, About, Gallery and Contact in English (`/`) and Czech (`/cs/`), with `hreflang` alternates. Links prerender on hover and pages change with a native cross-document view transition.
 - **Events with their own pages**: shows, releases, parties and signings, each with details, directions and a downloadable calendar file (`.ics`). Finished events move to the archive during the nightly rebuild.
 - **Everything editable without code**: shows, releases, videos, gallery, line-up, About text and site settings live in [`src/data`](src/data) and are edited through [Pages CMS](https://pagescms.org) ([guide in Czech](docs/editace.md)). Every field is validated at build time, so a broken edit never reaches the live site.
-- **Contact form without a server**: messages are relayed by FormSubmit, with a honeypot and a no-JS fallback.
+- **Contact form without a server**: Web3Forms relays messages when `web3forms_access_key` is set in site settings. The recipient is configured separately in Web3Forms. Provider spam filters and a hidden honeypot apply; without JavaScript, the browser submits to the provider's confirmation page. Without a key, the contact email remains available.
 - **Fast by default**: static HTML with no client framework, responsive AVIF/WebP images, a deferred hero loop (size-capped, skipped on slow connections), self-hosted fonts with metric-matched fallbacks, SVG icons instead of font glyphs, and YouTube players that load only on click.
-- **Search-ready**: `MusicGroup` and `MusicEvent` structured data, Open Graph image, canonical URLs.
+- **Search metadata**: localized titles and descriptions, canonical and language alternates, Open Graph cards, CMS-generated sitemap with gallery images, consistent band/release/concert structured data and build-time artifact checks. [Search and performance guide](docs/seo.md).
 
 ## Stack
 
@@ -43,10 +43,10 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 
 ## CI/CD
 
-| Workflow                                     | Trigger                                    | Job                                               |
-| -------------------------------------------- | ------------------------------------------ | ------------------------------------------------- |
-| [`ci.yml`](.github/workflows/ci.yml)         | every pull request and push to `main`      | Prettier → `astro check` → build → Lighthouse     |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, daily at 03:17 UTC, manual | Build with the Pages URL → deploy to GitHub Pages |
+| Workflow                                     | Trigger                                    | Job                                                                          |
+| -------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| [`ci.yml`](.github/workflows/ci.yml)         | every pull request and push to `main`      | Prettier → `astro check` → build → artifact checks → Lighthouse              |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, daily at 03:17 UTC, manual | Format and type checks → build with the Pages URL → artifact checks → deploy |
 
 Actions are pinned to commit SHAs and kept current by Dependabot. Workflows run with read-only
 tokens; only the deploy job gets `pages: write`. The site URL and base path come from the Pages
