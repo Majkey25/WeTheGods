@@ -56,6 +56,44 @@ const descriptions = new Set();
 let events = 0;
 for (const file of htmlFiles) {
   const html = await readFile(new URL(file, dist), 'utf8');
+  if (['index.html', 'cs/index.html', 'music/index.html', 'cs/music/index.html'].includes(file)) {
+    assert(/<dialog\b[^>]*id="music-details"/.test(html), `${file}: missing music detail dialog`);
+    const panels = new Set([...html.matchAll(/data-music-panel="([^"]+)"/g)].map((m) => m[1]));
+    const triggers = [...html.matchAll(/data-music-open="([^"]+)"/g)].map((m) => m[1]);
+    assert(triggers.length > 5, `${file}: release and track links must open details`);
+    assert(
+      triggers.every((id) => panels.has(id)),
+      `${file}: a music link has no detail panel`,
+    );
+    for (const id of [
+      'release-one',
+      'yeba',
+      'alone-i-stand',
+      'labyrinth-of-lies',
+      'illusions',
+      'disconnect-exe',
+    ])
+      assert(panels.has(id), `${file}: missing detail for ${id}`);
+    if (file.endsWith('music/index.html'))
+      assert(panels.has('reflection'), `${file}: missing Reflection single detail`);
+    for (const [, panel] of html.matchAll(
+      /<article\b[^>]*data-music-panel="[^"]+"[^>]*>([\s\S]*?)<\/article>/g,
+    )) {
+      assert(/href="https:\/\//.test(panel), `${file}: detail needs a streaming link`);
+      assert(panel.includes('https://www.musixmatch.com/'), `${file}: detail needs lyrics link`);
+      assert(
+        /class="music-detail__description"/.test(panel),
+        `${file}: detail needs a description`,
+      );
+    }
+    const platformLists = [...html.matchAll(/<ul class="platforms"[^>]*>([\s\S]*?)<\/ul>/g)];
+    assert(platformLists.length, `${file}: missing Listen platforms`);
+    for (const [, platforms] of platformLists)
+      assert(
+        platforms.includes('href="https://www.musixmatch.com/artist/WETHEGODS"'),
+        `${file}: Musixmatch must be listed beside streaming platforms`,
+      );
+  }
   const links = [...html.matchAll(/<link\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/g)].map((m) =>
     attributes(m[0]),
   );

@@ -38,6 +38,37 @@ const slugify = (text: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
+/** Shared song details for singles and EP tracklists; broken CMS references stop the build. */
+export const getMusicCatalog = async () => {
+  const [releases, entries] = await Promise.all([getReleases(), getCollection('songs')]);
+  const songs = entries.map((entry) => entry.data);
+  const byTitle = new Map(songs.map((song) => [song.title, song]));
+  if (
+    byTitle.size !== songs.length ||
+    new Set(songs.map((song) => song.slug)).size !== songs.length
+  )
+    throw new Error('Song titles and slugs must be unique in src/data/songs.yaml');
+  const findSong = (title: string) => {
+    const song = byTitle.get(title);
+    if (!song) throw new Error(`Add song details for "${title}" in src/data/songs.yaml`);
+    return song;
+  };
+  return releases.map((release) => {
+    const song = release.type === 'single' ? findSong(release.title) : undefined;
+    const platforms = release.platforms ?? [];
+    const musixmatch = { name: 'Musixmatch', url: 'https://www.musixmatch.com/artist/WETHEGODS' };
+    return {
+      ...release,
+      platforms: platforms.some((platform) => platform.url === musixmatch.url)
+        ? platforms
+        : [...platforms, musixmatch],
+      song,
+      songs: (release.tracks ?? []).map(findSong),
+      detailId: song?.slug ?? `release-${slugify(release.title)}`,
+    };
+  });
+};
+
 export type Event = CollectionEntry<'shows'>['data'] & {
   name: string;
   slug: string;

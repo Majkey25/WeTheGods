@@ -158,7 +158,25 @@ const releases = defineCollection({
       link: https('Listen link'),
       tracks: optional(z.array(text)),
       platforms: optional(z.array(link)),
+      description_en: optional(text),
+      description_cs: optional(text),
     }),
+});
+
+const songs = defineCollection({
+  loader: yamlFile('src/data/songs.yaml'),
+  schema: z.strictObject({
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use a unique lowercase slug'),
+    title: text,
+    description_en: text,
+    description_cs: text,
+    meaning_en: text,
+    meaning_cs: text,
+    meaning_basis: z.enum(['lyrics', 'title']).default('lyrics'),
+    lyrics_url: https('Musixmatch'),
+    lyrics_available: z.boolean().default(true),
+    lyrics: optional(text),
+  }),
 });
 
 // The hero loop plays behind the logo on every visit, so an oversized upload fails the build
@@ -216,4 +234,4 @@ const settings = defineCollection({
     }),
 });
 
-export const collections = { shows, gallery, members, about, videos, releases, settings };
+export const collections = { shows, gallery, members, about, videos, releases, songs, settings };
