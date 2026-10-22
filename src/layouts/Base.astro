@@ -25,7 +25,10 @@ const t = dict[lang];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const site = Astro.site ?? new URL('https://majkey25.github.io');
 const url = (path: string) => new URL(path, site).href;
-const pageTitle = title ?? (page ? t.meta.titles[page] : t.meta.title);
+const pageTitle = (title ?? (page ? t.meta.titles[page] : t.meta.title)).replace(
+  /\s+[—–·-]\s+/g,
+  ' | ',
+);
 const description =
   pageDescription ??
   (page === undefined ? t.notFound.description : page ? t.meta.pages[page] : t.meta.description);

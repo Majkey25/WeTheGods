@@ -82,6 +82,11 @@ for (const file of htmlFiles) {
     )) {
       assert(/href="https:\/\//.test(panel), `${file}: detail needs a streaming link`);
       assert(panel.includes('https://www.musixmatch.com/'), `${file}: detail needs lyrics link`);
+      const cover = attributes(/<img\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/.exec(panel)?.[0] ?? '');
+      assert(
+        cover.loading === 'eager' && cover.fetchpriority === 'low',
+        `${file}: popup covers must preload at low priority`,
+      );
       const lyricsSection =
         /<section\b[^>]*aria-labelledby="lyrics-[^"]+"[^>]*>([\s\S]*?)<\/section>/.exec(panel);
       if (lyricsSection) {
@@ -120,6 +125,20 @@ for (const file of htmlFiles) {
   const title = /<title>([^<]+)<\/title>/.exec(html)?.[1];
   const description = meta.find((m) => m.name === 'description')?.content;
   assert(title && description, `${file}: missing title or description`);
+  assert(
+    title.includes(' | ') && !/\s[—–·-]\s/.test(title),
+    `${file}: page titles must use a pipe separator`,
+  );
+  assert.equal(
+    meta.find((m) => m.property === 'og:title')?.content,
+    decode(title),
+    `${file}: OG title must match the page title`,
+  );
+  assert.equal(
+    meta.find((m) => m.name === 'twitter:title')?.content,
+    decode(title),
+    `${file}: Twitter title must match the page title`,
+  );
   assert(!titles.has(title), `${file}: duplicate title`);
   assert(!descriptions.has(description), `${file}: duplicate description`);
   titles.add(title);
@@ -199,6 +218,12 @@ for (const file of htmlFiles) {
         assert(
           (ld.album ?? []).slice(1).every((album) => !album.track && !album.numTracks),
           `${file}: only the featured release has a visible tracklist`,
+        );
+        assert(
+          (ld.album ?? []).every(
+            (album) => !album.sameAs?.includes('https://www.musixmatch.com/artist/WETHEGODS'),
+          ),
+          `${file}: the Musixmatch artist profile identifies the band, not an album`,
         );
       }
       if (ld['@type'] === 'MusicEvent' || ld['@type'] === 'Event') {

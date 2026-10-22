@@ -73,7 +73,8 @@ const panels = [
             widths={[400, 700]}
             sizes="(width > 48rem) 420px, (width > 30rem) 400px, 85vw"
             alt={`${t.music.cover}: ${release.title} — WeTheGods`}
-            loading="lazy"
+            loading="eager"
+            fetchpriority="low"
           />
           <a
             class="btn out music-detail__listen"
@@ -205,6 +206,7 @@ const panels = [
     let opener: HTMLElement | undefined;
     const show = (panel: HTMLElement, trigger?: HTMLElement) => {
       if (dialog.open && !panel.hidden) return;
+      panel.querySelector('img')?.setAttribute('fetchpriority', 'high');
       if (!dialog.open)
         opener =
           trigger ??
