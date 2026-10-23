@@ -2,6 +2,7 @@
 import { getSettings } from '../content';
 import SectionHead from './SectionHead.astro';
 import Icon from './Icon.astro';
+import ContactLink from './ContactLink.astro';
 import { dict, pageUrl, type Lang } from '../i18n';
 
 interface Props {
@@ -121,14 +122,17 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
     )}
 
     {/* The form is the main way in; the address stays for people who prefer their own mail app. */}
-    <div class="mail" data-reveal>
+    <div class="mail" id="booking-email" data-reveal>
       <p class="label">{t.contact.booking}</p>
-      <a class="mail__link ulink" href={`mailto:${email}`}>
-        {email}
-      </a>
-      <button class="mail__copy label" type="button" data-copy={email} data-done={t.contact.copied}>
+      <ContactLink class="mail__link ulink" value={email} lang={lang}>
+        {lang === 'cs' ? 'Napsat e-mail' : 'Email us'}
+      </ContactLink>
+      <ContactLink class="mail__copy label" value={email} lang={lang} action="reveal">
+        {lang === 'cs' ? 'Zobrazit e-mail' : 'Show email'}
+      </ContactLink>
+      <ContactLink class="mail__copy label" value={email} lang={lang} action="copy">
         {t.contact.copy}
-      </button>
+      </ContactLink>
     </div>
     {!compact && (
       <section id="privacy" class="privacy" aria-labelledby="privacy-title">
@@ -145,8 +149,8 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
             </p>
             <p>
               Dotazy k údajům ve zprávách, žádosti o přístup, opravu nebo výmaz posílejte na{' '}
-              <a class="ulink" href={`mailto:${email}`}>
-                {email}
+              <a class="ulink" href="#booking-email">
+                e-mail kapely
               </a>
               . Neposílejte citlivé údaje ani údaje jiných lidí, které nejsou pro dotaz potřebné.
             </p>
@@ -174,8 +178,8 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
             <p>
               For questions about data in your messages, including access, correction or deletion
               requests, contact{' '}
-              <a class="ulink" href={`mailto:${email}`}>
-                {email}
+              <a class="ulink" href="#booking-email">
+                the band's email
               </a>
               . Do not send sensitive information or other people's details that are unnecessary for
               your enquiry.
@@ -214,19 +218,6 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
 </section>
 
 <script>
-  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
-    const label = button.textContent;
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(button.dataset.copy ?? '');
-        button.textContent = button.dataset.done ?? label;
-        setTimeout(() => (button.textContent = label), 2000);
-      } catch {
-        // Clipboard blocked: the mailto link next to the button still works.
-      }
-    });
-  });
-
   const form = document.querySelector<HTMLFormElement>('.form');
   const status = form?.querySelector('.form__status');
   const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -312,12 +303,12 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
     border-top: 1px solid var(--line);
   }
 
-  .mail__link {
+  .mail :global(.mail__link) {
     font: 600 clamp(1.15rem, 2vw, 1.6rem) / 1.2 var(--font-display);
     overflow-wrap: anywhere;
   }
 
-  .mail__copy {
+  .mail :global(.mail__copy) {
     min-height: 2.75rem;
     padding-inline: 1rem;
     border: 1px solid var(--line);
@@ -325,7 +316,7 @@ const { email, web3forms_access_key, presskit, merch, socials } = await getSetti
     transition: border-color 0.2s;
   }
 
-  .mail__copy:hover {
+  .mail :global(.mail__copy:hover) {
     border-color: var(--fg);
   }
 

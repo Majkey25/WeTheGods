@@ -1,0 +1,133 @@
+---
+import { encodeEmail } from '../contact';
+import { pageUrl, type Lang } from '../i18n';
+
+interface Props {
+  value: string;
+  lang: Lang;
+  action?: 'email' | 'copy' | 'reveal';
+  class?: string;
+}
+const { value, lang, action = 'email', class: className } = Astro.props;
+const Tag = action === 'email' ? 'a' : 'button';
+---
+
+<span class="contact-control">
+  <Tag
+    class={className}
+    type={action === 'email' ? undefined : 'button'}
+    href={action === 'email' ? `${pageUrl(lang, 'contact')}#booking-email` : undefined}
+    data-contact-value={encodeEmail(value)}
+    data-contact-action={action}
+    hidden={action !== 'email'}
+  >
+    <slot />
+  </Tag>
+  {action !== 'email' && (
+    <input
+      class="contact-value"
+      type="text"
+      readonly
+      hidden
+      aria-label={lang === 'cs' ? 'E-mailová adresa' : 'Email address'}
+    />
+  )}
+  {action === 'copy' && <span class="contact-status" role="status" aria-live="polite"></span>}
+  {action === 'reveal' && (
+    <noscript>
+      {value
+        .replace('@', lang === 'cs' ? ' [zavináč] ' : ' [at] ')
+        .replaceAll('.', lang === 'cs' ? ' [tečka] ' : ' [dot] ')}
+    </noscript>
+  )}
+</span>
+
+<script>
+  import { decodeEmail, emailUri } from '../contact';
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-contact-value]').forEach((button) => {
+    button.hidden = false;
+  });
+  document.addEventListener('click', async (event) => {
+    if (!event.isTrusted || event.defaultPrevented || !(event.target instanceof Element)) return;
+    const control = event.target.closest<HTMLAnchorElement | HTMLButtonElement>(
+      '[data-contact-value]',
+    );
+    if (
+      !control ||
+      event.button ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    let email: string;
+    try {
+      email = decodeEmail(control.dataset.contactValue ?? '');
+    } catch {
+      return;
+    }
+    if (control instanceof HTMLAnchorElement) {
+      const fallback = control.href;
+      control.href = emailUri(email);
+      setTimeout(() => {
+        control.href = fallback;
+      }, 0);
+      return;
+    }
+    if (control.getAttribute('aria-disabled') === 'true') return;
+    const output = control.parentElement?.querySelector('input');
+    if (!output) return;
+    const reveal = () => {
+      output.value = email;
+      output.hidden = false;
+      output.focus({ preventScroll: true });
+      output.select();
+    };
+    if (control.dataset.contactAction === 'reveal') return reveal();
+    const status = control.parentElement?.querySelector('[role="status"]');
+    const cs = document.documentElement.lang === 'cs';
+    control.setAttribute('aria-disabled', 'true');
+    try {
+      await navigator.clipboard.writeText(email);
+      output.hidden = true;
+      if (status) status.textContent = cs ? 'E-mail zkopírován.' : 'Email copied.';
+    } catch {
+      reveal();
+      if (status)
+        status.textContent = cs
+          ? 'Zkopírujte označenou adresu ručně.'
+          : 'Copy the selected address manually.';
+    } finally {
+      control.removeAttribute('aria-disabled');
+    }
+  });
+</script>
+
+<style>
+  .contact-control {
+    display: contents;
+  }
+  [data-contact-value][hidden],
+  .contact-value[hidden] {
+    display: none;
+  }
+  .contact-value {
+    flex-basis: 100%;
+    width: min(100%, 34ch);
+    min-width: 0;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--panel);
+    color: var(--fg);
+    font: inherit;
+  }
+  .contact-status {
+    flex-basis: 100%;
+    min-height: 2.8em;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+</style>

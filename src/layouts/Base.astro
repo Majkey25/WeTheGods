@@ -82,7 +82,6 @@ const ld = about && {
   genre: about.data.genre_en,
   foundingDate: about.data.formed,
   foundingLocation: { '@type': 'Place', name: about.data.origin_en },
-  email: settings.email,
   sameAs: settings.socials.map((s) => s.url),
   ...(albums.length && { album: albums }),
 };
