@@ -4,10 +4,18 @@ import { readdir, readFile } from 'node:fs/promises';
 import { decodeEmail, emailUri, encodeEmail } from '../src/contact.ts';
 
 test('protected email preserves plus addressing and Unicode', () => {
-  for (const value of ['booking+press@example.com', 'příjemce@example.cz']) {
+  for (const [value, uri] of [
+    ['booking+press@example.com', 'mailto:booking%2Bpress@example.com'],
+    ['příjemce@example.cz', 'mailto:p%C5%99%C3%ADjemce@example.cz'],
+    ['a%40b?subject=x&body=y@example.com', 'mailto:a%2540b%3Fsubject%3Dx%26body%3Dy@example.com'],
+  ]) {
     assert.equal(decodeEmail(encodeEmail(value)), value);
+    assert.equal(emailUri(value), uri);
   }
-  assert.equal(emailUri('booking+press@example.com'), 'mailto:booking%2Bpress@example.com');
+});
+
+test('email URI restores every encoded @', () => {
+  assert.equal(emailUri('a@b@example.com'), 'mailto:a@b@example.com');
 });
 
 test('malformed or injected contacts are rejected', () => {

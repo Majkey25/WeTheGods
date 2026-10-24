@@ -81,7 +81,13 @@ for (const file of htmlFiles) {
       /<article\b[^>]*data-music-panel="[^"]+"[^>]*>([\s\S]*?)<\/article>/g,
     )) {
       assert(/href="https:\/\//.test(panel), `${file}: detail needs a streaming link`);
-      assert(panel.includes('https://www.musixmatch.com/'), `${file}: detail needs lyrics link`);
+      assert(
+        [...panel.matchAll(/<a\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/g)].some(([tag]) => {
+          const href = attributes(tag).href;
+          return URL.canParse(href) && new URL(href).origin === 'https://www.musixmatch.com';
+        }),
+        `${file}: detail needs lyrics link`,
+      );
       const cover = attributes(/<img\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/.exec(panel)?.[0] ?? '');
       assert(
         cover.loading === 'eager' && cover.fetchpriority === 'low',
@@ -221,7 +227,10 @@ for (const file of htmlFiles) {
         );
         assert(
           (ld.album ?? []).every(
-            (album) => !album.sameAs?.includes('https://www.musixmatch.com/artist/WETHEGODS'),
+            (album) =>
+              !(album.sameAs ?? []).some(
+                (url) => url === 'https://www.musixmatch.com/artist/WETHEGODS',
+              ),
           ),
           `${file}: the Musixmatch artist profile identifies the band, not an album`,
         );
