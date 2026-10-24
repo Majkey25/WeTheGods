@@ -10,7 +10,7 @@ Official website of **WeTheGods**, an alternative metalcore band from Uherské H
 [![Deploy](https://github.com/Majkey25/WeTheGods/actions/workflows/deploy.yml/badge.svg)](https://github.com/Majkey25/WeTheGods/actions/workflows/deploy.yml)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fmajkey25.github.io%2FWeTheGods%2F&label=site)](https://majkey25.github.io/WeTheGods/)
 [![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)](https://astro.build)
-[![Node](https://img.shields.io/badge/node-%E2%89%A522.22-339933?logo=nodedotjs&logoColor=white)](.nvmrc)
+[![Node](https://img.shields.io/badge/node-%E2%89%A522.23.4-339933?logo=nodedotjs&logoColor=white)](.nvmrc)
 [![Dependabot](https://img.shields.io/badge/dependabot-enabled-025E8C?logo=dependabot&logoColor=white)](.github/dependabot.yml)
 [![Last commit](https://img.shields.io/github/last-commit/Majkey25/WeTheGods)](https://github.com/Majkey25/WeTheGods/commits/main)
 
