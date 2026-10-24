@@ -7,6 +7,7 @@ export default defineConfig({
   site: 'https://majkey25.github.io',
   compressHTML: true,
   build: { inlineStylesheets: 'always' },
+  experimental: { parallelPrerender: { workers: 2 } },
   // YouTube thumbnails for videos added in the CMS without an uploaded image.
   image: { domains: ['i.ytimg.com'] },
   fonts: [
