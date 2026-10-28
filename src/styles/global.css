@@ -485,6 +485,12 @@ main > .section:first-child {
   animation: intro-out 2s linear forwards;
 }
 
+/* The fade only animates opacity so it stays on the compositor; without JS the faded overlay
+   is never removed, so it must let clicks through. */
+html:not(.js) .intro {
+  pointer-events: none;
+}
+
 .no-intro .intro {
   display: none;
 }
@@ -536,11 +542,9 @@ main > .section:first-child {
   0%,
   86% {
     opacity: 1;
-    visibility: visible;
   }
   100% {
     opacity: 0;
-    visibility: hidden;
   }
 }
 

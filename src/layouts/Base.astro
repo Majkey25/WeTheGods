@@ -134,9 +134,15 @@ const ld = about && {
     <meta name="twitter:image:alt" content={ogAlt} />
     <Font
       cssVariable="--font-display"
-      preload={[{ weight: page === '' ? 500 : 600, style: 'normal' }]}
+      preload={(page === 'about' ? [500, 600] : [page === '' ? 500 : 600]).map((weight) => ({
+        weight,
+        style: 'normal',
+      }))}
     />
-    <Font cssVariable="--font-body" preload={[{ subset: 'latin' }]} />
+    <Font
+      cssVariable="--font-body"
+      preload={(lang === 'cs' ? ['latin', 'latin-ext'] : ['latin']).map((subset) => ({ subset }))}
+    />
     <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
     <script is:inline>
       (() => {
