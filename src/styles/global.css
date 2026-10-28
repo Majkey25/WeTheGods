@@ -482,7 +482,11 @@ main > .section:first-child {
   place-items: center;
   overflow: hidden;
   background: var(--bg);
-  animation: intro-out 2s linear forwards;
+  /* The fade animates only opacity, so it stays on the compositor. A separate step hides the
+     finished overlay, so it never blocks input even if the script that removes it fails. */
+  animation:
+    intro-out 2s linear forwards,
+    intro-hide 0s 2s forwards;
 }
 
 .no-intro .intro {
@@ -536,10 +540,14 @@ main > .section:first-child {
   0%,
   86% {
     opacity: 1;
-    visibility: visible;
   }
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes intro-hide {
+  to {
     visibility: hidden;
   }
 }

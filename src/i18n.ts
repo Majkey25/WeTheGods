@@ -1,9 +1,9 @@
 const en = {
   locale: 'en-GB',
   meta: {
-    title: 'WeTheGods — Alternative metalcore from Czechia',
+    title: 'WeTheGods — Alternative metalcore band from Czechia',
     description:
-      'WeTheGods are an alternative metalcore band from Uherské Hradiště, Czechia. Explore their music, official videos, live photos, concert dates and booking contacts.',
+      'WeTheGods (We The Gods) are an alternative metalcore band from Uherské Hradiště, Czechia. Find music, official videos, concert dates and booking contacts.',
     titles: {
       shows: 'Concert dates & past shows — WeTheGods',
       music: 'Music, EPs & singles — WeTheGods',
@@ -16,7 +16,7 @@ const en = {
       shows:
         'Find WeTheGods concert dates and past shows, with venues, line-ups, event details and calendar downloads. Tickets are linked when available.',
       music:
-        'Listen to WeTheGods releases, explore EP tracklists and earlier singles, and choose your streaming service. Alternative metalcore from Czechia.',
+        'Listen to ONE, the debut EP by WeTheGods, with Y.E.B.A., Alone I Stand, Labyrinth of Lies, Illusions and Disconnect.exe. Explore earlier metalcore singles.',
       videos:
         'Watch official WeTheGods music videos and find more on the band’s YouTube channel. Videos play on request, with no YouTube connection before you choose to play.',
       about:
@@ -181,9 +181,9 @@ type Dict = typeof en;
 const cs: Dict = {
   locale: 'cs-CZ',
   meta: {
-    title: 'WeTheGods — Alternativní metalcore z Česka',
+    title: 'WeTheGods | Český metalcore z Uherského Hradiště',
     description:
-      'WeTheGods jsou alternativní metalcorová kapela z Uherského Hradiště. Objevte jejich hudbu, oficiální videoklipy, koncertní fotky, termíny koncertů a kontakt pro booking.',
+      'WeTheGods (We The Gods) jsou alternativní metalcore kapela z Uherského Hradiště. Objevte debutové EP ONE, videoklipy, termíny koncertů a kontakt pro booking.',
     titles: {
       shows: 'Termíny koncertů a proběhlé akce — WeTheGods',
       music: 'Hudba, EP a singly — WeTheGods',
@@ -196,7 +196,7 @@ const cs: Dict = {
       shows:
         'Prohlédněte si termíny koncertů WeTheGods a archiv proběhlých akcí. U každé najdete místo, sestavu kapel, detail a stažení do kalendáře, případně odkaz na vstupenky.',
       music:
-        'Poslechněte si vydání kapely WeTheGods, prohlédněte seznamy skladeb EP i starší singly a vyberte si streamovací službu. Alternativní metalcore z Česka.',
+        'Poslechněte si debutové EP ONE od WeTheGods: Y.E.B.A., Alone I Stand, Labyrinth of Lies, Illusions a Disconnect.exe. Objevte i starší metalcore singly.',
       videos:
         'Pusťte si oficiální videoklipy WeTheGods a najděte další videa na YouTube kanálu kapely. Spojení s YouTube vznikne až po vašem kliknutí na přehrání.',
       about:

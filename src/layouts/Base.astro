@@ -44,6 +44,7 @@ const speculation = { prerender: [{ where: { href_matches: `${base}*` }, eagerne
 
 const isBandPage = page === '' || page === 'about' || page === 'music';
 const [about] = isBandPage ? await getCollection('about') : [];
+const members = page === 'about' ? await getCollection('members') : [];
 const releases = page === '' || page === 'music' ? await getReleases() : [];
 const bandId = url(`${pageUrl('en')}#band`);
 const albums = await Promise.all(
@@ -83,6 +84,13 @@ const ld = about && {
   foundingDate: about.data.formed,
   foundingLocation: { '@type': 'Place', name: about.data.origin_en },
   sameAs: settings.socials.map((s) => s.url),
+  ...(members.length && {
+    member: members.map(({ data }) => ({
+      '@type': 'Person',
+      name: data.name,
+      ...(data.nickname && { alternateName: data.nickname }),
+    })),
+  }),
   ...(albums.length && { album: albums }),
 };
 ---
@@ -134,9 +142,15 @@ const ld = about && {
     <meta name="twitter:image:alt" content={ogAlt} />
     <Font
       cssVariable="--font-display"
-      preload={[{ weight: page === '' ? 500 : 600, style: 'normal' }]}
+      preload={(page === 'about' ? [500, 600] : [page === '' ? 500 : 600]).map((weight) => ({
+        weight,
+        style: 'normal',
+      }))}
     />
-    <Font cssVariable="--font-body" preload={[{ subset: 'latin' }]} />
+    <Font
+      cssVariable="--font-body"
+      preload={(lang === 'cs' ? ['latin', 'latin-ext'] : ['latin']).map((subset) => ({ subset }))}
+    />
     <Font cssVariable="--font-mono" preload={[{ subset: 'latin' }]} />
     <script is:inline>
       (() => {
