@@ -8,4 +8,4 @@ export function decodeEmail(encoded: string): string {
 }
 
 export const emailUri = (value: string) =>
-  `mailto:${encodeURIComponent(value).replace('%40', '@')}`;
+  `mailto:${encodeURIComponent(value).replaceAll('%40', '@')}`;
