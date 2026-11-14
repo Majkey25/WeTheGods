@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
+import { transform } from '@astrojs/compiler-rs';
 import { ScriptTarget, transpileModule } from 'typescript';
 
 const source = await readFile(new URL('../src/components/Hero.astro', import.meta.url), 'utf8');
-const script = /<script>([\s\S]*?)<\/script>/.exec(source)?.[1];
+const script = transform(source).scripts.find((script) => script.type === 'inline')?.code;
 assert(script, 'Hero must contain its browser script');
 const { outputText } = transpileModule(script, {
   compilerOptions: { target: ScriptTarget.ES2022 },
