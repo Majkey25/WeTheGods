@@ -9,17 +9,22 @@
         "http://localhost/music/",
         "http://localhost/about/",
         "http://localhost/contact/",
-        "http://localhost/gallery/"
+        "http://localhost/gallery/",
+        "http://localhost/videos/",
+        "http://localhost/cs/music/",
+        "http://localhost/cs/gallery/"
       ],
       "numberOfRuns": 3
     },
     "assert": {
       "assertions": {
         "categories:performance": ["error", { "minScore": 0.8 }],
+        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
         "cumulative-layout-shift": [
           "error",
           { "maxNumericValue": 0.1, "aggregationMethod": "median" }
         ],
+        "total-byte-weight": ["error", { "maxNumericValue": 1200000 }],
         "categories:accessibility": ["error", { "minScore": 0.95 }],
         "categories:best-practices": ["error", { "minScore": 0.95 }],
         "categories:seo": ["error", { "minScore": 0.95 }]

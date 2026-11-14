@@ -94,17 +94,17 @@ const href = (url: string) =>
   const hero = document.querySelector<HTMLElement>('.hero');
   const video = hero?.querySelector('video');
   const button = hero?.querySelector<HTMLButtonElement>('.hero__toggle');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   // Skip the loop when the visitor asked to save data or is on a slow connection.
   const connection = (
     navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
   ).connection;
   const lowData = connection?.saveData || /(^|-)(2g|3g)$/.test(connection?.effectiveType ?? '');
 
-  if (hero && video && button && !reduced && !lowData) {
+  if (hero && video && button && !lowData) {
     let started = false;
     let paused = false;
-    let visible = true;
+    let visible = false;
     const render = () => {
       button.dataset.paused = String(paused);
       button.setAttribute(
@@ -113,10 +113,14 @@ const href = (url: string) =>
       );
     };
     const update = () => {
+      button.hidden = !started || reduced.matches;
       // Autoplay can be refused (e.g. power saving); the poster stays visible then.
-      if (started && !paused && visible) video.play().catch(() => {});
+      if (started && !paused && visible && !document.hidden && !reduced.matches)
+        video.play().catch(() => {});
       else video.pause();
     };
+    document.addEventListener('visibilitychange', update);
+    reduced.addEventListener('change', update);
     video.addEventListener('playing', () => hero.classList.add('is-playing'), { once: true });
     button.addEventListener('click', () => {
       paused = !paused;
@@ -132,8 +136,6 @@ const href = (url: string) =>
     // Start after the page has loaded so the video never competes with first paint.
     const start = () => {
       started = true;
-      video.preload = 'auto';
-      button.hidden = false;
       update();
     };
     if (document.readyState === 'complete') start();
