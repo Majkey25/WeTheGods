@@ -296,6 +296,7 @@ const sizes = (i: number) =>
     border: 0;
     color: #eeece6;
     background: rgb(6 6 7 / 0.96);
+    touch-action: pan-y pinch-zoom;
   }
 
   .lightbox::backdrop {
@@ -319,7 +320,6 @@ const sizes = (i: number) =>
     max-height: calc(100dvh - 11rem);
     width: auto;
     object-fit: contain;
-    touch-action: pan-y;
   }
 
   .lightbox__caption {
