@@ -335,11 +335,14 @@ const ld = about && {
       // Theme switch, animated with a view transition where supported.
       const toggle = document.querySelector<HTMLButtonElement>('.theme');
       const themeColor = document.querySelector('meta[name="theme-color"]');
+      let requestedTheme = root.dataset.theme;
+      let themeTransition: ViewTransition | undefined;
       const sync = () =>
         toggle?.setAttribute('aria-pressed', String(root.dataset.theme === 'light'));
       sync();
       toggle?.addEventListener('click', () => {
-        const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+        const next = requestedTheme === 'light' ? 'dark' : 'light';
+        requestedTheme = next;
         const apply = () => {
           root.dataset.theme = next;
           themeColor?.setAttribute('content', next === 'light' ? '#efede7' : '#0a0a0b');
@@ -350,7 +353,12 @@ const ld = about && {
           }
           sync();
         };
-        if (!document.startViewTransition || reduced.matches) return apply();
+        if (!document.startViewTransition || reduced.matches) {
+          themeTransition?.skipTransition();
+          themeTransition = undefined;
+          root.classList.remove('theme-switching');
+          return apply();
+        }
         const box = toggle.getBoundingClientRect();
         const x = box.left + box.width / 2;
         const y = box.top + box.height / 2;
@@ -361,15 +369,23 @@ const ld = about && {
           `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))}px`,
         );
         root.classList.add('theme-switching');
-        document
-          .startViewTransition(apply)
-          .finished.finally(() => root.classList.remove('theme-switching'));
+        const transition = document.startViewTransition(() => {
+          if (themeTransition === transition) apply();
+        });
+        themeTransition = transition;
+        void transition.ready.catch(() => {});
+        const finish = () => {
+          if (themeTransition !== transition) return;
+          themeTransition = undefined;
+          root.classList.remove('theme-switching');
+        };
+        void transition.finished.then(finish, finish);
       });
 
       // Intro: any input skips it; it leaves the DOM once finished.
       const intro = document.querySelector('.intro');
       if (intro) {
-        if (root.classList.contains('no-intro')) intro.remove();
+        if (reduced.matches || root.classList.contains('no-intro')) intro.remove();
         else {
           const events = new AbortController();
           const done = () => {
@@ -381,6 +397,9 @@ const ld = about && {
           });
           intro.addEventListener('pointerdown', done, { signal: events.signal });
           addEventListener('keydown', done, { once: true, signal: events.signal });
+          reduced.addEventListener('change', (event) => event.matches && done(), {
+            signal: events.signal,
+          });
         }
       }
 
